@@ -96,7 +96,7 @@ routes:
     # Each route describes how an incoming URL is going
     # to be processed by Upsun.
 
-    "https://www.artetecha.com/":
+    "https://www.{default}/":
         type: upstream
         upstream: "app:http"
         cache:
@@ -109,6 +109,6 @@ routes:
                 - "/^wp-settings-/"
                 - "/^wp-postpass/"
 
-    "https://artetecha.com/":
+    "https://{default}/":
         type: redirect
-        to: "https://www.artetecha.com/"
+        to: "https://www.{default}/":

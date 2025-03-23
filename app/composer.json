@@ -44,7 +44,7 @@
 	"wpackagist-plugin/wp-rss-aggregator": "^4.19"
   },
   "distro": {
-	"default-theme": "twentytwentyfour",
+	"default-theme": "Avada",
 	"enable-plugins": [
 	  "akismet",
 	  "elasticpress",
