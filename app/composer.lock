@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c8c9ece66412fbdae4b8696e82094256",
+    "content-hash": "1e1128c079d3e50c99c27f908161d3fa",
     "packages": [
         {
             "name": "composer/installers",
@@ -350,6 +350,24 @@
             },
             "type": "wordpress-plugin",
             "homepage": "https://wordpress.org/plugins/elasticpress/"
+        },
+        {
+            "name": "wpackagist-plugin/embed-github-gist",
+            "version": "0.13",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/embed-github-gist/",
+                "reference": "tags/0.13"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/embed-github-gist.0.13.zip"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/embed-github-gist/"
         },
         {
             "name": "wpackagist-plugin/jetpack",

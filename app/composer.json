@@ -41,7 +41,8 @@
 		"wpackagist-plugin/wp-cloudflare-page-cache": "^5.0.0",
 		"wpackagist-plugin/redis-cache": "^2.0.2",
 		"wpackagist-plugin/elasticpress": "^5.0.0",
-		"wpackagist-plugin/wp-rss-aggregator": "^4.19"
+		"wpackagist-plugin/wp-rss-aggregator": "^4.19",
+		"wpackagist-plugin/embed-github-gist": "^0.13"
 	},
 	"distro": {
 		"default-theme": "Avada",
@@ -49,6 +50,7 @@
 			"akismet",
 			"contact-form-7",
 			"elasticpress",
+			"embed-github-gist",
 			"fusion-builder",
 			"fusion-core",
 			"jetpack",
@@ -81,7 +83,7 @@
 		},
 		"wp-translation-downloader": {
 			"languages": [
-				"it_IT"
+				"en_GB"
 			],
 			"directory": "wordpress/wp-content/languages"
 		}
