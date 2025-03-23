@@ -1,0 +1,66 @@
+{
+    "lovecraft": {
+        "translations": {
+            "it_IT": {
+                "updated": "2023-04-14 12:43:23",
+                "version": "2.1.1"
+            }
+        }
+    },
+    "wordpress-importer": {
+        "translations": {
+            "it_IT": {
+                "updated": "2024-07-31 21:55:40",
+                "version": "0.8.3"
+            }
+        }
+    },
+    "akismet": {
+        "translations": {
+            "it_IT": {
+                "updated": "2025-02-04 21:21:56",
+                "version": "5.3.7"
+            }
+        }
+    },
+    "really-simple-ssl": {
+        "translations": {
+            "it_IT": {
+                "updated": "2024-09-17 07:32:15",
+                "version": "9.3.2"
+            }
+        }
+    },
+    "wp-rss-aggregator": {
+        "translations": {
+            "it_IT": {
+                "updated": "2024-01-27 18:59:51",
+                "version": "4.23.13"
+            }
+        }
+    },
+    "wpforms-lite": {
+        "translations": {
+            "it_IT": {
+                "updated": "2025-03-07 12:35:00",
+                "version": "1.9.4.2"
+            }
+        }
+    },
+    "jetpack": {
+        "translations": {
+            "it_IT": {
+                "updated": "2025-03-04 14:20:12",
+                "version": "14.4.1"
+            }
+        }
+    },
+    "wordpress-core": {
+        "translations": {
+            "it_IT": {
+                "updated": "2025-03-06 16:58:04",
+                "version": "6.7.2"
+            }
+        }
+    }
+}
