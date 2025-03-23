@@ -111,4 +111,4 @@ routes:
 
     "https://{default}/":
         type: redirect
-        to: "https://www.{default}/":
+        to: "https://www.{default}/"
