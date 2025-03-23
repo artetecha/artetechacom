@@ -54,7 +54,7 @@
 			"jetpack",
 			"really-simple-ssl",
 			"redis-cache",
-			"wp-cloudflare-page-cache",
+			"wp-cloudflare-page-cache"
 		]
 	},
 	"scripts": {
