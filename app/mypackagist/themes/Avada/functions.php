@@ -19,11 +19,11 @@ if ( ! defined( 'AVADA_VERSION' ) ) {
 }
 
 if ( ! defined( 'AVADA_MIN_PHP_VER_REQUIRED' ) ) {
-	define( 'AVADA_MIN_PHP_VER_REQUIRED', '7.4' );
+	define( 'AVADA_MIN_PHP_VER_REQUIRED', '5.6' );
 }
 
 if ( ! defined( 'AVADA_MIN_WP_VER_REQUIRED' ) ) {
-	define( 'AVADA_MIN_WP_VER_REQUIRED', '5.7' );
+	define( 'AVADA_MIN_WP_VER_REQUIRED', '4.9' );
 }
 
 // Developer mode.
