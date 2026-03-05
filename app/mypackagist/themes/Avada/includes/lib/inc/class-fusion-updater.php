@@ -151,6 +151,7 @@ final class Fusion_Updater {
 							'slug'        => dirname( $plugin_file ),
 							'plugin'      => $plugin_file,
 							'new_version' => $plugins_info[ $bundled_plugin_slug ]['version'],
+							'tested'      => '6.8',
 							'url'         => '',
 							'package'     => '',
 							'icons'       => [

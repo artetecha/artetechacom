@@ -37,6 +37,7 @@ class Avada_EventsCalendar {
 	 * @access public
 	 */
 	public function __construct() {
+		add_action( 'wp', [ $this, 'disable_page_template_hijacking' ], 10 );
 		add_action( 'avada_before_main_container', [ $this, 'correct_main_query' ], 10 );
 
 		add_action( 'tribe_events_before_the_title', [ $this, 'before_the_title' ] );
@@ -87,6 +88,21 @@ class Avada_EventsCalendar {
 		// When widgets are disabled, make sure the single event sidebar still shows.
 		add_action( 'wp', [ $this, 'add_single_event_sidebar' ], 20 );
 	}
+
+	/**
+	 * If we are on a single event post, that uses a content layout, then there is no reason for TEC to hijack the page template,
+	 * so we should disable it. This helps to avoid that any subsequent queries, like for Post Cards, actually trigger their hijack 
+	 * and produce incorrect markup.
+	 *
+	 * @access public
+	 * @since 7.15
+	 * @return void
+	 */ 	
+	public function disable_page_template_hijacking() {
+		if ( ( function_exists( 'Fusion_Template_Builder' ) && Fusion_Template_Builder()->get_override( 'content' ) && tribe_is_event( get_queried_object_id() ) ) || ( fusion_is_preview_frame() && 'fusion_tb_section' === get_post_type() && has_term( 'content', 'fusion_tb_category' ) ) ) {
+			add_filter( 'tribe_events_views_v2_should_hijack_page_template', '__return_false' );
+		}
+	}
 	
 	/**
 	 * If a Post Card (or similar) gets rendered before the main content, the hijacking of the TEC query and template fail.
@@ -97,7 +113,7 @@ class Avada_EventsCalendar {
 	 * @return void
 	 */ 
 	public function correct_main_query() {
-		if ( tribe_is_events_home() || tribe_is_event( get_queried_object_id() ) ) {
+		if ( tribe_is_events_home() || tribe_is_event( get_queried_object_id() ) || ( function_exists( 'tec_is_venue_view' ) && tec_is_venue_view() ) || ( function_exists( 'tec_is_organizer_view' ) && tec_is_organizer_view() ) ) {
 			$page_template = tribe( Tribe\Events\Views\V2\Template\Page::class );
 
 			if ( $page_template->has_hijacked_posts() ) {
@@ -543,7 +559,9 @@ class Avada_EventsCalendar {
 	public function add_single_events_meta_sidebar() {
 		if ( $this->has_legacy_meta_sidebar() ) {
 			do_action( 'tribe_events_single_event_before_the_meta' );
+			ob_start();
 			tribe_get_template_part( 'modules/meta' );
+			echo apply_filters( 'privacy_iframe_embed', ob_get_clean() );
 		}
 	}
 

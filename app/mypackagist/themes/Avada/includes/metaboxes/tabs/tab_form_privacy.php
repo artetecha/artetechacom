@@ -35,7 +35,7 @@ function avada_page_options_tab_form_privacy( $sections ) {
 			],
 			'privacy_expiration_interval' => [
 				'type'        => 'text',
-				'label'       => esc_html__( 'Submission Expiration Time(Months)', 'Avada' ),
+				'label'       => esc_html__( 'Submission Expiration Time (Months)', 'Avada' ),
 				'description' => esc_html__( 'Set the number of months after which form submissions will expire. Choose the expiration action below.', 'Avada' ),
 				'id'          => 'privacy_expiration_interval',
 				'default'     => '48',
@@ -44,7 +44,7 @@ function avada_page_options_tab_form_privacy( $sections ) {
 			'privacy_expiration_action'   => [
 				'type'        => 'select',
 				'label'       => esc_html__( 'Submission Expiration Action', 'Avada' ),
-				'description' => esc_html__( 'Choose what should happen after form submissions expire (as set above). If you have selected to log the user\'s IP & UA above, selecting "Anonymize" will delete these from the log. If you want old entries to be deleted automatically after thex expire, then select "Delete".', 'Avada' ),
+				'description' => esc_html__( 'Choose what should happen after form submissions expire (as set above). If you have selected to log the user\'s IP & UA above, selecting "Anonymize" will delete these from the log. If you want old entries to be deleted automatically after they expire, then select "Delete".', 'Avada' ),
 				'id'          => 'privacy_expiration_action',
 				'default'     => 'anonymize',
 				'dependency'  => [],

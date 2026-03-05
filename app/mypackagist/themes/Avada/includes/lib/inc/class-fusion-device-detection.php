@@ -67,6 +67,17 @@ class Fusion_Device_Detection {
 	public function is_tablet() {
 		return apply_filters( 'awb_device_detection_is_tablet', call_user_func( [ $this->detection, 'is_tablet' ] ) );
 	}
+
+	/**
+	 * Returns full available info.
+	 *
+	 * @access public
+	 * @since 3.4
+	 * @return boolean
+	 */
+	public function get_info() {
+		return apply_filters( 'awb_device_info', call_user_func( [ $this->detection, 'get_info' ] ) );
+	}
 }
 
 /* Omit closing PHP tag to avoid 'Headers already sent' issues. */

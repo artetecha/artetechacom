@@ -1412,7 +1412,9 @@ class AWB_Setup_Wizard {
 			<header class="avada-db-header-main">
 				<div class="avada-db-header-main-container">
 					<a class="avada-db-logo" href="<?php echo esc_url( admin_url( 'admin.php?page=avada' ) ); ?>" aria-label="<?php esc_attr_e( 'Link to Avada dashboard', 'Avada' ); ?>">
-						<i class="avada-db-logo-icon fusiona-avada-logo"></i>
+						<div class="avada-db-logo-image avada-db-logo-image-clipped">
+							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/logo.svg' ); ?>" alt="<?php esc_html_e( 'Avada', 'Avada' ); ?>" width="115" height="25" />
+						</div>
 						<div class="heading"><?php esc_html_e( 'Setup Wizard', 'Avada' ); ?></div>
 					</a>
 					<div class="wizard-hero-header">

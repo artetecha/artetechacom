@@ -523,7 +523,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<h3 class="wizard-sep-heading"><?php esc_html_e( 'Image & Video Optimization', 'fusion-builder' ); ?></h3>
 		<?php
+		echo $metaboxes->radio_buttonset( $options['upload_image_format']['id'], $options['upload_image_format']['label'], $options['upload_image_format']['choices'], $options['upload_image_format']['description'], $options['upload_image_format']['default'], [], 'webp,avif' );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
+		<p class="wizard-recommendation"><i class="fusiona-af-rating"></i><?php esc_html_e( 'Recommend setting to webP or AVIF.', 'Avada' ); ?></p>
+		
+		<?php
 		echo $metaboxes->range( $options['pw_jpeg_quality']['id'], $options['pw_jpeg_quality']['label'], $options['pw_jpeg_quality']['description'], $options['pw_jpeg_quality']['choices']['min'], $options['pw_jpeg_quality']['choices']['max'], $options['pw_jpeg_quality']['choices']['step'], $options['pw_jpeg_quality']['default'] );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
+		<p class="wizard-recommendation"><i class="fusiona-af-rating"></i><?php esc_html_e( 'Recommend setting to around 80 to balance file size and quality.', 'Avada' ); ?></p>
+
+		<?php
+		echo $metaboxes->range( $options['webp_image_quality']['id'], $options['webp_image_quality']['label'], $options['webp_image_quality']['description'], $options['webp_image_quality']['choices']['min'], $options['webp_image_quality']['choices']['max'], $options['webp_image_quality']['choices']['step'], $options['webp_image_quality']['default'] );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 		<p class="wizard-recommendation"><i class="fusiona-af-rating"></i><?php esc_html_e( 'Recommend setting to around 80 to balance file size and quality.', 'Avada' ); ?></p>
 
@@ -531,6 +541,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 		echo $metaboxes->range( $options['wp_big_image_size_threshold']['id'], $options['wp_big_image_size_threshold']['label'], $options['wp_big_image_size_threshold']['description'], $options['wp_big_image_size_threshold']['choices']['min'], $options['wp_big_image_size_threshold']['choices']['max'], $options['wp_big_image_size_threshold']['choices']['step'], $options['wp_big_image_size_threshold']['default'] );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 		<p class="wizard-recommendation"><i class="fusiona-af-rating"></i><?php esc_html_e( 'Recommend setting to around 2560 to balance file size and quality on very large displays.', 'Avada' ); ?></p>
+
+		<?php
+		echo $metaboxes->multiple( $options['awb_image_sizes']['id'], $options['awb_image_sizes']['label'], $options['awb_image_sizes']['choices'], $options['awb_image_sizes']['description'] );
+		?>
+		<p class="wizard-recommendation"><i class="fusiona-af-rating"></i><?php esc_html_e( 'Recommend using only non-legacy formats.', 'Avada' ); ?></p>
 
 		<?php
 		echo $metaboxes->radio_buttonset( $options['lazy_load']['id'], $options['lazy_load']['label'], $options['lazy_load']['choices'], $options['lazy_load']['description'], $options['lazy_load']['default'], [], 'avada' );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -570,7 +585,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<p class="wizard-recommendation"><i class="fusiona-af-rating"></i><?php esc_html_e( 'Strongly recommend setting to file method.', 'Avada' ); ?></p>
 
 		<?php
-		echo $metaboxes->radio_buttonset( $options['css_combine_third_party_assets']['id'], $options['css_combine_third_party_assets']['label'], $on_off, $options['css_combine_third_party_assets']['description'], $options['css_combine_third_party_assets']['default'], [], '1' );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $metaboxes->multiple( $options['css_combine_third_party_assets']['id'], $options['css_combine_third_party_assets']['label'], $options['css_combine_third_party_assets']['choices'], $options['css_combine_third_party_assets']['description'] );
 		?>
 		<p class="wizard-recommendation"><i class="fusiona-af-rating"></i><?php esc_html_e( 'Recommend enabling.', 'Avada' ); ?></p>
 

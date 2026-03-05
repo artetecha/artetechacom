@@ -22,7 +22,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return array
  */
 function avada_options_section_forms( $sections ) {
-
 	$contact_page_callback = [
 		[
 			'where'     => 'postMeta',
@@ -199,8 +198,8 @@ function avada_options_section_forms( $sections ) {
 						],
 					],
 					'form_border_radius'                => [
-						'label'       => esc_html__( 'Form Border Radius', 'fusion-builder' ),
-						'description' => esc_html__( 'Controls the border radius of the form fields. Also works, if border size is set to 0.', 'fusion-builder' ),
+						'label'       => esc_html__( 'Form Border Radius', 'Avada' ),
+						'description' => esc_html__( 'Controls the border radius of the form fields. Also works, if border size is set to 0.', 'Avada' ),
 						'id'          => 'form_border_radius',
 						'default'     => '6',
 						'type'        => 'slider',
@@ -217,6 +216,18 @@ function avada_options_section_forms( $sections ) {
 							],
 						],
 					],
+					'form_views'                 => [
+						'label'       => esc_html__( 'Form Views Counter', 'Avada' ),
+						'description' => esc_html__( 'Set the method to update the form views, or disable them entirely. "Page Load" option will update using PHP when a page is retrieved. "Ajax" will send an additional request after the page loads.', 'Avada' ),
+						'id'          => 'form_views',
+						'default'     => 'ajax',
+						'type'        => 'radio-buttonset',
+						'choices'     => [
+							'page_load' => esc_html__( 'Page Load', 'Avada' ),
+							'ajax'      => esc_html__( 'Ajax', 'Avada' ),
+							'disabled'  => esc_html__( 'Disabled', 'Avada' ),
+						],
+					],
 					'form_views_counting'               => [
 						'label'       => esc_html__( 'Form Views Counting', 'Avada' ),
 						'description' => esc_html__( 'Select which types of users will increase the form views on visit.', 'Avada' ),
@@ -228,6 +239,204 @@ function avada_options_section_forms( $sections ) {
 							'logged_out' => esc_html__( 'Logged Out', 'Avada' ),
 							'non_admins' => esc_html__( 'Non-Admins', 'Avada' ),
 						],
+					],
+					'forms_enable_flatpickr_localization' => [
+						'label'       => esc_html__( 'Enable Date/Time Picker Localization', 'Avada' ),
+						'description' => esc_html__( 'If your site is using a language other than English, enabling this option will load the localization file, fitting your WordPress language setting, via a CDN.', 'Avada' ),
+						'id'          => 'forms_enable_flatpickr_localization',
+						'default'     => '0',
+						'type'        => 'switch',
+						'transport'   => 'postMessage',
+					],
+				],
+			],
+			'turnstile_section'     => [
+				'label'       => esc_html__( 'Cloudflare Turnstile', 'Avada' ),
+				'description' => '',
+				'id'          => 'turnstile_section',
+				'type'        => 'sub-section',
+				'fields'      => [
+					'turnstile_site_key'         => [
+						'label'       => esc_html__( 'Site Key', 'Avada' ),
+						/* translators: "our docs" link. */
+						'description' => sprintf( esc_html__( 'Follow the steps in %s to create/access your site key.', 'Avada' ), '<a href="https://developers.cloudflare.com/turnstile/get-started/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Cloudflare Turnstile docs', 'Avada' ) . '</a>' ),
+						'id'          => 'turnstile_site_key',
+						'default'     => '',
+						'type'        => 'text',
+						'transport'   => 'postMessage',
+					],
+					'turnstile_secret_key'         => [
+						'label'       => esc_html__( 'Secret Key', 'Avada' ),
+						/* translators: "our docs" link. */
+						'description' => sprintf( esc_html__( 'Follow the steps in %s to create/access your secret key.', 'Avada' ), '<a href="https://developers.cloudflare.com/turnstile/get-started/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Cloudflare Turnstile docs', 'Avada' ) . '</a>' ),
+						'id'          => 'turnstile_secret_key',
+						'default'     => '',
+						'type'        => 'text',
+						'transport'   => 'postMessage',
+					],
+					'turnstile_appearance'         => [
+						'type'        => 'radio-buttonset',
+						'label  '     => esc_html__( 'Appearance Mode', 'Avada' ),
+						'description' => esc_html__( 'Choose the Turnstile appearance mode. "Always" will display the widget on page load in any case, while "Interaction Only" will make it visible only when visitor interaction is required.', 'Avada' ),
+						'id'          => 'turnstile_appearance',
+						'default'     => 'always',
+						'choices'     => [
+							'always'           => esc_html__( 'Always', 'Avada' ),
+							'interaction-only' => esc_html__( 'Interaction Only', 'Avada' ),
+						],
+					],
+					'turnstile_theme'         => [
+						'type'        => 'radio-buttonset',
+						'label'       => esc_html__( 'Color Scheme', 'Avada' ),
+						'description' => esc_html__( 'Choose the Turnstile color scheme.', 'Avada' ),
+						'id'          => 'turnstile_theme',
+						'default'     => 'auto',
+						'choices'     => [
+							'auto'  => esc_html__( 'Auto', 'Avada' ),
+							'light' => esc_html__( 'Light', 'Avada' ),
+							'dark'  => esc_html__( 'Dark', 'Avada' ),
+						],
+					],
+					'turnstile_size'         => [
+						'type'        => 'radio-buttonset',
+						'label'       => esc_html__( 'Widget Size', 'Avada' ),
+						'description' => esc_html__( 'Choose the Turnstile widget size.', 'Avada' ),
+						'id'          => 'turnstile_size',
+						'default'     => 'normal',
+						'choices'     => [
+							'normal'   => esc_attr__( 'Normal (300px)', 'Avada' ),
+							'flexible' => esc_attr__( 'Flexible (100%)', 'Avada' ),
+							'compact'  => esc_attr__( 'Compact (150px)', 'Avada' ),
+						],
+					],
+					'turnstile_language'         => [
+						'type'        => 'select',
+						'label'       => esc_html__( 'Language', 'Avada' ),
+						'description' => esc_html__( 'Choose the Turnstile widget language.', 'Avada' ),
+						'id'          => 'turnstile_language',
+						'default'     => 'auto',
+						'choices'     => AWB_Cloudflare_Turnstile::get_language_array(),
+					],
+					'turnstile_comment_form'   => [
+						'label'       => esc_html__( 'Turnstile For Comments', 'Avada' ),
+						'description' => esc_html__( 'Turn on to add Turnstile to comment forms.', 'Avada' ),
+						'id'          => 'turnstile_comment_form',
+						'default'     => '0',
+						'type'        => 'switch',
+					],
+				],
+			],
+			'recaptcha_section'     => [	
+				'label'    => esc_html__( 'Google reCaptcha', 'Avada' ),
+				'id'       => 'recaptcha_section',
+				'type'     => 'sub-section',
+				'fields'   => [
+					'recaptcha_version'        => [
+						'label'           => esc_html__( 'reCAPTCHA Version', 'Avada' ),
+						'description'     => esc_html__( 'Set the reCAPTCHA version you want to use and make sure your keys below match the set version.', 'Avada' ),
+						'id'              => 'recaptcha_version',
+						'default'         => 'v3',
+						'type'            => 'radio-buttonset',
+						'choices'         => [
+							'v2' => esc_html__( 'V2', 'Avada' ),
+							'v3' => esc_html__( 'V3', 'Avada' ),
+						],
+						'update_callback' => $contact_page_callback,
+					],
+					'recaptcha_public'         => [
+						'label'       => esc_html__( 'reCAPTCHA Site Key', 'Avada' ),
+						/* translators: "our docs" link. */
+						'description' => sprintf( esc_html__( 'Follow the steps in %s to get the site key.', 'Avada' ), '<a href="https://avada.com/documentation/how-to-set-up-google-recaptcha/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'our docs', 'Avada' ) . '</a>' ),
+						'id'          => 'recaptcha_public',
+						'default'     => '',
+						'type'        => 'text',
+						// This option doesn't require updating the preview.
+						'transport'   => 'postMessage',
+					],
+					'recaptcha_private'        => [
+						'label'       => esc_html__( 'reCAPTCHA Secret Key', 'Avada' ),
+						/* translators: "our docs" link. */
+						'description' => sprintf( esc_html__( 'Follow the steps in %s to get the secret key.', 'Avada' ), '<a href="https://avada.com/documentation/how-to-set-up-google-recaptcha/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'our docs', 'Avada' ) . '</a>' ),
+						'id'          => 'recaptcha_private',
+						'default'     => '',
+						'type'        => 'text',
+						// This option doesn't require updating the preview.
+						'transport'   => 'postMessage',
+					],
+					'recaptcha_color_scheme'   => [
+						'label'           => esc_html__( 'reCAPTCHA Color Scheme', 'Avada' ),
+						'description'     => esc_html__( 'Controls the reCAPTCHA color scheme.', 'Avada' ),
+						'id'              => 'recaptcha_color_scheme',
+						'default'         => 'light',
+						'type'            => 'radio-buttonset',
+						'choices'         => [
+							'light' => esc_html__( 'Light', 'Avada' ),
+							'dark'  => esc_html__( 'Dark', 'Avada' ),
+						],
+						'required'        => [
+							[
+								'setting'  => 'recaptcha_version',
+								'operator' => '==',
+								'value'    => 'v2',
+							],
+						],
+						'update_callback' => $contact_page_callback,
+					],
+					'recaptcha_score'          => [
+						'label'       => esc_html__( 'reCAPTCHA Security Score', 'Avada' ),
+						'description' => esc_html__( 'Set a threshold score that must be met by the reCAPTCHA response. The higher the score the harder it becomes for bots, but also false positives increase.', 'Avada' ),
+						'id'          => 'recaptcha_score',
+						'default'     => '0.5',
+						'type'        => 'slider',
+						'choices'     => [
+							'min'  => '0.1',
+							'max'  => '1',
+							'step' => '0.1',
+						],
+						'required'    => [
+							[
+								'setting'  => 'recaptcha_version',
+								'operator' => '==',
+								'value'    => 'v3',
+							],
+						],
+						// This option doesn't require updating the preview.
+						'transport'   => 'postMessage',
+					],
+					'recaptcha_badge_position' => [
+						'label'           => esc_html__( 'reCAPTCHA Badge Position', 'Avada' ),
+						'description'     => __( 'Set where and if the reCAPTCHA badge should be displayed. <strong>NOTE:</strong> Google\'s Terms and Privacy information needs to be displayed on the contact form.', 'Avada' ),
+						'id'              => 'recaptcha_badge_position',
+						'default'         => 'inline',
+						'type'            => 'radio-buttonset',
+						'choices'         => [
+							'inline'      => esc_html__( 'Inline', 'Avada' ),
+							'bottomleft'  => esc_html__( 'Bottom Left', 'Avada' ),
+							'bottomright' => esc_html__( 'Bottom Right', 'Avada' ),
+							'hide'        => esc_html__( 'Hide', 'Avada' ),
+						],
+						'required'        => [
+							[
+								'setting'  => 'recaptcha_version',
+								'operator' => '==',
+								'value'    => 'v3',
+							],
+						],
+						'update_callback' => $contact_page_callback,
+					],
+					'recaptcha_login_form'     => [
+						'label'       => esc_html__( 'reCAPTCHA For User Elements', 'Avada' ),
+						'description' => esc_html__( 'Turn on to add reCAPTCHA to the user login, user lost password and user registration forms.', 'Avada' ),
+						'id'          => 'recaptcha_login_form',
+						'default'     => '0',
+						'type'        => 'switch',
+					],
+					'recaptcha_comment_form'   => [
+						'label'       => esc_html__( 'reCAPTCHA For Comments', 'Avada' ),
+						'description' => esc_html__( 'Turn on to add reCAPTCHA to comment forms.', 'Avada' ),
+						'id'          => 'recaptcha_comment_form',
+						'default'     => '0',
+						'type'        => 'switch',
 					],
 				],
 			],

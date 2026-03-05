@@ -105,7 +105,9 @@ $events_label_plural = tribe_get_event_label_plural();
 					<?php do_action( 'tribe_events_single_event_before_the_meta' ); ?>
 					<div class="fusion-content-widget-area fusion-event-meta-columns fusion-event-meta-columns-<?php echo esc_attr( $columns ) . esc_attr( $layout_class ); ?>">
 						<div class="fusion-event-meta-wrapper">
+							<?php ob_start(); ?>
 							<?php tribe_get_template_part( 'modules/meta' ); ?>
+							<?php echo apply_filters( 'privacy_iframe_embed', ob_get_clean() ); ?>
 						</div>
 					</div>
 				<?php endif; ?>

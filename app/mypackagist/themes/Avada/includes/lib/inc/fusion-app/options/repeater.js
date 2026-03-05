@@ -84,7 +84,6 @@ FusionPageBuilder.options.fusionRepeaterField = {
 
 			if ( ! _.isEmpty( values ) ) {
 				if ( 'string' === typeof values ) {
-					values = JSON.parse( values );
 					try {
 						values = JSON.parse( values );
 					} catch ( e ) {
@@ -126,20 +125,22 @@ FusionPageBuilder.options.fusionRepeaterField = {
 
 				if ( '' !== rowTitle && 'object' === typeof titleField && 'select' === titleField.type && ( 'object' === typeof titleField.choices || 'object' === typeof titleField.value ) ) {
 					switch ( this.context ) {
-					case 'TO':
-					case 'FBE':
-					case 'PO':
-						rowTitle = titleField.choices ? titleField.choices[ rowTitle ] : rowTitle;
-						break;
+						case 'TO':
+						case 'FBE':
+						case 'PO':
+							rowTitle = titleField.choices ? titleField.choices[ rowTitle ] : rowTitle;
+							break;
 
-					default:
-						rowTitle = titleField.value ? titleField.value[ rowTitle ] : rowTitle;
-						break;
+						default:
+							rowTitle = titleField.value ? titleField.value[ rowTitle ] : rowTitle;
+							break;
 					}
 				}
 				if ( '' === rowTitle && 'undefined' !== typeof option.row_title ) {
 					rowTitle = option.row_title;
 				}
+
+				rowTitle = 'undefined' !== typeof option.title_prefix ? option.title_prefix + ' ' + rowTitle : rowTitle;
 
 				self.createRepeaterRow( fields, values[ index ], $target, rowTitle );
 			} );
@@ -148,12 +149,18 @@ FusionPageBuilder.options.fusionRepeaterField = {
 			if ( '' === rowTitle && 'undefined' !== typeof option.row_title ) {
 				rowTitle = option.row_title;
 			}
+
+			rowTitle = 'undefined' !== typeof option.title_prefix ? option.title_prefix + ' ' + rowTitle : rowTitle;
+
 			self.createRepeaterRow( fields, {}, $target, rowTitle );
 		}
 
 		// Repeater row add click event.
 		$repeater.on( 'click', '.repeater-row-add', function( event ) {
 			var newRowTitle = 'undefined' !== typeof option.row_title ? option.row_title : false;
+
+			newRowTitle = 'undefined' !== typeof option.title_prefix ? option.title_prefix + ' ' + newRowTitle : newRowTitle;
+
 			event.preventDefault();
 			self.createRepeaterRow( fields, {}, $target, newRowTitle );
 		} );
@@ -248,6 +255,7 @@ FusionPageBuilder.options.fusionRepeaterField = {
 				context: self.context,
 				rowId: self.repeaterRowId
 			};
+
 			$html += jQuery( repeater( attributes ) ).html();
 		} );
 
@@ -260,7 +268,9 @@ FusionPageBuilder.options.fusionRepeaterField = {
 			this.addRepeaterRowData( $target, fields );
 		}
 
-		if ( 'function' === typeof this.initOptions ) {
+		if ( 'function' === typeof this.debouncedInitOptions ) {
+			this.debouncedInitOptions( $target.children( 'div:last-child' ) );
+		} else if ( 'function' === typeof this.initOptions ) {
 			this.initOptions( $target.children( 'div:last-child' ) );
 		}
 
@@ -425,12 +435,39 @@ FusionPageBuilder.options.fusionRepeaterField = {
 	 * @return {void}
 	 */
 	setRepeaterValue: function( $option, param, index, value ) {
-		var values  = this.getRepeaterValue( $option );
+		let values              = this.getRepeaterValue( $option ),
+			repeaterName        = $option.attr( 'name' ),
+			element             = fusionAllElements[ this.model.get( 'element_type' ) ],
+			view                = FusionPageBuilderViewManager.getView( this.model.get( 'cid' ) ),
+			modelData           = jQuery.extend( this.model.attributes, {} ),
+			repeaterChildOption = {},
+			callbackFunction    = {},
+			triggerRowChange    = true,
+			hasCallbackAjax     = false;
+
+		if ('undefined' !== typeof element && 'undefined' !== typeof element.params[ repeaterName ] && 'undefined' !== typeof element.params[ repeaterName ].fields[ param ] ) {
+			repeaterChildOption = element.params[ repeaterName ].fields[ param ],
+			callbackFunction    = FusionPageBuilderApp.CheckIfCallback( element, repeaterChildOption, view.model );
+
+			if ( false !== callbackFunction ) {
+				triggerRowChange = false;
+				if ( callbackFunction.ajax && 'function' === typeof FusionApp.callback[ callbackFunction[ 'function' ] ] ) {
+					hasCallbackAjax = true;
+				}
+			}
+		}
 
 		if ( 'undefined' !== typeof values[ index ] ) {
 			values[ index ][ param ] = value;
-			this.updateRepeaterValues( $option, values );
+			this.updateRepeaterValues( $option, values, triggerRowChange );
 		}
+
+		if ( hasCallbackAjax ) {
+			reRender = view.doCallbackFunction( callbackFunction, false, param, value, modelData );
+			return reRender;
+		}
+
+		return ! triggerRowChange;
 	},
 
 	/**
@@ -440,7 +477,7 @@ FusionPageBuilder.options.fusionRepeaterField = {
 	 * @since 2.0.0
 	 * @return {void}
 	 */
-	updateRepeaterValues: function( $option, values ) {
+	updateRepeaterValues: function( $option, values, triggerFullChange = true ) {
 
 		// When doing a search we need to set the context correctly.
 		if ( 'search' === this.context ) {
@@ -465,7 +502,14 @@ FusionPageBuilder.options.fusionRepeaterField = {
 				break;
 			}
 		}
-		$option.val( values ).trigger( 'change' );
+
+		$option.val( values );
+
+		if ( triggerFullChange ) {
+			$option.trigger( 'change' );
+		} else {
+			$option.trigger( 'change', { silent: true } );
+		}
 	},
 
 	/**

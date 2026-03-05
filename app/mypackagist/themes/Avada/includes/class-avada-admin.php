@@ -386,13 +386,9 @@ class Avada_Admin {
 			$avada_menu_page_creation_method    = 'add_menu_page';
 			$avada_submenu_page_creation_method = 'add_submenu_page';
 
-			$dashboard = $avada_menu_page_creation_method( 'Avada Website Builder', 'Avada', 'edit_posts', 'avada', [ $this, 'dashboard_screen' ], 'dashicons-avada', '2.111111' );
-
-			if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_global_options' ) ) ) {
-				$options = $avada_submenu_page_creation_method( 'avada', esc_html__( 'Options', 'Avada' ), esc_html__( 'Options', 'Avada' ), 'manage_options', 'themes.php?page=avada_options', '', 2 );
-			}
-
-			$prebuilt_websites = $avada_submenu_page_creation_method( 'avada', esc_html__( 'Websites', 'Avada' ), esc_html__( 'Websites', 'Avada' ), 'manage_options', 'avada-prebuilt-websites', [ $this, 'prebuilt_websites_tab' ], 3 );
+			$dashboard         = $avada_menu_page_creation_method( 'Avada Website Builder', 'Avada', 'edit_posts', 'avada', [ $this, 'dashboard_screen' ], 'dashicons-avada', '2.111111' );
+			$options           = $avada_submenu_page_creation_method( 'avada', esc_html__( 'Options', 'Avada' ), esc_html__( 'Options', 'Avada' ), apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_global_options' ), 'themes.php?page=avada_options', '', 2 );
+			$prebuilt_websites = $avada_submenu_page_creation_method( 'avada', esc_html__( 'Websites', 'Avada' ), esc_html__( 'Websites', 'Avada' ), apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_prebuilts' ), 'avada-prebuilt-websites', [ $this, 'prebuilt_websites_tab' ], 3 );
 
 			// Add in pages from Avada Builder.
 			do_action( 'avada_add_admin_menu_pages' );
@@ -413,7 +409,7 @@ class Avada_Admin {
 			$maintenance = $avada_submenu_page_creation_method( 'avada', esc_html__( 'Maintenance Mode', 'Avada' ), esc_html__( 'Maintenance Mode', 'Avada' ), 'manage_options', 'themes.php?page=avada_options#heading_maintenance', '', 15 );
 			$performance = $avada_submenu_page_creation_method( 'avada', esc_html__( 'Performance', 'Avada' ), esc_html__( 'Performance', 'Avada' ), 'manage_options', 'avada-performance', [ $this, 'performance_tab' ], 16 );
 			$support     = $avada_submenu_page_creation_method( 'avada', esc_html__( 'Support', 'Avada' ), esc_html__( 'Support', 'Avada' ), 'manage_options', 'avada-support', [ $this, 'support_tab' ], 17 );
-			$status      = $avada_submenu_page_creation_method( 'avada', esc_html__( 'Status', 'Avada' ), esc_html__( 'Status', 'Avada' ), 'manage_options', 'avada-status', [ $this, 'status_tab' ], 18 );
+			$status      = $avada_submenu_page_creation_method( 'avada', esc_html__( 'System Status', 'Avada' ), esc_html__( 'System Status', 'Avada' ), 'manage_options', 'avada-status', [ $this, 'status_tab' ], 18 );
 			$setup       = $avada_submenu_page_creation_method( 'avada', esc_html__( 'Setup', 'Avada' ), esc_html__( 'Setup', 'Avada' ), 'manage_options', 'avada-setup', [ $this, 'setup_tab' ], 19 );
 
 			if ( ! class_exists( 'FusionReduxFrameworkPlugin' ) ) {
@@ -584,9 +580,8 @@ class Avada_Admin {
 			<header class="avada-db-header-main">
 				<div class="avada-db-header-main-container">
 					<a class="avada-db-logo" href="<?php echo esc_url( admin_url( 'admin.php?page=avada' ) ); ?>" aria-label="<?php esc_attr_e( 'Link to Avada dashboard', 'Avada' ); ?>">
-						<i class="avada-db-logo-icon fusiona-avada-logo"></i>
 						<div class="avada-db-logo-image">
-							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/logo@2x.png' ); ?>" alt="<?php esc_html_e( 'Avada', 'Avada' ); ?>" width="115" height="25" />
+							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/logo.svg' ); ?>" alt="<?php esc_html_e( 'Avada', 'Avada' ); ?>" width="115" height="25" />
 						</div>
 					</a>
 					<nav class="avada-db-menu-main">
@@ -977,7 +972,7 @@ class Avada_Admin {
 		$ver    = Avada::get_theme_version();
 		$screen = get_current_screen();
 
-		if ( 'appearance_page_avada_options' === $screen->id ) {
+		if ( isset( $screen->id ) && 'appearance_page_avada_options' === $screen->id ) {
 			$this->styles_general();
 		}
 	}
@@ -992,7 +987,7 @@ class Avada_Admin {
 		$ver    = Avada::get_theme_version();
 		$screen = get_current_screen();
 
-		if ( 'appearance_page_avada_options' === $screen->id ) {
+		if ( isset( $screen->id ) && 'appearance_page_avada_options' === $screen->id ) {
 			wp_enqueue_script( 'avada_theme_options_menu_mod', trailingslashit( Avada::$template_dir_url ) . 'assets/admin/js/avada-theme-options-menu-mod.js', [ 'jquery' ], $ver, false );
 		}
 	}
@@ -1496,7 +1491,7 @@ class Avada_Admin {
 			'currently_removing'    => esc_attr__( 'Currently Removing: %s', 'Avada' ),
 			'file_does_not_exist'   => esc_attr__( 'The file does not exist', 'Avada' ),
 			/* translators: URL. */
-			'error_timeout'         => wp_kses_post( sprintf( __( 'The server couldn\'t be reached. Please check for wp_remote_get on the <a href="%s" target="_blank">Status</a> page.', 'Avada' ), admin_url( 'admin.php?page=avada-status' ) ) ),
+			'error_timeout'         => wp_kses_post( sprintf( __( 'The server couldn\'t be reached. Please check for wp_remote_get on the <a href="%s" target="_blank">System Status</a> page.', 'Avada' ), admin_url( 'admin.php?page=avada-status' ) ) ),
 			'error_php_limits'      => wp_kses_post( __( 'The import process has timed out, but already imported steps have been saved. Click "continue", and the importer will attempt to complete the remaining steps of the import process.', 'Avada' ) ),
 			'remove_demo'           => esc_attr__( 'Removing prebuilt website content will remove ALL previously imported content from this prebuilt website and restore your site to the state it was in before this prebuilt content was imported.', 'Avada' ),
 			'update_fc'             => __( 'Avada Builder Plugin can only be installed and activated if Avada Core plugin is at version 3.0 or higher. Please update Avada Core first.', 'Avada' ),
@@ -1527,7 +1522,7 @@ class Avada_Admin {
 
 		// Where to add meta fields.
 		$args = [
-			'screens' => apply_filters( 'fusion_tax_meta_allowed_screens', [ 'category', 'portfolio_category', 'faq_category', 'product_cat', 'tribe_events_cat', 'post_tag', 'portfolio_tags', 'product_tag', 'topic-tag', 'portfolio_skills' ] ),
+			'screens' => apply_filters( 'fusion_tax_meta_allowed_screens', [ 'category', 'portfolio_category', 'faq_category', 'product_cat', 'product_brand', 'tribe_events_cat', 'post_tag', 'portfolio_tags', 'product_tag', 'topic-tag', 'portfolio_skills' ] ),
 		];
 
 		// Init taxonomy meta boxes.

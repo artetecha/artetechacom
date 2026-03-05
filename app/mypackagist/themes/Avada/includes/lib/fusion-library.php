@@ -3,15 +3,17 @@
  * Loads common Fusion libraries.
  *
  * Plugin Name: Fusion Library
+ * Description: The Avada Website Builder is the ultimate design and creation suite. Design Anything, Build Everything, Fast. The #1 selling product of all time on ThemeForest.
  * Plugin URI: https://avada.com
- * Description: Fusion library plugin.
- * Version: 3.11.15
  * Author: ThemeFusion
- * Author URI: https://avada.com
- * Requires PHP: 7.4
+ * Author URI: https://themeforest.net/user/ThemeFusion
+ * License: Themeforest Split Licence
+ * Version: 3.15.0
+ * Requires PHP: 7.2
+ * Requires at least: 5.7
+ * Text Domain: Avada
  *
  * @package Fusion-Library
- * @version 3.9.1
  */
 
 // Do not allow directly accessing this file.
@@ -27,7 +29,7 @@ if ( ! defined( 'FUSION_UPDATES_URL' ) ) {
 	define( 'FUSION_UPDATES_URL', 'https://updates.theme-fusion.com' );
 }
 // Don't use a constant, we need this as a simple var.
-$current_version = '3.11.15';
+$current_version = '3.15.0';
 global $fusion_library_latest_version;
 
 if ( ! $fusion_library_latest_version || version_compare( $current_version, $fusion_library_latest_version ) >= 0 ) {

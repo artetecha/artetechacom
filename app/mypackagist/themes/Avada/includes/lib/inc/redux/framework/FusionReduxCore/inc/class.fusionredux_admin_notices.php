@@ -75,21 +75,21 @@
 
 									// Get the current page.  To avoid errors, we'll set
 									// the fusionredux page slug if the GET is empty.
-									$pageName = empty( $_GET['page'] ) ? '&amp;page=' . self::$_parent->args['page_slug'] : '&amp;page=' . $_GET['page'];
+									$pageName = empty( $_GET['page'] ) ? '&amp;page=' . self::$_parent->args['page_slug'] : '&amp;page=' . esc_attr( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 
 									// Ditto for the current tab.
-									$curTab = empty( $_GET['tab'] ) ? '&amp;tab=0' : '&amp;tab=' . esc_attr( $_GET['tab'] );
+									$curTab = empty( $_GET['tab'] ) ? '&amp;tab=0' : '&amp;tab=' . esc_attr( wp_unslash( $_GET['tab'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 								}
 
 								global $wp_version;
 								// Print the notice with the dismiss link
 								if ( version_compare( $wp_version, '4.2', '>' ) ) {
 									$output    = "";
-									$css_id    = esc_attr( $notice['id'] ) . $pageName . $curTab;
+									$css_id    = esc_attr( $notice['id'] . $pageName . $curTab );
 									$css_class = esc_attr( $notice['type'] ) . ' fusionredux-notice notice is-dismissible fusionredux-notice';
 									$output .= "<div {$add_style} id='$css_id' class='$css_class'> \n";
 									$nonce = wp_create_nonce( $notice['id'] . $userid . 'nonce' );
-									$output .= "<input type='hidden' class='dismiss_data' id='" . esc_attr( $notice['id'] ) . $pageName . $curTab . "' value='{$nonce}'> \n";
+									$output .= "<input type='hidden' class='dismiss_data' id='" . esc_attr( $notice['id'] ) . $pageName . $curTab . "' value='" . esc_attr( $nonce ) . "'> \n";
 									$output .= '<p>' . wp_kses_post( $notice['msg'] ) . '</p>';
 									$output .= "</div> \n";
 									echo $output;

@@ -1920,6 +1920,16 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						normalize: true
 					} );
 
+					// Class applier for dynamic data element.
+					this.dynamicDataClassApplier = rangy.createClassApplier( 'fusion-inline-shortcode', {
+						elementTagName: 'span',
+						elementAttributes: {
+							'data-inline-shortcode': 'true',
+							'data-element': 'awb_dd'
+						},
+						normalize: true
+					} );
+
 					// Class applier for popover element.
 					this.popoverClassApplier = rangy.createClassApplier( 'fusion-inline-shortcode', {
 						elementTagName: 'span',
@@ -2038,24 +2048,30 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				// Form creation and event handling
 				createForm: function() {
-					var doc           = this.document,
-						form          = doc.createElement( 'div' ),
-						ul            = doc.createElement( 'ul' ),
-						dropcap       = doc.createElement( 'button' ),
-						highlight     = doc.createElement( 'button' ),
-						popover       = doc.createElement( 'button' ),
-						tooltip       = doc.createElement( 'button' ),
-						onepage       = doc.createElement( 'button' ),
-						modalLink     = doc.createElement( 'button' ),
-						li            = doc.createElement( 'li' ),
-						icon          = doc.createElement( 'i' ),
-						tooltipText   = false,
-						onepageText   = false,
-						popoverText   = false,
-						highlightText = false,
-						dropcapText   = false,
-						modalLinkText = false;
+					var self            = this,
+						doc             = this.document,
+						form            = doc.createElement( 'div' ),
+						ul              = doc.createElement( 'ul' ),
+						dropcap         = doc.createElement( 'button' ),
+						dynamic         = doc.createElement( 'button' ),
+						highlight       = doc.createElement( 'button' ),
+						popover         = doc.createElement( 'button' ),
+						tooltip         = doc.createElement( 'button' ),
+						onepage         = doc.createElement( 'button' ),
+						modalLink       = doc.createElement( 'button' ),
+						li              = doc.createElement( 'li' ),
+						icon            = doc.createElement( 'i' ),
+						dynamicDataText = false,
+						tooltipText     = false,
+						onepageText     = false,
+						popoverText     = false,
+						highlightText   = false,
+						dropcapText     = false,
+						modalLinkText   = false;
 
+					if ( 'undefined' !== typeof fusionAllElements.awb_dd ) {
+						dynamicDataText = fusionBuilderText.add_unknown.replace( '%s', fusionAllElements.awb_dd.name );
+					}
 					if ( 'undefined' !== typeof fusionAllElements.fusion_tooltip ) {
 						tooltipText = fusionBuilderText.add_unknown.replace( '%s', fusionAllElements.fusion_tooltip.name );
 					}
@@ -2070,7 +2086,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					}
 					if ( 'undefined' !== typeof fusionAllElements.fusion_dropcap ) {
 						dropcapText = fusionBuilderText.add_unknown.replace( '%s', fusionAllElements.fusion_dropcap.name );
-					}
+					}				
 					if ( 'undefined' !== typeof fusionAllElements.fusion_modal_text_link ) {
 						modalLinkText = fusionBuilderText.add_unknown.replace( '%s', fusionAllElements.fusion_modal_text_link.name );
 					}
@@ -2098,6 +2114,85 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						li.appendChild( dropcap );
 						ul.appendChild( li );
 						this.on( dropcap, 'click', this.addShortcodeElement.bind( this ), true );
+					}
+
+					// Dynamic Data element.
+					if ( dynamicDataText ) {
+						li                = doc.createElement( 'li' );
+						icon.className    = 'fusiona-dynamic-data';
+						dynamic.className = 'awb-dd-add';
+						dynamic.setAttribute( 'data-element', 'awb_dd' );
+						dynamic.setAttribute( 'title', dynamicDataText );
+						dynamic.setAttribute( 'aria-label', dynamicDataText );
+						dynamic.appendChild( icon );
+						dynamic.innerHTML += fusionAllElements.awb_dd.name;
+						li.appendChild( dynamic );
+						ul.appendChild( li );
+
+						const self = this;
+						this.on( dynamic, 'click', this.addShortcodeElement.bind( this ), true );
+
+						// When typing { a new dynamic data element should be created.
+						this.on( this.base.elements[0], 'keydown', function( event ) {
+							if ( '{' === event.key ) {
+								setTimeout( () => {
+									const win = self.document.defaultView;
+									const sel = win.getSelection();
+
+									if ( ! sel.rangeCount ) {
+										return;
+									}
+						
+									const range = sel.getRangeAt( 0 );
+									const { endContainer, endOffset } = range;
+
+									if ( endContainer.nodeType !== Node.TEXT_NODE ) {
+										return;
+									}
+						
+									const text = endContainer.textContent;
+						
+									// Check if `{` was inserted at the cursor position.
+									if ( '{' === text[ endOffset - 1 ] ) {
+										// Create a new range to select `{`.
+										const newRange = self.document.createRange();
+										newRange.setStart( endContainer, endOffset - 1 );
+										newRange.setEnd( endContainer, endOffset );
+						
+										sel.removeAllRanges();
+										sel.addRange( newRange );
+
+										self.addShortcodeElement( 'awb_dd' );
+									}
+								}, 50 );
+							}
+						}, true );
+
+						// Mak sure it is possible to type after clicking on an inline element.
+						this.on( jQuery( this.base.elements[0] ).find( '.fusion-disable-editing.fusion-inline-element' ), 'click', function( event ) {
+							event.preventDefault();
+
+							const nonEditable = jQuery( event.target ).closest( '.fusion-disable-editing' );
+							const editor = jQuery( nonEditable ).closest( '.fusion-live-editable' );
+							const range = self.document.createRange();
+
+							let next = nonEditable[0].nextSibling;
+
+							// If there is no text node after the non-editable span, move to end of the 
+							if ( ! next || next.nodeType !== Node.TEXT_NODE ) {
+								range.selectNodeContents( editor[0] );
+								range.collapse( false );	
+							} else {
+						
+								// Put caret at start of next node.
+								range.setStart( next, 0 );
+								range.collapse( true );
+							}
+						
+							const sel = self.document.defaultView.getSelection();
+							sel.removeAllRanges();
+							sel.addRange( range );
+						} );
 					}
 
 					// Highlight element.
@@ -2190,34 +2285,38 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				addShortcodeElement: function( element ) {
 					var iframe    = document.getElementById( 'fb-preview' ),
 						iframeWin = rangy.dom.getIframeWindow( iframe ),
-						label     = element.currentTarget.getAttribute( 'data-element' );
+						label     = element.currentTarget ? element.currentTarget.getAttribute( 'data-element' ) : element;
 
 					this.base.restoreSelection();
 
 					switch ( label ) {
-					case 'fusion_dropcap':
-						this.dropCapClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'fusion_dropcap':
+							this.dropCapClassApplier.applyToSelection( iframeWin );
+							break;
 
-					case 'fusion_highlight':
-						this.highlightClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'awb_dd':
+							this.dynamicDataClassApplier.applyToSelection( iframeWin );
+							break;
 
-					case 'fusion_popover':
-						this.popoverClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'fusion_highlight':
+							this.highlightClassApplier.applyToSelection( iframeWin );
+							break;
 
-					case 'fusion_tooltip':
-						this.tooltipClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'fusion_popover':
+							this.popoverClassApplier.applyToSelection( iframeWin );
+							break;
 
-					case 'fusion_one_page_text_link':
-						this.onepageClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'fusion_tooltip':
+							this.tooltipClassApplier.applyToSelection( iframeWin );
+							break;
 
-					case 'fusion_modal_text_link':
-						this.modalLinkClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'fusion_one_page_text_link':
+							this.onepageClassApplier.applyToSelection( iframeWin );
+							break;
+
+						case 'fusion_modal_text_link':
+							this.modalLinkClassApplier.applyToSelection( iframeWin );
+							break;
 					}
 					this.doFormSave( label );
 				},

@@ -83,6 +83,10 @@ FusionPageBuilder.options.fusionOptionUpload = {
 						attachment,
 						parsedObject;
 
+					if ( 'undefined' !== typeof window?.AwbAIApp?.current?.image.id ) {
+						imageID = window?.AwbAIApp?.current?.image.id;
+					}
+
 					id = $thisEl.parents( '.fusion-builder-module-settings' ).find( '#' + optionID + '_id' ).val();
 					id = ( 'undefined' !== typeof id ? id : imageID );
 
@@ -106,7 +110,7 @@ FusionPageBuilder.options.fusionOptionUpload = {
 					// We have an id, use it for initial selection.
 					if ( id ) {
 
-						if ( -1 !== id.indexOf( '|' ) ) {
+						if ( id?.indexOf && -1 !== id.indexOf( '|' ) ) {
 							id = id.split( '|' )[ 0 ];
 						}
 

@@ -307,6 +307,14 @@ class Avada_Privacy_Embeds {
 					],
 					'label'  => '',
 				],
+				'instagram'      => [
+					'search' => [
+						'cdninstagram.com',
+						'instagram.',
+						'fbcdn.net',
+					],
+					'label'  => '',
+				],
 				'tracking'   => [
 					'search' => [],
 					'label'  => '',
@@ -332,6 +340,7 @@ class Avada_Privacy_Embeds {
 			'flickr'     => esc_html__( 'Flickr', 'Avada' ),
 			'twitter'    => esc_html__( 'X', 'Avada' ),
 			'gmaps'      => esc_html__( 'Google Maps', 'Avada' ),
+			'instagram'  => esc_html__( 'Instagram', 'Avada' ),
 			'tracking'   => esc_html__( 'Tracking Cookies', 'Avada' ),
 		];
 
@@ -724,7 +733,7 @@ class Avada_Privacy_Embeds {
 		global $fusion_library;
 
 		// Iframe replacements.
-		preg_match_all( '/<iframe.*src=\"(.*)\".*><\/iframe>/isU', $content, $iframes );
+		preg_match_all( '/<iframe.*src=\"(.*)\".*>\s*<\/iframe>/isU', $content, $iframes );
 		if ( array_key_exists( 1, $iframes ) ) {
 			foreach ( $iframes[0] as $key => $frame ) {
 
@@ -735,6 +744,9 @@ class Avada_Privacy_Embeds {
 				if ( strpos( $frame, 'data-privacy-src' ) ) {
 					continue;
 				}
+
+				// Remove whitespace and line breaks between attributes, needed e.g. for TEC.
+				$frame = preg_replace( "/\n\s*\t*/", ' ', $frame );
 
 				// If "Avada" lazy-loading method is applied, then get the original src from 'data-orig-src'.
 				if ( $fusion_library->get_images_obj()->is_avada_iframe_lazy_load_enabled() && is_string( $frame ) && preg_match( '/<iframe.*data-orig-src=\"(.*)\".*><\/iframe>/isU', $frame, $lazy_loading_matches ) ) {

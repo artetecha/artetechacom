@@ -8,6 +8,7 @@
             timer = setTimeout( callback, ms );
         };
     }() );
+
     function optionIconpicker() {
         var $iconPicker;
 
@@ -29,9 +30,7 @@
                     $container.append( output ).before( '<div class="fusion-icon-picker-nav-wrapper"><a href="#" class="fusion-icon-picker-nav-left fusiona-arrow-left"></a><div class="fusion-icon-picker-nav">' + outputNav + '</div><a href="#" class="fusion-icon-picker-nav-right fusiona-arrow-right"></a></div>' );
 
                 if ( '' !== value && -1 === value.indexOf( ' ' ) ) {
-                    if ( 'undefined' !== typeof FusionApp ) {
-                        value = FusionApp.checkLegacyAndCustomIcons( value );
-                    }
+                    value = checkLegacyAndCustomIcons( value );
 
                     // If custom icon we don't need to update input, just value needs converted for below.
                     if ( ! customIcon ) {
@@ -43,7 +42,7 @@
                             $input.attr( 'value', value ).trigger( 'change' );
                         }, 1000 );
                     }
-                }
+                }             
 
                 // Icon navigation link is clicked.
                 $containerParent.find( '.fusion-icon-picker-nav > a' ).on( 'click', function( e ) {
@@ -154,6 +153,54 @@
 
             } );
         }
+    }
+
+    function checkLegacyAndCustomIcons( icon ) {
+        var oldIconName;
+
+        if ( '' !== icon ) {
+
+            if ( 'fusion-prefix-' === icon.substr( 0, 14 ) ) {
+
+                // Custom icon, we need to remove prefix.
+                icon = icon.replace( 'fusion-prefix-', '' );
+            } else {
+
+                icon = icon.split( ' ' ),
+                oldIconName = '';
+
+                // Legacy FontAwesome 4.x icon, so we need check if it needs to be updated.
+                if ( 'undefined' === typeof icon[ 1 ] ) {
+                    icon[ 1 ] = 'fas';
+
+                    if ( 'undefined' !== typeof window[ 'fusion-fontawesome-free-shims' ] ) {
+                        oldIconName = icon[ 0 ].substr( 3 );
+
+                        jQuery.each( window[ 'fusion-fontawesome-free-shims' ], function( i, shim ) {
+
+                            if ( shim[ 0 ] === oldIconName ) {
+
+                                // Update icon name.
+                                if ( null !== shim[ 2 ] ) {
+                                    icon[ 0 ] = 'fa-' + shim[ 2 ];
+                                }
+
+                                // Update icon subset.
+                                if ( null !== shim[ 1 ] ) {
+                                    icon[ 1 ] = shim[ 1 ];
+                                }
+
+                                return false;
+                            }
+                        } );
+                    }
+
+                    icon = icon[ 0 ] + ' ' + icon[ 1 ];
+                }
+            }
+        }
+
+        return icon;
     }
 
     jQuery( 'body' ).on( 'awb-icon-picker-init', function() {

@@ -19,8 +19,7 @@ body.admin-bar {
 #main .fusion-row,
 .fusion-footer-widget-area .fusion-row,
 #slidingbar-area .fusion-row,
-.fusion-page-title-row,
-.tfs-slider .slide-content-container .slide-content {
+.fusion-page-title-row {
   max-width: var(--site_width);
 }
 .ua-mobile .avada-not-responsive #slidingbar-area.fusion-sliding-bar-position-top,
@@ -31,7 +30,6 @@ body.avada-not-responsive {
   min-width: var(--site_width);
 }
 html:not(.avada-has-site-width-percent) #main,
-html:not(.avada-has-site-width-percent) .tfs-slider .slide-content-container,
 html:not(.avada-has-site-width-percent) .fusion-footer-copyright-area,
 html:not(.avada-has-site-width-percent) .fusion-footer-widget-area,
 html:not(.avada-has-site-width-percent) .fusion-sliding-bar-position-top .fusion-sliding-bar,
@@ -101,7 +99,6 @@ html.avada-has-site-width-percent .width-100 .fullwidth-box .fullwidth-box .fusi
   margin-right: 0;
 }
 html.avada-has-site-width-percent.avada-has-site-width-100-percent #slidingbar .fusion-row,
-html.avada-has-site-width-percent.avada-has-site-width-100-percent #sliders-container .tfs-slider .slide-content-container,
 html.avada-has-site-width-percent.avada-has-site-width-100-percent #main .fusion-row,
 html.avada-has-site-width-percent.avada-has-site-width-100-percent .fusion-footer-widget-area,
 html.avada-has-site-width-percent.avada-has-site-width-100-percent .fusion-footer-copyright-area {

@@ -60,16 +60,34 @@ function fusionIconPicker( value, id, container, search ) {
 		}
 
 		// Add icon container and icon navigation.
-		$container.html( output ).before( '<div class="fusion-icon-picker-nav">' + outputNav + '</div>' );
+		$container.append( output ).before( '<div class="fusion-icon-picker-nav-wrapper"><a href="#" class="fusion-icon-picker-nav-left fusiona-arrow-left"></a><div class="fusion-icon-picker-nav">' + outputNav + '</div><a href="#" class="fusion-icon-picker-nav-right fusiona-arrow-right"></a></div>' );
+
 
 		// Icon navigation link is clicked.
 		$containerParent.find( '.fusion-icon-picker-nav > a' ).on( 'click', function( e ) {
 			e.preventDefault();
-
 			jQuery( '.fusion-icon-picker-nav-active' ).removeClass( 'fusion-icon-picker-nav-active' );
 			jQuery( this ).addClass( 'fusion-icon-picker-nav-active' );
 			$container.find( '.fusion-icon-set' ).css( 'display', 'none' );
 			$container.find( jQuery( this ).attr( 'href' ) ).css( 'display', 'grid' );
+		} );
+
+		// Scroll nav div to right.
+		$containerParent.find( '.fusion-icon-picker-nav-wrapper > .fusion-icon-picker-nav-right' ).on( 'click', function( e ) {
+			e.preventDefault();
+
+			$containerParent.find( '.fusion-icon-picker-nav' ).animate( {
+				scrollLeft: '+=100'
+			}, 250 );
+		} );
+
+		// Scroll nav div to left.
+		$containerParent.find( '.fusion-icon-picker-nav-wrapper > .fusion-icon-picker-nav-left' ).on( 'click', function( e ) {
+			e.preventDefault();
+
+			$containerParent.find( '.fusion-icon-picker-nav' ).animate( {
+				scrollLeft: '-=100'
+			}, 250 );
 		} );
 
 		if ( '' !== value ) {

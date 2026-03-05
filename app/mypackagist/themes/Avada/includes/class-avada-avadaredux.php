@@ -267,6 +267,7 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 			'related_posts_speed',
 			'related_posts_swipe_items',
 			'pw_jpeg_quality',
+			'webp_image_quality',
 			'woo_items',
 			'woocommerce_shop_page_columns',
 			'woocommerce_related_columns',

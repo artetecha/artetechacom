@@ -226,7 +226,7 @@ function avada_options_section_social_media( $sections ) {
 						'hidden'      => $has_global_header,
 						'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 							/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-							'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+							'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a modern, more performant setup, we recommend using the %1$s Builder to create a custom %1$s Layout. <a href="%2$s" target="_blank">visit this page.</a>', 'Avada' ) . '</div>',
 							Fusion_Template_Builder::get_instance()->get_template_terms()['header']['label'],
 							admin_url( 'admin.php?page=avada-layouts' )
 						) : '',
@@ -457,7 +457,7 @@ function avada_options_section_social_media( $sections ) {
 						'hidden'      => $has_global_footer,
 						'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 							/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-							'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+							'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a modern, more performant setup, we recommend using the %1$s Builder to create a custom %1$s Layout. <a href="%2$s" target="_blank">visit this page.</a>', 'Avada' ) . '</div>',
 							Fusion_Template_Builder::get_instance()->get_template_terms()['footer']['label'],
 							admin_url( 'admin.php?page=avada-layouts' )
 						) : '',
@@ -825,7 +825,7 @@ function avada_options_section_social_media( $sections ) {
 						'label'                  => esc_html__( 'Social Sharing', 'Avada' ),
 						'description'            => esc_html__( 'Select social network you want to be displayed in the social share box.', 'Avada' ),
 						'id'                     => 'social_sharing',
-						'default'                => [ 'facebook', 'twitter', 'bluesky', 'reddit', 'linkedin', 'whatsapp', 'telegram', 'tumblr', 'pinterest', 'xing', 'email' ],
+						'default'                => [ 'facebook', 'twitter', 'bluesky', 'reddit', 'linkedin', 'whatsapp', 'telegram', 'tumblr', 'xing', 'email', 'copy_link' ],
 						'type'                   => 'select',
 						'multi'                  => true,
 						'choices'                => [
@@ -843,6 +843,7 @@ function avada_options_section_social_media( $sections ) {
 							'vk'        => esc_html__( 'VK', 'Avada' ),
 							'xing'      => esc_html__( 'Xing', 'Avada' ),
 							'email'     => esc_html__( 'Email', 'Avada' ),
+							'copy_link' => esc_html__( 'Copy Link', 'Avada' ),
 						],
 						'social_share_box_links' => [
 							'selector'              => '.fusion-theme-sharing-box.fusion-single-sharing-box',
@@ -952,18 +953,7 @@ function avada_options_section_social_media( $sections ) {
 						'id'          => 'sharing_social_links_box_color',
 						'default'     => 'var(--awb-color3)',
 						'type'        => 'color-alpha',
-						'required'    => [
-							[
-								'setting'  => 'sharing_social_links_boxed',
-								'operator' => '==',
-								'value'    => '1',
-							],
-							[
-								'setting'  => 'sharing_social_links_color_type',
-								'operator' => '==',
-								'value'    => 'custom',
-							],
-						],
+						'soft_dependency' => true,
 						'css_vars'    => [
 							[
 								'name'     => '--sharing_social_links_box_color',
@@ -977,13 +967,7 @@ function avada_options_section_social_media( $sections ) {
 						'id'          => 'sharing_social_links_boxed_radius',
 						'default'     => '4px',
 						'type'        => 'dimension',
-						'required'    => [
-							[
-								'setting'  => 'sharing_social_links_boxed',
-								'operator' => '==',
-								'value'    => '1',
-							],
-						],
+						'soft_dependency' => true,
 						'css_vars'    => [
 							[
 								'name'    => '--sharing_social_links_boxed_radius',
@@ -997,13 +981,7 @@ function avada_options_section_social_media( $sections ) {
 						'id'          => 'sharing_social_links_boxed_padding',
 						'default'     => '8px',
 						'type'        => 'dimension',
-						'required'    => [
-							[
-								'setting'  => 'sharing_social_links_boxed',
-								'operator' => '==',
-								'value'    => '1',
-							],
-						],
+						'soft_dependency' => true,
 						'css_vars'    => [
 							[
 								'name'    => '--sharing_social_links_boxed_padding',

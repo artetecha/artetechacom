@@ -389,4 +389,18 @@ function avada_jetpack_is_mobile() {
 	return wp_is_mobile();
 }
 
+/**
+ * Backwards-compatibility for the fusion_pre_shortcode_atts filter with 4 args.
+ *
+ * @since 7.12
+ * @param  array  $args      Array with user set param values.
+ * @param  array  $defaults  Array of defaults.
+ * @param  string $shortcode Shortcode name.
+ * @return array
+ */
+function apply_fusion_pre_shortcode_atts_filter( $args, $defaults, $shortcode ) {
+	return apply_filters( 'fusion_pre_shortcode_atts', $args, $defaults, $args, $shortcode );
+}
+add_filter( 'awb_pre_shortcode_atts', 'apply_fusion_pre_shortcode_atts_filter', 10, 3 );
+
 /* Omit closing PHP tag to avoid "Headers already sent" issues. */

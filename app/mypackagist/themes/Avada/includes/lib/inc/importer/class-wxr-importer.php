@@ -1063,10 +1063,17 @@ class WXR_Importer extends WP_Importer {
 			return $upload;
 		}
 
+		$allow_svg_upload = function( $mimes ) {
+			$mimes['svg'] = 'image/svg+xml';
+			return $mimes;
+		};
+		add_filter( 'upload_mimes', $allow_svg_upload );
+
 		$info = wp_check_filetype( $upload['file'] );
 		if ( ! $info ) {
 			return new WP_Error( 'attachment_processing_error', __( 'Invalid file type', 'Avada' ) );
 		}
+		remove_filter( 'upload_mimes', $allow_svg_upload );
 
 		$post['post_mime_type'] = $info['type'];
 

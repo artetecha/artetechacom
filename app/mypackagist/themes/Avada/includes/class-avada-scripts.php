@@ -243,17 +243,6 @@ class Avada_Scripts {
 			}
 		}
 
-		if ( 'ajax' === Avada()->settings->get( 'post_views' ) && ! $is_builder && is_singular() && ! is_preview() ) {
-			$scripts[] = [
-				'avada-views-counter',
-				$js_folder_url . '/general/avada-views-counter.js',
-				$js_folder_path . '/general/avada-views-counter.js',
-				[ 'jquery' ],
-				self::$version,
-				true,
-			];
-		}
-
 		if ( 'off' !== Avada()->settings->get( 'status_totop' ) || $is_builder ) {
 			$scripts[] = [
 				'avada-to-top',
@@ -439,6 +428,8 @@ class Avada_Scripts {
 				true,
 			];
 		}
+
+		$scripts = apply_filters( 'awb_theme_scripts', $scripts );
 
 		foreach ( $scripts as $script ) {
 			Fusion_Dynamic_JS::enqueue_script(
@@ -672,13 +663,6 @@ class Avada_Scripts {
 				],
 			],
 			[
-				'avada-views-counter',
-				'avadaViewsCounterVars',
-				[
-					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				],
-			],
-			[
 				'avada-wpml',
 				'avadaLanguageVars',
 				[
@@ -828,6 +812,8 @@ class Avada_Scripts {
 			];
 		}
 
+		$scripts = apply_filters( 'awb_localize_theme_scripts', $scripts );
+
 		foreach ( $scripts as $script ) {
 			Fusion_Dynamic_JS::localize_script(
 				$script[0],
@@ -916,30 +902,30 @@ class Avada_Scripts {
 			}
 		}
 
-		if ( 'file' === $this->get_compiler_mode() && Avada()->settings->get( 'css_combine_third_party_assets' ) ) {
+		$third_party_assets_to_combine = (array) Avada()->settings->get( 'css_combine_third_party_assets' );
+		if ( 'file' === $this->get_compiler_mode() && ! empty( $third_party_assets_to_combine ) ) {
 			$stylesheets = $this->get_third_party_stylesheets();
-
 			foreach ( $stylesheets as $src ) {
 				$src = apply_filters( 'awb_combined_stylesheet_url', $src, site_url(), plugins_url() );
 
 				$contents = fusion_file_get_contents( $src );
 
-				if ( false !== strpos( $src, 'events-calendar' ) ) {
+				if ( in_array( 'tec', $third_party_assets_to_combine ) && false !== strpos( $src, 'events-calendar' ) ) {
 					$contents = str_replace( 'url(../images/', 'url(' . Tribe__Events__Main::instance()->plugin_url . 'src/resources/images/', $contents );
 				}
 
-				if ( false !== strpos( $src, 'contact-form-7' ) ) {
+				if ( in_array( 'contact_form_7', $third_party_assets_to_combine ) && false !== strpos( $src, 'contact-form-7' ) ) {
 					$contents = str_replace( '../../assets/ajax-loader.gif', wpcf7_plugin_url( 'assets/ajax-loader.gif' ), $contents );
 				}
 
-				if ( false !== strpos( $src, 'revslider' ) && function_exists( 'get_rs_plugin_url' ) ) {
+				if ( in_array( 'slider_rev', $third_party_assets_to_combine ) && false !== strpos( $src, 'revslider' ) && function_exists( 'get_rs_plugin_url' ) ) {
 					$contents = str_replace( "url('..", "url('" . get_rs_plugin_url() . 'public/assets', $contents );
 					$contents = str_replace( 'url(..', 'url(' . get_rs_plugin_url() . 'public/assets', $contents );
 					$contents = str_replace( [ 'url(openhand.cur)' ], 'url(' . get_rs_plugin_url() . 'public/assets/css/openhand.cur)', $contents );
 					$contents = str_replace( [ 'url(closedhand.cur)' ], 'url(' . get_rs_plugin_url() . 'public/assets/css/closedhand.cur)', $contents );
 				}
 
-				if ( false !== strpos( $src, 'convertplug' ) && defined( 'CP_PLUGIN_URL' ) ) {
+				if ( in_array( 'convert_plus', $third_party_assets_to_combine ) && false !== strpos( $src, 'convertplug' ) && defined( 'CP_PLUGIN_URL' ) ) {
 					$contents = str_replace( 'url(../../../', 'url(' . CP_PLUGIN_URL . 'modules/', $contents );
 				}
 
@@ -966,7 +952,7 @@ class Avada_Scripts {
 	 * @return string The style HTML tag.
 	 */
 	public function remove_directly_printed_ec_styles( $tag, $handle, $href, $media ) {
-		if ( 'file' === $this->get_compiler_mode() && Avada()->settings->get( 'css_combine_third_party_assets' ) && ( false !== strpos( $handle, 'tec-' ) || false !== strpos( $handle, 'tribe-' ) ) && function_exists( 'tribe_is_event_query' ) && tribe_is_event_query() ) {
+		if ( 'file' === $this->get_compiler_mode() && in_array( 'tec', (array) Avada()->settings->get( 'css_combine_third_party_assets' ) ) && ( false !== strpos( $handle, 'tec-' ) || false !== strpos( $handle, 'tribe-' ) ) && function_exists( 'tribe_is_event_query' ) && tribe_is_event_query() ) {
 			return '';
 		}
 
@@ -981,7 +967,7 @@ class Avada_Scripts {
 	 * @return void
 	 */
 	public function dequeue_scripts() {
-		if ( 'file' === $this->get_compiler_mode() && Avada()->settings->get( 'css_combine_third_party_assets' ) ) {
+		if ( 'file' === $this->get_compiler_mode() && ! empty( Avada()->settings->get( 'css_combine_third_party_assets' ) ) ) {
 			$wp_styles            = wp_styles();
 			$combined_stylesheets = $this->get_third_party_stylesheets();
 
@@ -1020,7 +1006,7 @@ class Avada_Scripts {
 
 				$src = $wp_styles->registered[ $handle ]->src;
 
-				if ( ! isset( $wp_styles->done[ $handle ] ) && isset( $wp_styles->registered[ $handle ]->args ) && 'all' === $wp_styles->registered[ $handle ]->args && ! empty( $src ) && ! in_array( $handle, $this->combined_assets, true ) && true === $this->is_bundled_plugin_style( $src ) ) {
+				if ( ! isset( $wp_styles->done[ $handle ] ) && isset( $wp_styles->registered[ $handle ]->args ) && ( 'all' === $wp_styles->registered[ $handle ]->args || 'print' === $wp_styles->registered[ $handle ]->args ) && ! empty( $src ) && ! in_array( $handle, $this->combined_assets, true ) && true === $this->is_bundled_plugin_style( $src ) ) {
 					$this->combined_assets[ $handle ] = $src;
 
 					if ( isset( $wp_styles->registered[ $handle ]->deps ) ) {
@@ -1046,10 +1032,24 @@ class Avada_Scripts {
 	 * @return bool
 	 */
 	protected function is_bundled_plugin_style( $src ) {
-		$bundled_plugins = [ '/the-events-calendar/', '/events-calendar-pro/', '/the-events-calendar-filterbar/', '/event-tickets/', '/event-tickets-plus/', '/bbpress/', '/revslider/', '/contact-form-7/', '/convertplug/' ];
+		$plugins_to_be_included = (array) Avada()->settings->get( 'css_combine_third_party_assets' );
+		$paths_to_be_included   = [];
+		$bundled_plugins        = [
+			'tec'            => [ '/the-events-calendar/', '/events-calendar-pro/', '/the-events-calendar-filterbar/', '/event-tickets/', '/event-tickets-plus/' ],
+			'slider_rev'     => [ '/revslider/' ],
+			'convert_plus'   => [ '/convertplug/' ],
+			'contact_form_7' => [ '/contact-form-7/' ],
+			'bbpress'        => [ '/bbpress/' ],
+		];
+		
+		foreach( $plugins_to_be_included as $plugin ) {
+			if ( isset( $bundled_plugins[ $plugin ] ) ) {
+				$paths_to_be_included = array_merge( $paths_to_be_included, $bundled_plugins[ $plugin ] );
+			}
+		}
 
 		// Check if src containes bundled plugin dir name.
-		if ( str_replace( $bundled_plugins, '', $src ) === $src ) {
+		if ( str_replace( $paths_to_be_included, '', $src ) === $src ) {
 			return false;
 		}
 

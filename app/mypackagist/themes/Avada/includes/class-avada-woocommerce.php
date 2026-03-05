@@ -191,6 +191,14 @@ class Avada_Woocommerce {
 		remove_action( 'woocommerce_cart_collaterals', 'woocommerce_cross_sell_display' );
 		add_action( 'woocommerce_cart_collaterals', [ $this, 'cross_sell_display' ], 5 );
 
+		// Live update the free shipping minimum amount dynamic data endpoint
+		add_action( 'wp_ajax_live_update_cart_free_shipping_amount', [ $this, 'live_update_cart_free_shipping_amount' ] );
+		add_action( 'wp_ajax_nopriv_live_update_cart_free_shipping_amount', [ $this, 'live_update_cart_free_shipping_amount' ] );
+
+		// Live update the cart totals when quantitiy inpits change.
+		add_action( 'wp_ajax_live_update_cart', [ $this, 'live_update_cart' ] );
+		add_action( 'wp_ajax_nopriv_live_update_cart', [ $this, 'live_update_cart' ] );
+
 		// Make sure that the single product shortcode does not use default column amount.
 		add_filter( 'shortcode_atts_product', [ $this, 'change_product_shortcode_atts' ], 20, 4 );
 
@@ -403,6 +411,45 @@ class Avada_Woocommerce {
 				'avadaWooCommerceVars',
 				self::get_avada_wc_vars()
 			);
+
+			$ajax_mode = fusion_library()->get_option( 'woocommerce_ajax_filters' );
+
+			if ( ! ( function_exists( 'Fusion_Template_Builder' ) && Fusion_Template_Builder()->get_override( 'content' ) ) && class_exists( 'WooCommerce' ) && ( is_shop() || is_product_taxonomy() ) && ( 'no' !== $ajax_mode || '1' === fusion_library()->get_option( 'woocommerce_ajax_sorting' ) ) ) {
+				Fusion_Dynamic_JS::enqueue_script(
+					'avada-woo-ajax',
+					$js_folder_url . '/general/avada-woo-ajax.js',
+					$js_folder_path . '/general/avada-woo-ajax.js',
+					[ 'jquery', 'avada-woocommerce' ],
+					$version,
+					true
+				);
+
+				if ( 'submit' === $ajax_mode ) {
+					Fusion_Dynamic_JS::enqueue_script(
+						'avada-woo-ajax-submit',
+						$js_folder_url . '/general/avada-woo-ajax-submit.js',
+						$js_folder_path . '/general/avada-woo-ajax-submit.js',
+						[ 'avada-woo-ajax' ],
+						$version,
+						true
+					);
+				} else {
+					Fusion_Dynamic_JS::enqueue_script(
+						'avada-woo-ajax-instant',
+						$js_folder_url . '/general/avada-woo-ajax-instant.js',
+						$js_folder_path . '/general/avada-woo-ajax-instant.js',
+						[ 'avada-woo-ajax' ],
+						$version,
+						true
+					);
+				}
+
+				Fusion_Dynamic_JS::localize_script(
+					'avada-woo-ajax',
+					'avadaWooCommerceVars',
+					self::get_avada_wc_vars()
+				);
+			}
 		}
 
 		if ( ( is_product() || Avada()->settings->get( 'woocommerce_enable_quick_view' ) ) && Avada()->settings->get( 'woocommerce_single_ajax_cart' ) ) {
@@ -1722,7 +1769,7 @@ class Avada_Woocommerce {
 	public function adjust_woocommerce_gallery_image_html_attachment_image_params( $params ) {
 		global $product;
 
-		if ( $product->is_type( 'variable' ) ) {
+		if ( $product instanceof WC_Product && $product->is_type( 'variable' ) ) {
 			$params['skip-lazyload'] = true;
 		}
 
@@ -1848,6 +1895,104 @@ class Avada_Woocommerce {
 		}
 
 		woocommerce_cross_sell_display( apply_filters( 'woocommerce_cross_sells_total', - 1 ), $number_of_columns );
+	}
+
+	/**
+	 * Update the free shipping minimum amount dynamic data endpoint.
+	 *
+	 * @access public
+	 * @since 7.14.1
+	 * @return void
+	 */	
+	public function live_update_cart_free_shipping_amount() {
+		if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( $_POST['security'], 'update_cart_nonce' ) ) {
+			wp_send_json_error( ['message' => 'Security check failed.'] );
+			wp_die();
+		}
+
+		add_filter( 'woocommerce_is_cart', '__return_true' );
+	
+		// Get the updated free shipping min amount data.
+		$free_shipping_missing    = class_exists( 'Fusion_Dynamic_Data_Callbacks' ) ? Fusion_Dynamic_Data_Callbacks::woo_get_free_shipping_min_amount( [ 'display_type' => 'missing' ] ) : '';
+		$free_shipping_percentage = class_exists( 'Fusion_Dynamic_Data_Callbacks' ) ? Fusion_Dynamic_Data_Callbacks::woo_get_free_shipping_min_amount( [ 'display_type' => 'percentage_reached', 'no_html' => true ] ) : '';
+		$sub_totals               = WC()->cart->get_cart_subtotal();
+		$sub_totals_discounts     = WC()->cart->display_prices_including_tax() ? WC()->cart->get_cart_contents_total() + WC()->cart->get_cart_contents_tax() : WC()->cart->get_cart_contents_total();		
+
+		wp_send_json_success( [
+			'free_shipping_missing'    => $free_shipping_missing,
+			'free_shipping_percentage' => $free_shipping_percentage,
+			'sub_totals'               => $sub_totals,
+			'sub_totals_discounts'     => $sub_totals_discounts,
+		] );
+
+		remove_filter( 'woocommerce_is_cart', '__return_true' );
+		
+		wp_die();
+	}
+
+	/**
+	 * Update the cart.
+	 *
+	 * @access public
+	 * @since 7.11.15
+	 * @return void
+	 */	
+	public function live_update_cart() {
+		if ( ! isset( $_POST['security'] ) || ! wp_verify_nonce( $_POST['security'], 'update_cart_nonce' ) ) {
+			wp_send_json_error( ['message' => 'Security check failed.'] );
+			wp_die();
+		}
+
+		if ( isset( $_POST['cart_item_key' ], $_POST['quantity'] ) ) {
+			add_filter( 'woocommerce_is_cart', '__return_true' );
+
+			$cart          = WC()->cart->get_cart();
+			$cart_item_key = sanitize_text_field( $_POST['cart_item_key'] );
+			$new_quantity  = intval( $_POST['quantity'] );
+
+			if ( isset( $cart[$cart_item_key] ) ) {
+				$cart_item     = $cart[ $cart_item_key ];
+				$product       = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
+				$old_quantity  = $cart_item['quantity'];
+
+				WC()->cart->set_quantity( $cart_item_key, $new_quantity );
+				WC()->cart->calculate_totals();
+	
+				// Get the updated cart item data
+				$cart_item                = WC()->cart->get_cart()[ $cart_item_key ];
+				$cart_items               = WC()->cart->get_cart_contents_count();
+				$item_sub_totals          = apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $product, $cart_item['quantity'] ), $cart_item, $cart_item_key );
+				$free_shipping_missing    = class_exists( 'Fusion_Dynamic_Data_Callbacks' ) ? Fusion_Dynamic_Data_Callbacks::woo_get_free_shipping_min_amount( [ 'display_type' => 'missing' ] ) : '';
+				$free_shipping_percentage = class_exists( 'Fusion_Dynamic_Data_Callbacks' ) ? Fusion_Dynamic_Data_Callbacks::woo_get_free_shipping_min_amount( [ 'display_type' => 'percentage_reached', 'no_html' => true ] ) : '';
+				$sub_totals               = WC()->cart->get_cart_subtotal();
+				$sub_totals_discounts     = WC()->cart->display_prices_including_tax() ? WC()->cart->get_cart_contents_total() + WC()->cart->get_cart_contents_tax() : WC()->cart->get_cart_contents_total();
+				$totals                   = WC()->cart->get_total();
+				ob_start();
+				wc_cart_totals_order_total_html();
+				$totals_tax = ob_get_clean();
+
+				wp_send_json_success( [
+					'old_quantity'             => $old_quantity,
+					'cart_items'               => $cart_items,
+					'sub_totals'               => $sub_totals,
+					'sub_totals_discounts'     => $sub_totals_discounts,
+					'item_sub_totals'          => $item_sub_totals,
+					'free_shipping_missing'    => $free_shipping_missing,
+					'free_shipping_percentage' => $free_shipping_percentage,
+					'totals'                   => $totals,
+					'totals_tax'               => $totals_tax,
+					'fragments'                => apply_filters( 'woocommerce_add_to_cart_fragments', [ '.cart_totals' => wc_get_template_html( 'cart/cart-totals.php' ) ] ),
+				] );
+
+				remove_filter( 'woocommerce_is_cart', '__return_true' );
+			} else {
+				wp_send_json_error( [ 'message' => 'Cart item not found.' ] );
+			}
+		} else {
+			wp_send_json_error ([ 'message' => 'Invalid request.' ] );
+		}
+		
+		wp_die();
 	}
 
 	/**
@@ -2116,9 +2261,12 @@ class Avada_Woocommerce {
 			'woocommerce_checkout_error'    => esc_attr__( 'Not all fields have been filled in correctly.', 'Avada' ),
 			'related_products_heading_size' => ( false === avada_is_page_title_bar_enabled( get_the_ID() ) ? '2' : '3' ),
 			'ajaxurl'                       => admin_url( 'admin-ajax.php' ),
+			'cart_nonce'                    => wp_create_nonce( 'update_cart_nonce' ),
 			'shop_page_bg_color'            => $shop_page_bg_color,
 			'shop_page_bg_color_lightness'  => Fusion_Color::new_color( $shop_page_bg_color )->lightness,
 			'post_title_font_size'          => Fusion_Sanitize::convert_font_size_to_px( Avada()->settings->get( 'post_title_typography', 'font-size' ), Avada()->settings->get( 'post_title_typography', 'font-size' ) ),
+			'woo_ajax_filters'              => Avada()->settings->get( 'woocommerce_ajax_filters' ),
+			'woo_ajax_sorting'              => Avada()->settings->get( 'woocommerce_ajax_sorting' ),
 		];
 	}
 

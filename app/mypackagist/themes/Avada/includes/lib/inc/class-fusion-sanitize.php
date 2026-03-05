@@ -20,7 +20,7 @@ class Fusion_Sanitize {
 	 */
 	public static function size( $value, $fallback_unit = false ) {
 
-		if ( false !== strpos( $value, '--awb' ) ) {
+		if ( false !== strpos( $value, '--awb' ) || false !== strpos( $value, 'clamp(' ) ) {
 			return $value;
 		}
 
@@ -381,7 +381,7 @@ class Fusion_Sanitize {
 			}
 
 			// Add numeric value to the array of numerics.
-			$numerics[] = self::numeric_string( $value );
+			$numerics[] = (float) self::numeric_string( $value );
 		}
 
 		// Make sure there's 1 instance of each unit in the array.

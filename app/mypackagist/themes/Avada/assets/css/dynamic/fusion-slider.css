@@ -13,6 +13,16 @@ Table of Contents
   margin-right: auto;
   width: 100%;
 }
+.tfs-slider .flex-caption {
+  width: 97%;
+}
+.tfs-slider .flex-control-nav {
+  bottom: 20px !important;
+}
+.tfs-slider .buttons a {
+  margin: 0;
+  display: inline-block;
+}
 .tfs-slider {
   transform: translate(0, 0);
   left: 0;
@@ -220,6 +230,17 @@ Table of Contents
   position: relative;
   z-index: 1 !important;
   margin: 0 !important;
+}
+.tfs-slider .slide-content-container .slide-content {
+  max-width: var(--site_width);
+}
+html:not(.avada-has-site-width-percent) .tfs-slider .slide-content-container {
+  padding-left: 30px;
+  padding-right: 30px;
+}
+html.avada-has-site-width-percent.avada-has-site-width-100-percent #sliders-container .tfs-slider .slide-content-container {
+  padding-left: var(--hundredp_padding);
+  padding-right: var(--hundredp_padding);
 }
 .rtl .tfs-slider[data-animation="slide"] .flex-viewport {
   direction: ltr;

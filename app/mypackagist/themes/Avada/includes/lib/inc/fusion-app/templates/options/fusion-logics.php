@@ -33,7 +33,7 @@
 					arrayType    = 'fusion_form_checkbox' === elementType || 'fusion_form_image_select' === elementType ? '[]' : '',
 					options      = {};
 
-				if ( ( 'undefined' !== typeof atts && atts.cid !== formElement.get( 'cid' ) ) && ( '' !== params.name || '' !== inputLabel ) ) {
+				if ( ( 'undefined' === typeof atts || ( 'undefined' !== typeof atts && atts.cid !== formElement.get( 'cid' ) ) ) && ( '' !== params.name || '' !== inputLabel ) ) {
 					options = {
 						'id' : params.name + arrayType,
 						'title' : inputLabel,
@@ -57,6 +57,7 @@
 						hasOr = 'or' === operator ? 'has-or' : '',
 						field	= option.field,
 						additionals = 'undefined' !== typeof option.additionals ? option.additionals: null,
+						additionals_text = 'undefined' !== typeof option.additionals_text ? option.additionals_text: null,
 						comparison = option.comparison.split( ' ' ).join( '-' ).toLowerCase(),
 						currentChoice = choices.find( ( { id } ) => id === field );
 
@@ -103,7 +104,7 @@
 									</div>
 
 								<# } else { #>
-								<div class="select_arrow"></div>
+								<div class="select_arrow">
 								<select id="{{ fieldId }}" name="{{ fieldId }}" class="fusion-hide-from-atts fusion-logic-choices fusion-select-field<# if ( skipDebounce ) { #> fusion-skip-debounce<# } #><?php echo ( is_rtl() ) ? ' fusion-select-field-rtl' : ''; ?>"<?php echo ( is_rtl() ) ? ' data-dir="rtl"' : ''; ?>>
 								<# _.each( choices, function( choice, key ) { #>
 									<#
@@ -114,30 +115,40 @@
 									<option value="{{ choiceValue }}" {{isPlaceholder}} {{ typeof( choiceValue ) !== 'undefined' && field === choiceValue ?  ' selected="selected"' : '' }} >{{ choiceName }}</option>
 								<# }); #>
 								</select>
-
+								</div>
 								<# } #>
 							</div>
-							<# if ( null !== additionals ) { #>
+							<# if ( null !== additionals || 'object' === typeof currentChoice.additionals ) { #>
 								<div class="logic-additionals">
-									<# if ( 'text' === currentChoice.additionals.type ) { #>
-										<input type="text" value="{{ additionals }}" placeholder="{{currentChoice.additionals.placeholder}}" class="fusion-hide-from-atts fusion-logic-additionals-field" />
-									<# } else if ( 'select' === currentChoice.additionals.type ) { #>
-										<# if ( 'undefined' !== typeof FusionApp ) { #>
-											<div class="fusion-select-wrapper">
-												<select id="{{ fieldId }}" name="{{ fieldId }}" class="fusion-dont-update fusion-logic-option fusion-hide-from-atts">
-													<# _.each( currentChoice.additionals.options, function( choiceName, choiceValue ) {
-														choiceName  = 'object' === typeof choiceName ? choiceName[0] : choiceName;
-														choiceValue = Number.isInteger( choiceValue ) ? parseInt( choiceValue ) : choiceValue;
-													#>
-													<option value="{{ choiceValue }}" {{ typeof( additionals ) !== 'undefined' && additionals === choiceValue ?  ' selected="selected"' : '' }} >{{ choiceName }}</option>
-													<# }); #>
-												</select>
-												<span class="fusiona-arrow-down"></span>
-											</div>
+									<# 
+									let additionalsFields = {};
+									if ( 'undefined' !== typeof currentChoice.additionals.type ) {
+										additionalsFields = { 0: currentChoice.additionals };
+									} else {
+										additionalsFields = currentChoice.additionals;
+									}
+									#>
+									<# _.each( additionalsFields, function( additional, key ) { #>
+										<# if ( 'text' === additional.type ) { #>
+											<# const fieldValue = null !== additionals_text ? additionals_text : additionals; #>
+											<input type="text" value="{{ fieldValue }}" placeholder="{{ additional.placeholder }}" class="fusion-hide-from-atts fusion-logic-additionals-field" />
+										<# } else if ( 'select' === additional.type ) { #>
+											<# if ( 'undefined' !== typeof FusionApp ) { #>
+												<div class="fusion-select-wrapper">
+													<select id="{{ fieldId }}" name="{{ fieldId }}" class="fusion-logic-additionals fusion-select-field fusion-hide-from-atts">
+														<# _.each( additional.options, function( choiceName, choiceValue ) {
+															choiceName  = 'object' === typeof choiceName ? choiceName[0] : choiceName;
+															choiceValue = Number.isInteger( choiceValue ) ? parseInt( choiceValue ) : choiceValue;
+														#>
+														<option value="{{ choiceValue }}" {{ typeof( additionals ) !== 'undefined' && additionals === choiceValue ?  ' selected="selected"' : '' }} >{{ choiceName }}</option>
+														<# } ); #>
+													</select>
+													<span class="fusiona-arrow-down"></span>
+												</div>
 											<# } else { #>
-												<div class="select_arrow"></div>
-												<select id="{{ fieldId }}" name="{{ fieldId }}" class="fusion-hide-from-atts fusion-logic-additionals-field fusion-select-field<# if ( skipDebounce ) { #> fusion-skip-debounce<# } #><?php echo ( is_rtl() ) ? ' fusion-select-field-rtl' : ''; ?>"<?php echo ( is_rtl() ) ? ' data-dir="rtl"' : ''; ?>>
-													<# _.each( currentChoice.additionals.options, function( choiceName, choiceValue ) { #>
+												<div class="select_arrow">
+												<select id="{{ fieldId }}" name="{{ fieldId }}" class="fusion-hide-from-atts fusion-logic-additionals fusion-select-field<# if ( skipDebounce ) { #> fusion-skip-debounce<# } #><?php echo ( is_rtl() ) ? ' fusion-select-field-rtl' : ''; ?>"<?php echo ( is_rtl() ) ? ' data-dir="rtl"' : ''; ?>>
+													<# _.each( additional.options, function( choiceName, choiceValue ) { #>
 														<#
 														choiceName  = 'object' === typeof choiceName ? choiceName[0] : choiceName;
 														choiceValue = Number.isInteger( choiceValue ) ? parseInt( choiceValue ) : choiceValue;
@@ -145,8 +156,10 @@
 														<option value="{{ choiceValue }}" {{ typeof( additionals ) !== 'undefined' && additionals === choiceValue ?  ' selected="selected"' : '' }} >{{ choiceName }}</option>
 													<# }); #>
 												</select>
+												</div>
 											<# }
 										} #>
+									<# } ); #>
 								</div>
 							<# } #>
 						</div>
@@ -170,27 +183,52 @@
 										<# if ( 'undefined' !== typeof FusionApp ) { #>
 											<div class="fusion-select-wrapper">
 												<select id="{{ fieldId }}" name="{{ fieldId }}" class="fusion-dont-update fusion-logic-option fusion-hide-from-atts">
+												<# let groupOpen = false; #>
 												<# _.each( currentChoice.options, function( choiceName, choiceValue ) { #>
 													<#
 														choiceName  = 'object' === typeof choiceName ? choiceName[0] : choiceName;
 														choiceValue = Number.isInteger( choiceValue ) ? parseInt( choiceValue ) : choiceValue;
 													#>
-													<option value="{{ choiceValue }}" {{ typeof( value ) !== 'undefined' && value === choiceValue ?  ' selected="selected"' : '' }} >{{ choiceName }}</option>
+													<# if ( -1 !== choiceValue.indexOf( 'group__' ) ) { #>
+														<# if ( groupOpen ) { #>
+															</optgroup>
+														<# } #>
+														<# groupOpen = true #>
+														<optgroup label="{{ choiceName }}">
+													<# } else { #>
+														<option value="{{ choiceValue }}" {{ typeof( value ) !== 'undefined' && value === choiceValue ?  ' selected="selected"' : '' }} >{{ choiceName }}</option>
+													<# } #>
 												<# }); #>
+												<# if ( groupOpen ) { #>
+													</optgroup>
+												<# } #>
 												</select>
 												<span class="fusiona-arrow-down"></span>
 											</div>
 										<# } else { #>
-										<div class="select_arrow"></div>
-										<select id="{{ fieldId }}" name="{{ fieldId }}" class="fusion-hide-from-atts fusion-logic-option fusion-select-field<# if ( skipDebounce ) { #> fusion-skip-debounce<# } #><?php echo ( is_rtl() ) ? ' fusion-select-field-rtl' : ''; ?>"<?php echo ( is_rtl() ) ? ' data-dir="rtl"' : ''; ?>>
-										<# _.each( currentChoice.options, function( choiceName, choiceValue ) { #>
-											<#
-												choiceName  = 'object' === typeof choiceName ? choiceName[0] : choiceName;
-												choiceValue = Number.isInteger( choiceValue ) ? parseInt( choiceValue ) : choiceValue;
-											#>
-											<option value="{{ choiceValue }}" {{ typeof( choiceValue ) !== 'undefined' && value === choiceValue ?  ' selected="selected"' : '' }} >{{ choiceName }}</option>
-										<# }); #>
-										</select>
+											<div class="select_arrow">
+											<select id="{{ fieldId }}" name="{{ fieldId }}" class="fusion-hide-from-atts fusion-logic-option fusion-select-field<# if ( skipDebounce ) { #> fusion-skip-debounce<# } #><?php echo ( is_rtl() ) ? ' fusion-select-field-rtl' : ''; ?>"<?php echo ( is_rtl() ) ? ' data-dir="rtl"' : ''; ?>>
+											<# let groupOpen = false #>
+											<# _.each( currentChoice.options, function( choiceName, choiceValue ) { #>
+												<#
+													choiceName  = 'object' === typeof choiceName ? choiceName[0] : choiceName;
+													choiceValue = Number.isInteger( choiceValue ) ? parseInt( choiceValue ) : choiceValue;
+												#>
+												<# if ( -1 !== choiceValue.indexOf( 'group__' ) ) { #>
+													<# if ( groupOpen ) { #>
+														</optgroup>
+													<# } #>
+													<# groupOpen = true #>
+													<optgroup label="{{ choiceName }}">
+												<# } else { #>
+													<option value="{{ choiceValue }}" {{ typeof( choiceValue ) !== 'undefined' && value === choiceValue ?  ' selected="selected"' : '' }} >{{ choiceName }}</option>
+												<# } #>
+											<# }); #>
+											<# if ( groupOpen ) { #>
+												</optgroup>
+											<# } #>
+											</select>
+											</div>
 										<# }
 									} #>
 								</div>
@@ -234,7 +272,7 @@
 						<span class="fusiona-arrow-down"></span>
 					</div>
 					<# } else { #>
-					<div class="select_arrow"></div>
+					<div class="select_arrow">
 					<select id="{{ fieldId }}" name="{{ fieldId }}" class="fusion-hide-from-atts fusion-logic-choices fusion-select-field fusion-skip-init<# if ( skipDebounce ) { #> fusion-skip-debounce<# } #><?php echo ( is_rtl() ) ? ' fusion-select-field-rtl' : ''; ?>"<?php echo ( is_rtl() ) ? ' data-dir="rtl"' : ''; ?>>
 					<# _.each( choices, function( choice, key ) { #>
 						<#
@@ -243,6 +281,7 @@
 						<option value="{{ choice.id }}" {{isPlaceholder}} {{ typeof( value ) !== 'undefined' && field === choice.id ?  ' selected="selected"' : '' }}>{{ choice.title }}</option>
 					<# }); #>
 					</select>
+					</div>
 					<# } #>
 				</div>
 			</div>

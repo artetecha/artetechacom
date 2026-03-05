@@ -87,7 +87,24 @@ class Fusion_Preferences {
 		$db_preference = get_option( 'fusion_builder_frontend_preferences' );
 
 		if ( false === $db_preference ) {
-			self::$preferences = [];
+			self::$preferences = [
+				'styling_mode'                => 'light',
+				'sidebar_position'            => 'left',
+				'editing_mode'                => 'sidebar',
+				'open_settings'               => 'on',
+				'keyboard_shortcuts'          => 'on',
+				'descriptions'                => 'hide',
+				'tooltips'                    => 'on',
+				'sticky_header'               => 'on',
+				'transparent_header'          => 'on',
+				'element_filters'             => 'on',
+				'element_transform'           => 'editing',
+				'inline_dynamic_data_preview' => 'never',
+				'rendering_logic'             => 'on',
+				'droppables_visible'          => 'off',
+				'sidebar_overlay'             => 'off',
+				'options_subtabs'             => 'expanded',
+			];
 		} else {
 			self::$preferences = $db_preference;
 		}
@@ -254,6 +271,29 @@ class Fusion_Preferences {
 			],
 			[
 				'type'        => 'radio_button_set',
+				'heading'     => esc_html__( 'Enable Preview for Inline Dynamic Data', 'fusion-builder' ),
+				'description' => esc_html__( 'Choose if or when a preview of inline dynamic data should be displayed.', 'fusion-builder' ),
+				'param_name'  => 'inline_dynamic_data_preview',
+				'value'       => [
+					'always'  => esc_html__( 'Always', 'fusion-builder' ),
+					'editing' => esc_html__( 'Editing', 'fusion-builder' ),
+					'never'   => esc_html__( 'Never', 'fusion-builder' ),
+				],
+				'default'     => ( isset( self::$preferences['inline_dynamic_data_preview'] ) ? self::$preferences['inline_dynamic_data_preview'] : 'never' ),
+			],			
+			[
+				'type'        => 'radio_button_set',
+				'heading'     => esc_html__( 'Enable Preview For Conditional Rendering', 'fusion-builder' ),
+				'description' => esc_html__( 'Choose to enable the device conditional rendering preview for container and columns.', 'fusion-builder' ),
+				'param_name'  => 'rendering_logic',
+				'value'       => [
+					'on'  => esc_html__( 'On', 'fusion-builder' ),
+					'off' => esc_html__( 'Off', 'fusion-builder' ),
+				],
+				'default'     => ( isset( self::$preferences['rendering_logic'] ) ? self::$preferences['rendering_logic'] : 'on' ),
+			],
+			[
+				'type'        => 'radio_button_set',
 				'heading'     => esc_html__( 'Show Droppable Areas While Dragging', 'fusion-builder' ),
 				'description' => esc_html__( 'Enable in order to see all dropppable areas while dragging element.', 'fusion-builder' ),
 				'param_name'  => 'droppables_visible',
@@ -284,17 +324,6 @@ class Fusion_Preferences {
 					'collapsed' => esc_html__( 'Collapsed', 'fusion-builder' ),
 				],
 				'default'     => ( isset( self::$preferences['options_subtabs'] ) ? self::$preferences['options_subtabs'] : 'expanded' ),
-			],
-			[
-				'type'        => 'radio_button_set',
-				'heading'     => esc_html__( 'Enable Preview For Rendering Logic', 'fusion-builder' ),
-				'description' => esc_html__( 'Choose to enable the device rendering logic preview for container and columns.', 'fusion-builder' ),
-				'param_name'  => 'rendering_logic',
-				'value'       => [
-					'on'  => esc_html__( 'On', 'fusion-builder' ),
-					'off' => esc_html__( 'Off', 'fusion-builder' ),
-				],
-				'default'     => ( isset( self::$preferences['rendering_logic'] ) ? self::$preferences['rendering_logic'] : 'on' ),
 			],
 		];
 

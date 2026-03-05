@@ -40,9 +40,17 @@ FusionPageBuilder.options.fusionLogics = {
 				option.field = jQuery( this ).find( 'select.fusion-logic-choices' ).val();
 				// desired value.
 				option.value = jQuery( this ).find( '.fusion-logic-option' ).val();
-				// additinals.
-				if ( jQuery( this ).find( '.logic-additionals' ).length ) {
-					option.additionals = jQuery( this ).find( '.fusion-logic-additionals-field' ).val();
+				// additionals.
+				const $additionals = jQuery( this ).find( '.logic-additionals' );
+				if ( $additionals.length ) {
+					if ( $additionals.find( 'select' ).length && $additionals.find( '.fusion-logic-additionals-field' ).length ) {
+						option.additionals      = $additionals.find( 'select' ).children( 'option:selected' ).val();
+						option.additionals_text = $additionals.find( '.fusion-logic-additionals-field' ).val();
+					} else if ( $additionals.find( 'select' ).length ) {
+						option.additionals = $additionals.find( 'select' ).children( 'option:selected' ).val();
+					} else {
+						option.additionals = $additionals.find( '.fusion-logic-additionals-field' ).val();
+					}
 				}
 				options.push( option );
 			} );
@@ -113,9 +121,21 @@ FusionPageBuilder.options.fusionLogics = {
 					if ( 'object' === typeof currentChoice.options ) {
 						$options += '<div class="fusion-select-wrapper">';
 						$options += '<select class="fusion-logic-option fusion-hide-from-atts">';
+						let groupOpen = false;
 						jQuery.each( currentChoice.options, function( key, choice ) {
-							$options += '<option value="' + key + '">' + choice + '</option>';
+							if ( -1 !== key.indexOf( 'group__' ) ) {
+								if ( groupOpen ) {
+									$options += '</optgroup>';
+								}
+								$options += '<optgroup label="' + choice + '">';
+								groupOpen = true;
+							} else {
+								$options += '<option value="' + key + '">' + choice + '</option>';
+							}
 						} );
+						if ( groupOpen ) {
+							$options += '</optgroup>';
+						}
 						$options += '</select>';
 						$options += '<span class="fusiona-arrow-down"></span>';
 						$options += '</div>';
@@ -132,29 +152,38 @@ FusionPageBuilder.options.fusionLogics = {
 
 				$wrapper.find( '.logic-additionals' ).remove();
 				if ( 'undefined' !== typeof currentChoice.additionals ) {
-					switch ( currentChoice.additionals.type ) {
-					case 'select':
-						if ( 'object' === typeof currentChoice.additionals.options ) {
-							$options = '<div class="logic-additionals">';
-							$options += '<div class="select_arrow"></div>';
-							$options += '<select class="fusion-logic-additionals fusion-hide-from-atts fusion-select-field">';
-							jQuery.each( currentChoice.additionals, function( key, choice ) {
-								$options += '<option value="' + key + '">' + choice + '</option>';
-							} );
-							$options += '</select>';
-							$options += '</div>';
-						}
 
-						$wrapper.find( '.logic-field' ).append( $options );
-						break;
-
-					case 'text':
-						$options = '<div class="logic-additionals">';
-						$options += '<input type="text" value="" placeholder="' + currentChoice.additionals.placeholder + '" class="fusion-hide-from-atts fusion-logic-additionals-field" />';
-						$options += '</div>';
-						$wrapper.find( '.logic-field' ).append( $options );
-						break;
+					let additionalsFields = {};
+					if ( 'undefined' !== typeof currentChoice.additionals.type ) {
+						additionalsFields = { 0: currentChoice.additionals };
+					} else {
+						additionalsFields = currentChoice.additionals;
 					}
+
+					$options = '<div class="logic-additionals">';
+					_.each( additionalsFields, function( additional ) {
+						switch ( additional.type ) {
+							case 'select':
+								if ( 'object' === typeof additional.options ) {
+									$options += '<div class="fusion-select-wrapper">';
+									$options += '<select class="fusion-logic-additionals fusion-hide-from-atts fusion-select-field">';
+									jQuery.each( additional.options, function( key, choice ) {
+										$options += '<option value="' + key + '">' + choice + '</option>';
+									} );
+									$options += '</select>';
+									$options += '<span class="fusiona-arrow-down"></span>';
+									$options += '</div>';
+									
+								}
+								break;
+
+							case 'text':
+								$options += '<input type="text" value="" placeholder="' + additional.placeholder + '" class="fusion-hide-from-atts fusion-logic-additionals-field" />';
+								break;
+						}
+					} );
+					$options += '</div>';
+					$wrapper.find( '.logic-field' ).append( $options );
 				}
 			}
 
@@ -171,6 +200,8 @@ FusionPageBuilder.options.fusionLogics = {
 		$fusionLogics.on( 'click', '.fusion-sortable-edit, h4.logic-title', function( event ) {
 			var $parent = jQuery( this ).closest( '.fusion-logic' );
 			event.preventDefault();
+
+			$parent.toggleClass( 'is-open' );
 
 			$parent.find( '.fusion-logic-controller-content' ).slideToggle( 'fast' );
 		} );
@@ -199,10 +230,52 @@ FusionPageBuilder.options.fusionLogics = {
 
 			event.preventDefault();
 
+			$fusionLogics.find( '.fusion-logic' ).removeClass( 'is-open' );
 			$fusionLogics.find( '.fusion-logic-controller-content' ).hide();
 
 			$fusionLogics.append( $newEl );
+
+			$fusionLogics.find( $newEl ).toggleClass( 'is-open' );
+
 			updateValues();
+		} );
+	},
+	updateFieldChoice: function() {
+		var $selects = this.$el.find( '.fusion-builder-option-logics .fusion-logic-choices' ),
+		options     = [];
+
+		// Filter map to only get form elements.
+		formElements = _.filter( FusionPageBuilderApp.collection.models, function( element ) {
+			var params = element.get( 'params' );
+			if ( 'object' !== typeof params ) {
+				return false;
+			}
+			return element.get( 'element_type' ).includes( 'fusion_form' ) && 'fusion_form_submit' !== element.get( 'element_type' ) && 'fusion_form_image_select_input' !== element.get( 'element_type' ) && ( 'string' === typeof params.label || 'undefined' === typeof params.label ) && 'string' === typeof params.name;
+		} );
+
+		_.each( formElements, function( formElement ) {
+			var params     = formElement.get( 'params' ),
+				inputLabel   = 'string' === typeof params.label && '' !== params.label ? params.label : params.name,
+				elementType  = formElement.get( 'element_type' ),
+				arrayType    = 'fusion_form_checkbox' === elementType || 'fusion_form_image_select' === elementType ? '[]' : '',
+
+				label = 'object' === typeof inputLabel ? inputLabel[0] : inputLabel,
+				value = Number.isInteger( params.name + arrayType ) ? parseInt( params.name + arrayType ) : params.name + arrayType,
+				placeholder = 'placeholder' === value ? ' disabled selected hidden' : '';
+
+			options.push( '<option value="' + value + '"' + placeholder + '>' + label + '</option>' );
+			
+		} );
+
+		_.each( $selects, function( $select ) {
+			const selectedValue = jQuery( $select ).val(),
+				updatedTags = options.map( function( tag ) {
+					return tag.includes(`value="${selectedValue}"`)
+						? tag.replace( '>', ' selected>' )
+						: tag;
+				} );
+
+			jQuery( $select ).html( updatedTags.join( '' ) );
 		} );
 	}
 };

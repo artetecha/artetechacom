@@ -110,6 +110,21 @@
 			default_options.mceInit = tinyMCEPreInit.mceInit['fusion_builder_editor'];
 		}
 
+		if ( 'undefined' !== typeof awbPalette && 'undefined' !== typeof awbPalette.data ) {
+			const defaultColors = [ '000000', 'Black', '993300', 'Burnt orange', '333300', 'Dark olive', '003300', 'Dark green', '003366', 'Dark azure', '000080', 'Navy Blue', '333399', 'Indigo', '333333', 'Very dark gray', '800000', 'Maroon', 'FF6600', 'Orange', '808000', 'Olive', '008000', 'Green', '008080', 'Teal', '0000FF', 'Blue', '666699', 'Grayish blue', '808080', 'Gray', 'FF0000', 'Red', 'FF9900', 'Amber', '99CC00', 'Yellow green', '339966', 'Sea green', '33CCCC', 'Turquoise', '3366FF', 'Royal blue', '800080', 'Purple', '999999', 'Medium gray', 'FF00FF', 'Magenta', 'FFFF00', 'Yellow', '00FF00', 'Lime', '00FFFF', 'Cyan', '00CCFF', 'Sky blue', '993366', 'Red violet', 'FFFFFF', 'White' ];
+			let colors = [];
+			for ( const colorSlug in awbPalette.data ) {
+				const colorObj = awbPalette.getColorObject( colorSlug );
+
+				if ( colorObj && colorObj.color && colorObj.label ) {
+					colors.push( colorObj.color.replace( '#', '' ), colorObj.label );
+				}
+			}
+
+			default_options.mceInit.textcolor_map  = colors.concat( defaultColors );
+			default_options.mceInit.textcolor_cols = Object.keys( awbPalette.data ).length;
+		}
+
 		var options = $.extend({}, default_options, tinyMCEPreInit.mceInit.content);
 		//var model = $('#dialog_form').dialog('option', 'referencedView').model;
 
@@ -119,6 +134,10 @@
 			else {
 				var current_id = $(this).attr('id');
 				var tmc_settings = $.extend( {}, options.mceInit, { selector : "#" + current_id } );
+
+				if ( 'undefined' !== typeof $( this ).data( 'wpautop' ) ) {
+					tmc_settings.wpautop = 'true' === $( this ).data( 'wpautop' );
+				}
 
 				options.mode = 'tmce';
 
@@ -215,7 +234,6 @@
 
 				// Handles the content to be pasted.
 				function getPlainContent( content ) {
-					console.log( content, _.unescape( content ) );
 					try {
 						const pasteContent = JSON.parse( _.unescape( content ) );
 

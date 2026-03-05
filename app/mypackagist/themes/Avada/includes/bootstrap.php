@@ -243,7 +243,7 @@ $avada_avadaredux_args = [
 	'page_parent'          => 'themes.php',
 	'page_slug'            => 'avada_options',
 	'menu_type'            => 'submenu',
-	'page_permissions'     => 'manage_options',
+	'page_permissions'     => apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_global_options' ),
 ];
 
 // Instantiate the Avada_Admin class.
@@ -292,6 +292,7 @@ if ( ! is_admin() && $load_avada_gfonts ) {
 
 if ( ! is_admin() ) {
 	AWB_Google_Recaptcha::get_instance();
+	AWB_Cloudflare_Turnstile::get_instance();
 }
 
 new Fusion_Dynamic_CSS_From_Options();
@@ -324,9 +325,14 @@ if ( is_admin() ) {
 /**
  * Instantiate Avada_System_Status helper class.
  */
-if ( is_admin() && ( isset( $_GET['page'] ) && 'avada-status' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) || ( fusion_doing_ajax() && isset( $_GET['action'] ) && ( 'fusion_check_api_status' === $_GET['action'] || 'fusion_create_forms_tables' === $_GET['action'] || 'awb_copy_multisite_global_options' === $_GET['action'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+if ( is_admin() && ( isset( $_GET['page'] ) && 'avada-status' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) || ( fusion_doing_ajax() && ( ( isset( $_GET['action'] ) && ( 'fusion_check_api_status' === $_GET['action'] || 'fusion_create_forms_tables' === $_GET['action'] || 'awb_update_form_submissions_table' === $_GET['action'] || 'awb_copy_multisite_global_options' === $_GET['action'] ) ) || ( isset ($_POST['action'] ) && 'awb_convert_images_in_media_library' === $_POST['action'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 	new Avada_System_Status();
 }
+
+/**
+ * Load Custom Auth Pages class.
+ */
+require_once Avada::$template_dir_path . '/includes/class-awb-custom-auth-pages.php';
 
 /**
  * Load Maintenance Mode class.
@@ -378,6 +384,8 @@ if ( class_exists( 'WooCommerce' ) ) {
 	global $avada_woocommerce;
 	$avada_woocommerce = new Avada_Woocommerce();
 }
+
+new AWB_View_Count();
 
 if ( class_exists( 'ACF' ) ) {
 	new AWB_ACF();

@@ -83,6 +83,9 @@
 .fusion-fullwidth.fusion-absolute-position-small.fusion-builder-live.awb-le-viewport-small .width-100 #fusion_builder_container > .fusion-builder-flex-container:not(:hover):not(.fusion-builder-element-edited) {
   width: calc( 100% - 2 * (var(--hundredp_padding-hundred_percent_negative_margin)) );
 }
+.fusion-builder-live.fusion-builder-preview-mode .awb-dd-params {
+  display: none;
+}
 .fusion-builder-column-inner {
   position: relative;
 }
@@ -256,6 +259,52 @@
 }
 .fusion-builder-blank-page.fusion-builder-scheme-dark:not(.fusion-post-awb_off_canvas) .fusion-builder-blank-page-info .info-icon {
   background: transparent;
+}
+.awb-off-canvas-wrap .is-empty {
+  --awb-horizontal-position: center;
+  --awb-vertical-position: center;
+  --awb-overlay-z-index: 99990;
+  --awb-overlay-background-color: rgba(0, 0, 0, 0.8);
+  --awb-overlay-background-image: none;
+  --awb-overlay-background-repeat: repeat;
+  --awb-overlay-background-size: auto;
+  --awb-overlay-background-position: left top;
+  --awb-overlay-background-blend-mode: none;
+  --awb-width: 800px;
+  --awb-height: auto;
+  --awb-margin-top: 0;
+  --awb-margin-right: 0;
+  --awb-margin-bottom: 0;
+  --awb-margin-left: 0;
+  --awb-background-color: #fff;
+  --awb-background-image: none;
+  --awb-background-repeat: repeat;
+  --awb-background-size: auto;
+  --awb-background-position: left top;
+  --awb-background-blend-mode: none;
+  --awb-oc-scrollbar-handle-color: #65bc7b;
+  --awb-oc-scrollbar-background: #f2f3f5;
+  --awb-padding-top: 0;
+  --awb-padding-right: 0;
+  --awb-padding-bottom: 0;
+  --awb-padding-left: 0;
+  --awb-content-layout: column;
+  --awb-align-content: flex-start;
+  --awb-valign-content: flex-start;
+  --awb-content-wrap: wrap;
+  --awb-close-button-color: var(--body_typography-color);
+  --awb-close-icon-size: var(--body_typography-font-size);
+  --awb-close-button-color-hover: #d30404;
+  --awb-border-top-width: 0;
+  --awb-border-right-width: 0;
+  --awb-border-bottom-width: 0;
+  --awb-border-left-width: 0;
+  --awb-border-color: inherit;
+  --awb-border-top-left-radius: 0;
+  --awb-border-top-right-radius: 0;
+  --awb-border-bottom-right-radius: 0;
+  --awb-border-bottom-left-radius: 0;
+  --awb-box-shadow: none;
 }
 #side-header .fusion-builder-live-editor {
   position: relative;

@@ -75,6 +75,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	?>
 	</tbody>
 	<tfoot>
+		<?php // Avada edit: better cart totals table. ?>
+		<tr class="awb-checkout-totals-wrapper">
+			<td colspan="2">
+				<table class="awb-cart-totals-table">
+					<tbody>
+		<?php // End Avada edit: better cart totals table. ?>
 
 	<tr class="cart-subtotal">
 		<th><?php _e( 'Subtotal', 'woocommerce' ); ?></th>
@@ -130,5 +136,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<?php do_action( 'woocommerce_review_order_after_order_total' ); ?>
 
+		<?php // Avada edit: better cart totals table. ?>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+		<?php // End Avada edit: better cart totals table. ?>
 	</tfoot>
 </table>

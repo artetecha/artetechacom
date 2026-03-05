@@ -159,7 +159,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					tabView = FusionApp.sidebarView.viewManager.getView( $section.find( '.fusion-builder-custom-tab#tab-' + id ).data( 'cid' ) );
 					if ( 'undefined' !== typeof tabView ) {
 						tabView.initialCheckDependencies();
+
+						if ( tabView.$el.find( '.fusion-builder-option' ).filter( '.fusion_logics' ).length ) {
+							tabView.updateFieldChoice();
+						}
 					}
+
 					tabView.showTab();
 				}
 

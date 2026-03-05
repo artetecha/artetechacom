@@ -62,7 +62,7 @@ if ( $attachment_image ) {
 
 	<?php if ( true === $is_product ) : ?>
 		<?php if ( $in_cart ) : ?>
-			<div class="cart-loading"><i class="awb-icon-check-square-o" aria-hidden="true"></i></div>
+			<div class="cart-loading"><i class="awb-icon-shopping-cart" aria-hidden="true"></i></div>
 		<?php else : ?>
 			<div class="cart-loading"><i class="awb-icon-spinner" aria-hidden="true"></i></div>
 		<?php endif; ?>

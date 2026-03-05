@@ -22,7 +22,7 @@ function avada_page_options_tab_form_confirmation( $sections ) {
 		'id'       => 'form_confirmation',
 		'fields'   => [
 			'form_confirmation_type' => [
-				'type'        => 'select',
+				'type'        => 'multiple_select',
 				'label'       => esc_html__( 'Form Confirmation Type', 'fusion-builder' ),
 				'description' => esc_html__( 'Select what should happen after the form is submitted successfully.', 'fusion-builder' ),
 				'id'          => 'form_confirmation_type',
@@ -46,7 +46,7 @@ function avada_page_options_tab_form_confirmation( $sections ) {
 					[
 						'field'      => 'form_confirmation_type',
 						'value'      => 'message',
-						'comparison' => '==',
+						'comparison' => 'contains',
 					],
 				],
 			],
@@ -59,8 +59,28 @@ function avada_page_options_tab_form_confirmation( $sections ) {
 				'dependency'  => [
 					[
 						'field'      => 'form_confirmation_type',
-						'value'      => 'message',
-						'comparison' => '!=',
+						'value'      => 'redirect',
+						'comparison' => 'contains',
+					],
+				],
+			],
+			'redirect_timeout' => [
+				'type'        => 'slider',
+				'label'       => esc_html__( 'Redirect After', 'fusion-builder' ),
+				'description' => esc_html__( 'Set a timeout before the redirect takes place. In milliseconds.', 'fusion-builder' ),
+				'id'          => 'redirect_timeout',
+				'transport'   => 'postMessage',
+				'default'     => '0',
+				'choices'     => [
+					'step' => '100',
+					'min'  => '0',
+					'max'  => '5000',
+				],
+				'dependency'  => [
+					[
+						'field'      => 'form_confirmation_type',
+						'value'      => 'redirect',
+						'comparison' => 'contains',
 					],
 				],
 			],

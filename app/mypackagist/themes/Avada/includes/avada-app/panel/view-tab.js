@@ -82,6 +82,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				this.listenTo( FusionEvents, 'fusion-po-changed', this.updateExportCode );
 				this.listenTo( FusionEvents, 'fusion-ps-changed', this.updateExportCode );
 			}
+
+			if ( 'form_notifications' === this.model.get( 'id' ) ) {
+				this.listenTo( FusionEvents, 'fusion-element-added', this.updateFieldChoice );
+				this.listenTo( FusionEvents, 'fusion-element-removed', this.updateFieldChoice );
+			}
 		},
 
 		/**
@@ -232,11 +237,13 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			this.optionColorPalette( $thisEl );
 			this.optionRaw( $thisEl );
 			this.optionLinkSelector( $thisEl );
+			this.optionAuthMap( $thisEl );
 			this.optionHubSpotMap( $thisEl );
 			this.optionMailchimpMap( $thisEl );
 			this.optionIconpicker( $thisEl );
 			this.optionLayoutConditions( $thisEl );
 			this.optionTextarea( $thisEl );
+			this.optionLogics( $thisEl );
 
 			if ( 'undefined' === typeof $element ) {
 				this.optionRepeater( this.type );
@@ -409,6 +416,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				return false;
 			}
 
+			if ( $target.closest( '.fusion-builder-option' ).hasClass( 'fusion_logics' ) && $target.parentsUntil( '.fusion-builder-option' ).filter( '.fusion-logics' ).length ) {
+				return true;
+			}
+
 			// Repeater value being changed, trigger on parent only.
 			if ( $target.parents( '.fusion-builder-option.repeater' ).length && ! $target.hasClass( 'fusion-repeater-value' ) ) {
 				if ( $target.hasClass( 'fusion-image-as-object' ) ) {
@@ -420,6 +431,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						value = JSON.parse( value );
 					}
 				}
+
 				this.setRepeaterValue( $target.parents( '.fusion-builder-option.repeater' ).find( '.fusion-repeater-value' ), id, $target.parents( '.repeater-row' ).index(), value );
 				return false;
 			}
@@ -809,7 +821,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( jQuery( '#fb-preview' ).contents().find( 'meta[property="og:description"]' ).length ) {
 					jQuery( '#fb-preview' ).contents().find( 'meta[property="og:description"]' ).attr( 'content', value );
 				}
-				
+
 			}
 		},
 
@@ -1030,13 +1042,13 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			if ( $optionEl.hasClass( 'text' ) || $optionEl.hasClass( 'textarea' ) ) {
 				let valueLTrim  = value.trimStart(),
 					valueRTrim  = value.trimEnd();
-					
+
 				if ( value !== valueLTrim && value !== valueRTrim ) {
 					trimMessage = fusionBuilderTabL10n.lAndTWhiteSpace;
 				} else if ( value !== valueLTrim ) {
 					trimMessage = fusionBuilderTabL10n.leadingWhiteSpace;
 				} else if ( value !== valueRTrim ) {
-					trimMessage = fusionBuilderTabL10n.trailingWhiteSpace;;					
+					trimMessage = fusionBuilderTabL10n.trailingWhiteSpace;
 				}
 
 				if ( trimMessage ) {
@@ -1267,12 +1279,14 @@ var FusionPageBuilder = FusionPageBuilder || {};
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionColorPalette );
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionRawField );
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionLinkSelector );
+	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.awbAuthMap );
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionHubSpotMap );
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionMailchimpMap );
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionIconPicker );
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionLayoutConditions );
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionToggleField );
-	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionTextarea );	
+	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionTextarea );
+	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionLogics );
 
 	// Active states.
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.fusionActiveStates );

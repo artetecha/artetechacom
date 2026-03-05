@@ -1,4 +1,4 @@
-/* global FusionApp, fusionAllElements, fusionMailchimpMapOption, fusionHubSpotMapOption, fusionHubSpotConsentMapOption */
+/* global FusionApp, fusionAllElements, awbAuthMapOption, fusionMailchimpMapOption, fusionHubSpotMapOption, fusionHubSpotConsentMapOption */
 var FusionPageBuilder = FusionPageBuilder || {};
 FusionPageBuilder.options = FusionPageBuilder.options || {};
 
@@ -91,6 +91,11 @@ FusionPageBuilder.options.fusionToggleField = {
 			if ( $repeater.length && !this.repeaterInitialized ) {
 				jQuery( document ).trigger( 'fusion-init-repeater-in-toggle', { $toggle, option: option.fields } );
 				this.repeaterInitialized = true;
+			}
+
+			// Init auth map inside toggle.
+			if ( $target.find( '.auth_map' ) ) {
+				new awbAuthMapOption( $target );
 			}
 
 			//init mailchimp map inside toggle.

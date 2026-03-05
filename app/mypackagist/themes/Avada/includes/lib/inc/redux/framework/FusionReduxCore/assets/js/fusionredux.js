@@ -489,8 +489,6 @@
 				var relid = link.data( 'rel' ); // The group ID of interest
 				var oldid = el.find( '.fusionredux-group-tab-link-li.active:first .fusionredux-group-tab-link-a' ).data( 'rel' );
 
-				//console.log('id: '+relid+' oldid: '+oldid);
-
 				if ( oldid === relid ) {
 					return;
 				}
@@ -526,16 +524,12 @@
 				);
 
 				if ( el.find( '#' + oldid + '_section_group_li' ).find( '#' + oldid + '_section_group_li' ).length ) {
-					//console.log('RELID is child of oldid');
 					el.find( '#' + oldid + '_section_group_li' ).addClass( 'activeChild' );
 					el.find( '#' + relid + '_section_group_li' ).addClass( 'active' ).removeClass( 'activeChild' );
 				} else if ( el.find( '#' + relid + '_section_group_li' ).parents( '#' + oldid + '_section_group_li' ).length || el.find( '#' + oldid + '_section_group_li' ).parents( 'ul.subsection' ).find( '#' + relid + '_section_group_li' ).length ) {
-					//console.log('RELID is sibling or child of OLDID');
 					if ( el.find( '#' + relid + '_section_group_li' ).parents( '#' + oldid + '_section_group_li' ).length ) {
-						//console.log('child of oldid');
 						el.find( '#' + oldid + '_section_group_li' ).addClass( 'activeChild' ).removeClass( 'active' );
 					} else {
-						//console.log('sibling');
 						el.find( '#' + relid + '_section_group_li' ).addClass( 'active' );
 						el.find( '#' + oldid + '_section_group_li' ).removeClass( 'active' );
 					}
@@ -544,9 +538,6 @@
 					el.find( '#' + relid + '_section_group_li' ).addClass( 'active' ).removeClass( 'activeChild' ).find( 'ul.subsection' ).slideDown();
 
 					if ( el.find( '#' + oldid + '_section_group_li' ).find( 'ul.subsection' ).length ) {
-						//console.log('oldid is parent');
-						//console.log('#' + relid + '_section_group_li');
-
 						el.find( '#' + oldid + '_section_group_li' ).find( 'ul.subsection' ).slideUp(
 							'fast', function() {
 								el.find( '#' + oldid + '_section_group_li' ).removeClass( 'active' ).removeClass( 'activeChild' );
@@ -557,21 +548,17 @@
 						if ( newParent.length > 0 ) {
 							el.find( '#' + relid + '_section_group_li' ).removeClass( 'active' );
 							relid = newParent.find( '.fusionredux-group-tab-link-a:first' ).data( 'rel' );
-							//console.log(relid);
 							if ( newParent.hasClass( 'empty_section' ) ) {
 								newParent.find( '.subsection li:first' ).addClass( 'active' );
 								el.find( '#' + relid + '_section_group_li' ).removeClass( 'active' ).addClass( 'activeChild' ).find( 'ul.subsection' ).slideDown();
 								newParent = newParent.find( '.subsection li:first' );
 								relid = newParent.find( '.fusionredux-group-tab-link-a:first' ).data( 'rel' );
-								//console.log('Empty section, do the next one?');
 							} else {
 								el.find( '#' + relid + '_section_group_li' ).addClass( 'active' ).removeClass( 'activeChild' ).find( 'ul.subsection' ).slideDown();
 							}
 						}
 					} else if ( el.find( '#' + oldid + '_section_group_li' ).parents( 'ul.subsection' ).length ) {
-						//console.log('oldid is a child');
 						if ( !el.find( '#' + oldid + '_section_group_li' ).parents( '#' + relid + '_section_group_li' ).length ) {
-							//console.log('oldid is child, but not of relid');
 							el.find( '#' + oldid + '_section_group_li' ).parents( 'ul.subsection' ).slideUp(
 								'fast', function() {
 									el.find( '#' + oldid + '_section_group_li' ).removeClass( 'active' );
@@ -581,14 +568,12 @@
 								}
 							);
 						} else {
-							//console.log('oldid is child, but not of relid2');
 							el.find( '#' + oldid + '_section_group_li' ).removeClass( 'active' );
 						}
 					} else {
-						//console.log('Normal remove active from child');
 						el.find( '#' + oldid + '_section_group_li' ).removeClass( 'active' );
 						if ( el.find( '#' + relid + '_section_group_li' ).parents( '.fusionredux-group-tab-link-li' ).length ) {
-							//console.log('here');
+
 							// ThemeFusion edit: added the timeout to make the slidedown work correctly
 							setTimeout( function() {
 								el.find( '#' + relid + '_section_group_li' ).parents( '.fusionredux-group-tab-link-li' ).addClass( 'activeChild' ).find( 'ul.subsection' ).slideDown();
@@ -1739,7 +1724,6 @@ function fusionredux_change( variable ) {
 		var errorCount = (parseInt( rContainer.find( '.fusionredux-field-errors span' ).text() ) - 1);
 
 		if ( errorCount <= 0 ) {
-			//console.log('HERE');
 			jQuery( '#' + parentID + '_li .fusionredux-menu-error' ).fadeOut( 'fast' ).remove();
 			jQuery( '#' + parentID + '_li .fusionredux-group-tab-link-a' ).removeClass( 'hasError' );
 
@@ -1771,7 +1755,6 @@ function fusionredux_change( variable ) {
 		var warningCount = (parseInt( rContainer.find( '.fusionredux-field-warnings span' ).text() ) - 1);
 
 		if ( warningCount <= 0 ) {
-			//console.log('HERE');
 			jQuery( '#' + parentID + '_li .fusionredux-menu-warning' ).fadeOut( 'fast' ).remove();
 			jQuery( '#' + parentID + '_li .fusionredux-group-tab-link-a' ).removeClass( 'hasWarning' );
 

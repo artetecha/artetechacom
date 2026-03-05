@@ -59,17 +59,14 @@ if ( 'object' == typeof valueCheck ) { #>
 	<# numberOfDimensions = Object.keys( paramOptions ).length; #>
 	<# _.each( paramOptions, function( sub_value, sub_param ) { #>
 		<#
-		var dimension_value = ( 'undefined' !== typeof atts && 'undefined' !== typeof atts.params[ sub_param ] ) ? atts.params[ sub_param ] : valueCheck[ sub_param ],
+		var dimension_value = ( 'undefined' !== typeof atts && 'undefined' !== typeof atts.params && 'undefined' !== typeof atts.params[ sub_param ] ) ? atts.params[ sub_param ] : valueCheck[ sub_param ],
 			values = 'string' === typeof option_value ? option_value.split(' ') : '',
-			inputClass,
+			inputClass = '',
 			content_text;
-
-			dimension_value = ( 'undefined' !== typeof atts && 'undefined' !== atts.params[ sub_param ] ) ? atts.params[ sub_param ] : valueCheck[ sub_param ];
-			inputClass = '';
 
 		content_text = isFrontEnd ? fusionBuilderText.fusion_dimension_width_label : 'fusiona-expand';
 
-		if ( sub_param.indexOf( 'height' ) > -1 || sub_param.indexOf( 'vertical' ) > -1  ) {
+		if ( sub_param.indexOf( 'height' ) > -1 || sub_param.indexOf( 'vertical' ) > -1 || sub_param.indexOf( 'row_gap' ) > -1 ) {
 			if ( isFrontEnd ) {
 				content_text = fusionBuilderText.fusion_dimension_height_label;
 				if ( isBoxShadow || isTextShadow || isArrowPosition ) {
@@ -78,7 +75,7 @@ if ( 'object' == typeof valueCheck ) { #>
 			} else {
 				content_text = 'fusiona-expand fusion-rotate-315';
 			}
-		} else if ( sub_param.indexOf( 'width' ) > -1 || sub_param.indexOf( 'horizontal' ) > -1  ) {
+		} else if ( sub_param.indexOf( 'width' ) > -1 || sub_param.indexOf( 'horizontal' ) > -1 || sub_param.indexOf( 'column_gap' ) > -1 ) {
 			if ( isFrontEnd ) {
 				content_text = fusionBuilderText.fusion_dimension_width_label;
 				if ( isBoxShadow || isTextShadow || isArrowPosition ) {
@@ -87,7 +84,12 @@ if ( 'object' == typeof valueCheck ) { #>
 			} else {
 				content_text = 'fusiona-expand fusion-rotate-45';
 			}
+		} else if ( sub_param.indexOf( 'column' ) > -1 ) {
+			content_text = fusionBuilderText.fusion_dimension_column;
+		} else if ( sub_param.indexOf( 'row' ) > -1  ) {
+			content_text = fusionBuilderText.fusion_dimension_row;
 		}
+
 		if ( ! borderRadius && sub_param.indexOf( 'top' ) > -1 || sub_param.indexOf( 'top_left' ) > -1 ) {
 			content_text = isFrontEnd ? topLabel : 'dashicons dashicons-arrow-up-alt';
 			if ( 4 == values.length ) {

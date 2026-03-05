@@ -79,7 +79,7 @@ if ( ! empty( $imported_data['all'] ) && in_array( strtolower( $demo ), $importe
 	<div id="theme-demo-<?php echo esc_attr( strtolower( $demo ) ); ?>" class="theme">
 		<div class="theme-wrapper">
 			<div class="theme-screenshot">
-				<img src="" <?php echo ( ! empty( $demo_details['previewImage'] ) ) ? 'data-src="' . esc_url_raw( $demo_details['previewImage'] ) . '"' : ''; ?> <?php echo ( ! empty( $demo_details['previewImageRetina'] ) ) ? 'data-src-retina="' . esc_url_raw( $demo_details['previewImageRetina'] ) . '"' : ''; ?>>
+				<img src="" <?php echo ( ! empty( $demo_details['previewImage'] ) ) ? 'data-src="' . esc_url_raw( $demo_details['previewImage'] ) . '"' : ''; ?> <?php echo ( ! empty( $demo_details['previewImageRetina'] ) ) ? 'data-src-retina="' . esc_url_raw( $demo_details['previewImageRetina'] ) . '"' : ''; ?> width="880" height="660">
 			</div>
 			<h3 class="theme-name" id="<?php esc_attr( $demo ); ?>"><?php echo esc_html( ucwords( str_replace( '_', ' ', $demo ) ) ); ?></h3>
 

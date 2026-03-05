@@ -55,6 +55,9 @@
 	display: none;
 }
 
+.menu-item-depth-0.fusion-special-link-off-canvas-toggle .fusion-builder-option:not(.field-megamenu-off-canvas-id):not(.field-megamenu-icon):not(.field-megamenu-icononly) {
+	display: none;
+}
 input[value="awb-off-canvas-menu-trigger"] ~ div.field-megamenu-modal,
 input[value="awb-off-canvas-menu-trigger"] ~ div.field-megamenu-background-image,
 input[value="awb-off-canvas-menu-trigger"] ~ div.field-megamenu-status {

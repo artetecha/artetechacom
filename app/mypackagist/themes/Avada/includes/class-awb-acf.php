@@ -116,6 +116,7 @@ class AWB_ACF {
 				border: 1px solid #8c8f94;
 			}
 			.acf-icon-picker-avada-icons { width: 100%; }
+			#acf_post_type-menu_icon [data-unique-tab-key="avada_icon"] { display: none; }
 		' 
 		);
 	}

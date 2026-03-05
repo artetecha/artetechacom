@@ -210,7 +210,7 @@ class Avada_Upgrade_550 extends Avada_Upgrade_Abstract {
 	 */
 	private function set_page_background_options( $options ) {
 
-		if ( isset( $options['layout'] ) && 'Wide' === $options['layout'] ) {
+		if ( isset( $options['layout'] ) && 'Wide' === $options['layout'] && is_array( $options['bg_image'] ) ) {
 
 			$options['bg_image']['url']       = '';
 			$options['bg_image']['id']        = '';

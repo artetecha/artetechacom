@@ -906,6 +906,27 @@ jQuery( document ).ready( function() {
 
 	} );
 
+	// Form tables.
+	jQuery( '.fusion-update-form-submission-table' ).on( 'click', function( event ) {
+		var $this = jQuery( this ),
+			statusCell = $this.closest( 'tr' ).find( 'td:nth-child(3)' ),
+			data = {
+				action: 'awb_update_form_submissions_table',
+				nonce: jQuery( '#fusion-system-status-nonce' ).val()
+			};
+
+		event.preventDefault();
+
+		statusCell.find( '.avada-db-status-version-control-desc, a ' ).hide();
+		statusCell.find( '.fusion-system-status-spinner' ).css( 'display', 'inline-block' );
+
+		jQuery.get( ajaxurl, data, function( response ) {
+			statusCell.find( '.fusion-system-status-spinner' ).hide();
+			statusCell.html( response.message );
+		}, 'json' );
+
+	} );
+
 	// Copy multisite global options.
 	jQuery( '.awb-copy-multisite-global-options' ).on( 'click', function( event ) {
 		var $this = jQuery( this ),
@@ -929,6 +950,63 @@ jQuery( document ).ready( function() {
 			statusCell.html( response.message );
 		}, 'json' );
 
+	} );
+
+	// Convert images in media library.
+	jQuery( '.awb-convert-images' ).on( 'click', function( event ) {
+		const $this      = jQuery( this ),
+			$statusCell  = $this.closest( 'tr' ).find( 'td:nth-child(3)' ),
+			$statusText  = $statusCell.find( '#conversion-status' ),
+			$progressBar = $statusCell.find( '#conversion-progress-bar' );
+
+		event.preventDefault();
+
+		if ( false === confirm( jQuery( this ).data( 'confirm-text' ) ) ) {
+			return;
+		}
+
+		const batchSize       = 10;
+		const totalImages     = parseInt( $statusText.data( 'total' ) );
+		const startCounterEnd = totalImages < batchSize ? totalImages : batchSize;
+		let totalProcessed    = 0;
+
+		$progressBar.parent().show();
+		$progressBar.css( 'width', '0%' );
+        $statusText.text( $statusText.data( 'text' ) + ' 1 - ' + startCounterEnd + ' ' + $statusText.data( 'text-of' ) + ' ' + totalImages );
+
+        function processBatch() {
+            jQuery.post( ajaxurl, {
+                action: 'awb_convert_images_in_media_library',
+				nonce: jQuery( '#fusion-system-status-nonce' ).val(),
+                batch_size: batchSize,
+            }, function( response ) {
+                if ( response.success ) {
+					totalProcessed  += parseInt( response.data.processed );
+
+					const progressPercent = Math.min( ( totalProcessed / totalImages ) * 100, 100 );
+					const startNum        = totalProcessed + 1;
+                    const endNum          = totalProcessed + batchSize > totalImages ? totalImages : totalProcessed + batchSize;
+
+					if ( startNum <= totalImages && endNum <= totalImages ) {
+                   		$statusText.text ( $statusText.data( 'text' ) + ' ' + startNum + ' - ' + endNum + ' ' + $statusText.data( 'text-of' ) + ' ' + totalImages );
+						$progressBar.css( 'width', progressPercent + '%' );
+					}
+
+                    if ( ! response.data.finished ) {
+                        processBatch();
+                    } else {
+                        $progressBar.css( 'width', '100%' );
+                        $statusText.text( $statusText.data( 'text-total' ) + ' ' + totalProcessed );
+                    }
+                } else {
+                    $statusText.text( 'Error: ' + response.data );
+                }
+            } ).fail( function() {
+                $statusText.text( 'AJAX request failed.' );
+            } );
+        }
+
+        processBatch();
 	} );	
 
 	// Registration scroll to.

@@ -3788,9 +3788,11 @@ var FusionEvents = _.extend( {}, Backbone.Events );
 					}
 					return this.data.examplePostDetails.post_meta;
 				}
-				if ( ( 'fusion_tb_section' === FusionApp.data.postDetails.post_type || 'post_cards' === FusionApp.data.fusion_element_type || 'awb_off_canvas' === FusionApp.data.postDetails.post_type ) && 'undefined' !== typeof FusionApp.data.postMeta._fusion && 'undefined' !== typeof FusionApp.data.postMeta._fusion.dynamic_content_preview_type && 'undefined' !== typeof FusionApp.initialData.dynamicPostID ) {
+
+				if ( ( 'fusion_tb_section' === FusionApp.data.postDetails.post_type || 'post_cards' === FusionApp.data.fusion_element_type || 'awb_off_canvas' === FusionApp.data.postDetails.post_type ) && 'undefined' !== typeof FusionApp.data.postMeta._fusion && 'undefined' !== typeof FusionApp.data.postMeta._fusion.dynamic_content_preview_type && 'undefined' !== typeof FusionApp.initialData.dynamicPostID && null !== FusionApp.initialData.dynamicPostID ) {
 					return FusionApp.initialData.dynamicPostID;
 				}
+
 				if ( 'object' !== typeof this.data.examplePostDetails ) {
 					return this.getPost( key );
 				}
@@ -7052,6 +7054,16 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						normalize: true
 					} );
 
+					// Class applier for dynamic data element.
+					this.dynamicDataClassApplier = rangy.createClassApplier( 'fusion-inline-shortcode', {
+						elementTagName: 'span',
+						elementAttributes: {
+							'data-inline-shortcode': 'true',
+							'data-element': 'awb_dd'
+						},
+						normalize: true
+					} );
+
 					// Class applier for popover element.
 					this.popoverClassApplier = rangy.createClassApplier( 'fusion-inline-shortcode', {
 						elementTagName: 'span',
@@ -7170,24 +7182,30 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				// Form creation and event handling
 				createForm: function() {
-					var doc           = this.document,
-						form          = doc.createElement( 'div' ),
-						ul            = doc.createElement( 'ul' ),
-						dropcap       = doc.createElement( 'button' ),
-						highlight     = doc.createElement( 'button' ),
-						popover       = doc.createElement( 'button' ),
-						tooltip       = doc.createElement( 'button' ),
-						onepage       = doc.createElement( 'button' ),
-						modalLink     = doc.createElement( 'button' ),
-						li            = doc.createElement( 'li' ),
-						icon          = doc.createElement( 'i' ),
-						tooltipText   = false,
-						onepageText   = false,
-						popoverText   = false,
-						highlightText = false,
-						dropcapText   = false,
-						modalLinkText = false;
+					var self            = this,
+						doc             = this.document,
+						form            = doc.createElement( 'div' ),
+						ul              = doc.createElement( 'ul' ),
+						dropcap         = doc.createElement( 'button' ),
+						dynamic         = doc.createElement( 'button' ),
+						highlight       = doc.createElement( 'button' ),
+						popover         = doc.createElement( 'button' ),
+						tooltip         = doc.createElement( 'button' ),
+						onepage         = doc.createElement( 'button' ),
+						modalLink       = doc.createElement( 'button' ),
+						li              = doc.createElement( 'li' ),
+						icon            = doc.createElement( 'i' ),
+						dynamicDataText = false,
+						tooltipText     = false,
+						onepageText     = false,
+						popoverText     = false,
+						highlightText   = false,
+						dropcapText     = false,
+						modalLinkText   = false;
 
+					if ( 'undefined' !== typeof fusionAllElements.awb_dd ) {
+						dynamicDataText = fusionBuilderText.add_unknown.replace( '%s', fusionAllElements.awb_dd.name );
+					}
 					if ( 'undefined' !== typeof fusionAllElements.fusion_tooltip ) {
 						tooltipText = fusionBuilderText.add_unknown.replace( '%s', fusionAllElements.fusion_tooltip.name );
 					}
@@ -7202,7 +7220,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					}
 					if ( 'undefined' !== typeof fusionAllElements.fusion_dropcap ) {
 						dropcapText = fusionBuilderText.add_unknown.replace( '%s', fusionAllElements.fusion_dropcap.name );
-					}
+					}				
 					if ( 'undefined' !== typeof fusionAllElements.fusion_modal_text_link ) {
 						modalLinkText = fusionBuilderText.add_unknown.replace( '%s', fusionAllElements.fusion_modal_text_link.name );
 					}
@@ -7230,6 +7248,85 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						li.appendChild( dropcap );
 						ul.appendChild( li );
 						this.on( dropcap, 'click', this.addShortcodeElement.bind( this ), true );
+					}
+
+					// Dynamic Data element.
+					if ( dynamicDataText ) {
+						li                = doc.createElement( 'li' );
+						icon.className    = 'fusiona-dynamic-data';
+						dynamic.className = 'awb-dd-add';
+						dynamic.setAttribute( 'data-element', 'awb_dd' );
+						dynamic.setAttribute( 'title', dynamicDataText );
+						dynamic.setAttribute( 'aria-label', dynamicDataText );
+						dynamic.appendChild( icon );
+						dynamic.innerHTML += fusionAllElements.awb_dd.name;
+						li.appendChild( dynamic );
+						ul.appendChild( li );
+
+						const self = this;
+						this.on( dynamic, 'click', this.addShortcodeElement.bind( this ), true );
+
+						// When typing { a new dynamic data element should be created.
+						this.on( this.base.elements[0], 'keydown', function( event ) {
+							if ( '{' === event.key ) {
+								setTimeout( () => {
+									const win = self.document.defaultView;
+									const sel = win.getSelection();
+
+									if ( ! sel.rangeCount ) {
+										return;
+									}
+						
+									const range = sel.getRangeAt( 0 );
+									const { endContainer, endOffset } = range;
+
+									if ( endContainer.nodeType !== Node.TEXT_NODE ) {
+										return;
+									}
+						
+									const text = endContainer.textContent;
+						
+									// Check if `{` was inserted at the cursor position.
+									if ( '{' === text[ endOffset - 1 ] ) {
+										// Create a new range to select `{`.
+										const newRange = self.document.createRange();
+										newRange.setStart( endContainer, endOffset - 1 );
+										newRange.setEnd( endContainer, endOffset );
+						
+										sel.removeAllRanges();
+										sel.addRange( newRange );
+
+										self.addShortcodeElement( 'awb_dd' );
+									}
+								}, 50 );
+							}
+						}, true );
+
+						// Mak sure it is possible to type after clicking on an inline element.
+						this.on( jQuery( this.base.elements[0] ).find( '.fusion-disable-editing.fusion-inline-element' ), 'click', function( event ) {
+							event.preventDefault();
+
+							const nonEditable = jQuery( event.target ).closest( '.fusion-disable-editing' );
+							const editor = jQuery( nonEditable ).closest( '.fusion-live-editable' );
+							const range = self.document.createRange();
+
+							let next = nonEditable[0].nextSibling;
+
+							// If there is no text node after the non-editable span, move to end of the 
+							if ( ! next || next.nodeType !== Node.TEXT_NODE ) {
+								range.selectNodeContents( editor[0] );
+								range.collapse( false );	
+							} else {
+						
+								// Put caret at start of next node.
+								range.setStart( next, 0 );
+								range.collapse( true );
+							}
+						
+							const sel = self.document.defaultView.getSelection();
+							sel.removeAllRanges();
+							sel.addRange( range );
+						} );
 					}
 
 					// Highlight element.
@@ -7322,34 +7419,38 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				addShortcodeElement: function( element ) {
 					var iframe    = document.getElementById( 'fb-preview' ),
 						iframeWin = rangy.dom.getIframeWindow( iframe ),
-						label     = element.currentTarget.getAttribute( 'data-element' );
+						label     = element.currentTarget ? element.currentTarget.getAttribute( 'data-element' ) : element;
 
 					this.base.restoreSelection();
 
 					switch ( label ) {
-					case 'fusion_dropcap':
-						this.dropCapClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'fusion_dropcap':
+							this.dropCapClassApplier.applyToSelection( iframeWin );
+							break;
 
-					case 'fusion_highlight':
-						this.highlightClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'awb_dd':
+							this.dynamicDataClassApplier.applyToSelection( iframeWin );
+							break;
 
-					case 'fusion_popover':
-						this.popoverClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'fusion_highlight':
+							this.highlightClassApplier.applyToSelection( iframeWin );
+							break;
 
-					case 'fusion_tooltip':
-						this.tooltipClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'fusion_popover':
+							this.popoverClassApplier.applyToSelection( iframeWin );
+							break;
 
-					case 'fusion_one_page_text_link':
-						this.onepageClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'fusion_tooltip':
+							this.tooltipClassApplier.applyToSelection( iframeWin );
+							break;
 
-					case 'fusion_modal_text_link':
-						this.modalLinkClassApplier.applyToSelection( iframeWin );
-						break;
+						case 'fusion_one_page_text_link':
+							this.onepageClassApplier.applyToSelection( iframeWin );
+							break;
+
+						case 'fusion_modal_text_link':
+							this.modalLinkClassApplier.applyToSelection( iframeWin );
+							break;
 					}
 					this.doFormSave( label );
 				},
@@ -8278,11 +8379,14 @@ FusionPageBuilder.options.fusionColorPalette = {
 
 		initializePickers();
 
+		// Copy color code.
+		$paletteContainer.on( 'click', '.fusiona-code', copyColorCode );
+
 		// Toggle open and close color.
 		$paletteContainer.on( 'click', '.preview, .fusiona-pen', handleToggleColor );
 
 		// Listen for removal of color.
-		$paletteContainer.on( 'click', '.fusiona-trash-o', handleTrashIconClick );
+		$paletteContainer.on( 'click', '.fusiona-trash-o', handleTrashIconClick );	
 
 		// Listen for the add color button.
 		$paletteContainer.on( 'click', '.awb-color-palette-add-btn', handleAddColorBtnClick );
@@ -8316,6 +8420,24 @@ FusionPageBuilder.options.fusionColorPalette = {
 			}
 
 			addOrUpdateOptionColor( slug, { color: value } );
+		}
+
+		function copyColorCode() {
+			const colorVar = 'var(--awb-' + jQuery( this ).closest( '.fusion-color-palette-item' ).data( 'slug' ) + ')';
+
+			if ( 'clipboard' in navigator ) {
+				navigator.clipboard.writeText( colorVar );
+			} else {
+				const textArea = document.createElement( 'textarea' );
+				textArea.value = colorVar;
+				textArea.style.opacity = 0;
+				document.body.appendChild( textArea );
+				textArea.focus();
+				textArea.select();
+
+				const success = document.execCommand( 'copy' );
+				document.body.removeChild( textArea );
+			}			
 		}
 
 		// Show or hide the controls to change a color.
@@ -8800,9 +8922,17 @@ FusionPageBuilder.options.fusionLogics = {
 				option.field = jQuery( this ).find( 'select.fusion-logic-choices' ).val();
 				// desired value.
 				option.value = jQuery( this ).find( '.fusion-logic-option' ).val();
-				// additinals.
-				if ( jQuery( this ).find( '.logic-additionals' ).length ) {
-					option.additionals = jQuery( this ).find( '.fusion-logic-additionals-field' ).val();
+				// additionals.
+				const $additionals = jQuery( this ).find( '.logic-additionals' );
+				if ( $additionals.length ) {
+					if ( $additionals.find( 'select' ).length && $additionals.find( '.fusion-logic-additionals-field' ).length ) {
+						option.additionals      = $additionals.find( 'select' ).children( 'option:selected' ).val();
+						option.additionals_text = $additionals.find( '.fusion-logic-additionals-field' ).val();
+					} else if ( $additionals.find( 'select' ).length ) {
+						option.additionals = $additionals.find( 'select' ).children( 'option:selected' ).val();
+					} else {
+						option.additionals = $additionals.find( '.fusion-logic-additionals-field' ).val();
+					}
 				}
 				options.push( option );
 			} );
@@ -8873,9 +9003,21 @@ FusionPageBuilder.options.fusionLogics = {
 					if ( 'object' === typeof currentChoice.options ) {
 						$options += '<div class="fusion-select-wrapper">';
 						$options += '<select class="fusion-logic-option fusion-hide-from-atts">';
+						let groupOpen = false;
 						jQuery.each( currentChoice.options, function( key, choice ) {
-							$options += '<option value="' + key + '">' + choice + '</option>';
+							if ( -1 !== key.indexOf( 'group__' ) ) {
+								if ( groupOpen ) {
+									$options += '</optgroup>';
+								}
+								$options += '<optgroup label="' + choice + '">';
+								groupOpen = true;
+							} else {
+								$options += '<option value="' + key + '">' + choice + '</option>';
+							}
 						} );
+						if ( groupOpen ) {
+							$options += '</optgroup>';
+						}
 						$options += '</select>';
 						$options += '<span class="fusiona-arrow-down"></span>';
 						$options += '</div>';
@@ -8892,29 +9034,38 @@ FusionPageBuilder.options.fusionLogics = {
 
 				$wrapper.find( '.logic-additionals' ).remove();
 				if ( 'undefined' !== typeof currentChoice.additionals ) {
-					switch ( currentChoice.additionals.type ) {
-					case 'select':
-						if ( 'object' === typeof currentChoice.additionals.options ) {
-							$options = '<div class="logic-additionals">';
-							$options += '<div class="select_arrow"></div>';
-							$options += '<select class="fusion-logic-additionals fusion-hide-from-atts fusion-select-field">';
-							jQuery.each( currentChoice.additionals, function( key, choice ) {
-								$options += '<option value="' + key + '">' + choice + '</option>';
-							} );
-							$options += '</select>';
-							$options += '</div>';
-						}
 
-						$wrapper.find( '.logic-field' ).append( $options );
-						break;
-
-					case 'text':
-						$options = '<div class="logic-additionals">';
-						$options += '<input type="text" value="" placeholder="' + currentChoice.additionals.placeholder + '" class="fusion-hide-from-atts fusion-logic-additionals-field" />';
-						$options += '</div>';
-						$wrapper.find( '.logic-field' ).append( $options );
-						break;
+					let additionalsFields = {};
+					if ( 'undefined' !== typeof currentChoice.additionals.type ) {
+						additionalsFields = { 0: currentChoice.additionals };
+					} else {
+						additionalsFields = currentChoice.additionals;
 					}
+
+					$options = '<div class="logic-additionals">';
+					_.each( additionalsFields, function( additional ) {
+						switch ( additional.type ) {
+							case 'select':
+								if ( 'object' === typeof additional.options ) {
+									$options += '<div class="fusion-select-wrapper">';
+									$options += '<select class="fusion-logic-additionals fusion-hide-from-atts fusion-select-field">';
+									jQuery.each( additional.options, function( key, choice ) {
+										$options += '<option value="' + key + '">' + choice + '</option>';
+									} );
+									$options += '</select>';
+									$options += '<span class="fusiona-arrow-down"></span>';
+									$options += '</div>';
+									
+								}
+								break;
+
+							case 'text':
+								$options += '<input type="text" value="" placeholder="' + additional.placeholder + '" class="fusion-hide-from-atts fusion-logic-additionals-field" />';
+								break;
+						}
+					} );
+					$options += '</div>';
+					$wrapper.find( '.logic-field' ).append( $options );
 				}
 			}
 
@@ -8931,6 +9082,8 @@ FusionPageBuilder.options.fusionLogics = {
 		$fusionLogics.on( 'click', '.fusion-sortable-edit, h4.logic-title', function( event ) {
 			var $parent = jQuery( this ).closest( '.fusion-logic' );
 			event.preventDefault();
+
+			$parent.toggleClass( 'is-open' );
 
 			$parent.find( '.fusion-logic-controller-content' ).slideToggle( 'fast' );
 		} );
@@ -8959,11 +9112,214 @@ FusionPageBuilder.options.fusionLogics = {
 
 			event.preventDefault();
 
+			$fusionLogics.find( '.fusion-logic' ).removeClass( 'is-open' );
 			$fusionLogics.find( '.fusion-logic-controller-content' ).hide();
 
 			$fusionLogics.append( $newEl );
+
+			$fusionLogics.find( $newEl ).toggleClass( 'is-open' );
+
 			updateValues();
 		} );
+	},
+	updateFieldChoice: function() {
+		var $selects = this.$el.find( '.fusion-builder-option-logics .fusion-logic-choices' ),
+		options     = [];
+
+		// Filter map to only get form elements.
+		formElements = _.filter( FusionPageBuilderApp.collection.models, function( element ) {
+			var params = element.get( 'params' );
+			if ( 'object' !== typeof params ) {
+				return false;
+			}
+			return element.get( 'element_type' ).includes( 'fusion_form' ) && 'fusion_form_submit' !== element.get( 'element_type' ) && 'fusion_form_image_select_input' !== element.get( 'element_type' ) && ( 'string' === typeof params.label || 'undefined' === typeof params.label ) && 'string' === typeof params.name;
+		} );
+
+		_.each( formElements, function( formElement ) {
+			var params     = formElement.get( 'params' ),
+				inputLabel   = 'string' === typeof params.label && '' !== params.label ? params.label : params.name,
+				elementType  = formElement.get( 'element_type' ),
+				arrayType    = 'fusion_form_checkbox' === elementType || 'fusion_form_image_select' === elementType ? '[]' : '',
+
+				label = 'object' === typeof inputLabel ? inputLabel[0] : inputLabel,
+				value = Number.isInteger( params.name + arrayType ) ? parseInt( params.name + arrayType ) : params.name + arrayType,
+				placeholder = 'placeholder' === value ? ' disabled selected hidden' : '';
+
+			options.push( '<option value="' + value + '"' + placeholder + '>' + label + '</option>' );
+			
+		} );
+
+		_.each( $selects, function( $select ) {
+			const selectedValue = jQuery( $select ).val(),
+				updatedTags = options.map( function( tag ) {
+					return tag.includes(`value="${selectedValue}"`)
+						? tag.replace( '>', ' selected>' )
+						: tag;
+				} );
+
+			jQuery( $select ).html( updatedTags.join( '' ) );
+		} );
+	}
+};
+;/* globals FusionPageBuilderApp, FusionApp, fusionSanitize */
+var FusionPageBuilder = FusionPageBuilder || {};
+FusionPageBuilder.options = FusionPageBuilder.options || {};
+
+function awbAuthMapOption( $element ) {
+	var self = this;
+
+	if ( 'object' !== typeof FusionApp.data.authmap || ! $element.find( '.auth_map' ).length ) {
+		return;
+	}
+
+	// Set reusable vars.
+	self.$optionWrap = $element.find( '.auth_map' );
+	self.type        = self.$optionWrap.data( 'option-id' ).replace( '_map', '' );
+	self.$el         = self.$optionWrap.find( '.auth-map-holder .fusion-mapping' );
+	self.$input      = self.$optionWrap.find( '.auth-map-holder' ).children( 'input' );
+	self.values      = {};
+
+	try {
+		self.values = JSON.parse( self.$input.val() );
+	} catch ( e ) {
+		console.warn( 'Error triggered - ' + e );
+	}
+
+	// Initial build.
+	self.updateMap();
+
+	// Add listeners.
+	FusionPageBuilderApp.collection.on( 'change reset add remove', function() {
+		self.updateMap();
+	} );
+
+	self.$el.on( 'change', 'select', function() {
+		self.updateValues();
+	} );
+}
+
+awbAuthMapOption.prototype.updateValues = function() {
+	var values = {};
+
+	this.$el.find( 'select' ).each( function() {
+		values[ jQuery( this ).attr( 'name' ) ] = jQuery( this ).val();
+	} );
+
+	this.values = values;
+
+	this.$input.val( JSON.stringify( values ) );
+	setTimeout( () => {
+		this.$input.trigger( 'change' );
+	}, 10 );
+};
+
+awbAuthMapOption.prototype.updateMap = function() {
+	const self = this;
+
+	self.$el.children().remove();
+
+	if ( ! self.$el.children().length ) {
+		const $fields = self.getFields();
+		
+		self.$el.append( $fields );
+	}
+
+	self.$el.find( '.form-input-entry select' ).each( function() {
+		if ( 'string' === typeof self.values[ jQuery( this ).attr( 'name' ) ] ) {
+			jQuery( this ).val( self.values[ jQuery( this ).attr( 'name' ) ] );
+		} else {
+			jQuery( this ).val( 'placeholder' );
+		}
+	} );
+};
+
+awbAuthMapOption.prototype.getFields = function() {
+	const self  = this,
+		options = this.getOptions();
+
+	let fieldNames     = [],
+		userLoginLabel = 'user_login',
+		fields         = '';
+
+	switch( self.type ) {
+		case 'login':
+			fieldNames     = [ 'user_login', 'user_pass', 'rememberme' ];
+			break;
+		case 'register':
+			fieldNames     = [ 'user_login', 'user_email', 'user_pass', 'first_name', 'last_name' ];
+			userLoginLabel = 'username';
+			break;
+		case 'lost_password':
+			fieldNames     = [ 'user_login' ];
+			userLoginLabel = 'lost_password';
+			break;
+		case 'reset_password':
+			fieldNames     = [ 'user_pass' ];
+			break;
+		default:
+			fieldNames     = [ 'user_login', 'user_pass', 'rememberme' ];
+			break;
+	}
+
+	fieldNames.forEach( function( fieldName ) {
+		const label = 'user_login' === fieldName ? FusionApp.data.authmap['label_' + userLoginLabel ] : FusionApp.data.authmap[ 'label_' + fieldName ];
+
+		fields += '<div class="form-input-entry"><label for="fusionmap-' + fieldName + '">' + label + '</label><div class="fusion-select-wrapper"><select class="fusion-dont-update" name="' + fieldName + '" id="fusionmap-fusionmap-' + fieldName + '">' + options + '</select><span class="fusiona-arrow-down"></span></div></div>';
+	} );
+
+	return fields;
+};
+
+awbAuthMapOption.prototype.getOptions = function() {
+	var formElements = false,
+		self         = this,
+		options      = '<option value="placeholder" disabled selected hidden>' + FusionApp.data.authmap.label_placeholder + '</option>';
+		
+	if ( 'object' !== typeof FusionPageBuilderApp.collection ) {
+		self.$el.empty();
+		return;
+	}
+
+	// Filter map to only get form elements.
+	formElements = _.filter( FusionPageBuilderApp.collection.models, function( element ) {
+		var params = element.get( 'params' );
+		if ( 'object' !== typeof params ) {
+			return false;
+		}
+		return element.get( 'element_type' ).includes( 'fusion_form' ) && 'fusion_form_submit' !== element.get( 'element_type' ) && 'fusion_form_consent' !== element.get( 'element_type' ) && ( 'string' === typeof params.label || 'string' === typeof params.name );
+	} );
+
+	_.each( formElements, function( formElement ) {
+		var params      = formElement.get( 'params' ),
+			inputLabel  = 'string' === typeof params.label && '' !== params.label ? params.label : params.name,
+			elementType = formElement.get( 'element_type' ),
+			arrayType   = 'fusion_form_checkbox' === elementType || 'fusion_form_image_select' === elementType ? '[]' : '';
+
+		if ( ( 'undefined' === typeof atts || ( 'undefined' !== typeof atts && atts.cid !== formElement.get( 'cid' ) ) ) && ( '' !== params.name || '' !== inputLabel ) ) {
+			const optionName  = 'object' === typeof inputLabel ? inputLabel[0] : inputLabel,
+				optionValue   = Number.isInteger( params.name + arrayType ) ? parseInt( params.name + arrayType ) : params.name + arrayType,
+				isPlaceholder = 'placeholder' === params.name + arrayType ? ' disabled selected hidden ' : '';
+
+			options += '<option value="' + optionValue + '"' + isPlaceholder + '>' + optionName + '</option>';
+		}
+	} );
+
+	return options;
+};
+
+FusionPageBuilder.options.awbAuthMap = {
+
+	/**
+	 * Run actions on load.
+	 *
+	 * @since 3.1
+	 *
+	 * @return {void}
+	 */
+	optionAuthMap: function( $element ) {
+		if ( 'undefined' === typeof this.authMap ) {
+			this.authMap = new awbAuthMapOption( $element );
+		}
 	}
 };
 ;/* globals FusionPageBuilderApp, FusionApp */
@@ -9543,7 +9899,7 @@ FusionPageBuilder.options = FusionPageBuilder.options || {};
 				dataType: 'json',
 				data: data,
 				complete: function( response ) {
-					if ( 200 === response.status ) {
+					if ( 200 === response.responseJSON.status ) {
 						return callback( response.responseJSON );
 					}
 					return callback( null, response );
@@ -10303,11 +10659,16 @@ FusionPageBuilder.options.fusionEditor = {
 						}
 
 						if ( window.tinyMCE.get( textareaID ) ) {
-							window.tinyMCE.get( textareaID ).on( 'keyup change', function() {
+							window.tinyMCE.get( textareaID ).on( 'keyup change', function( e ) {
 								var editor = window.tinyMCE.get( textareaID );
 
 								$theContent = editor.getContent();
-								jQuery( '#' + textareaID ).val( $theContent ).trigger( 'change' );
+
+								if ( 'undefined' !== typeof e.originalEvent && 'undefined' !== typeof e.originalEvent.is_removing && e.originalEvent.is_removing ) {
+									jQuery( '#' + textareaID ).val( $theContent );
+								} else {
+									jQuery( '#' + textareaID ).val( $theContent ).trigger( 'change' );
+								}
 							} );
 						}
 
@@ -11297,6 +11658,10 @@ FusionPageBuilder.options.fusionOptionUpload = {
 						attachment,
 						parsedObject;
 
+					if ( 'undefined' !== typeof window?.AwbAIApp?.current?.image.id ) {
+						imageID = window?.AwbAIApp?.current?.image.id;
+					}
+
 					id = $thisEl.parents( '.fusion-builder-module-settings' ).find( '#' + optionID + '_id' ).val();
 					id = ( 'undefined' !== typeof id ? id : imageID );
 
@@ -11320,7 +11685,7 @@ FusionPageBuilder.options.fusionOptionUpload = {
 					// We have an id, use it for initial selection.
 					if ( id ) {
 
-						if ( -1 !== id.indexOf( '|' ) ) {
+						if ( id?.indexOf && -1 !== id.indexOf( '|' ) ) {
 							id = id.split( '|' )[ 0 ];
 						}
 
@@ -11991,7 +12356,7 @@ FusionPageBuilder.options.fusionImageFocusPoint = {
 
 	}
 };
-;/* global FusionApp, fusionAllElements, fusionMailchimpMapOption, fusionHubSpotMapOption, fusionHubSpotConsentMapOption */
+;/* global FusionApp, fusionAllElements, awbAuthMapOption, fusionMailchimpMapOption, fusionHubSpotMapOption, fusionHubSpotConsentMapOption */
 var FusionPageBuilder = FusionPageBuilder || {};
 FusionPageBuilder.options = FusionPageBuilder.options || {};
 
@@ -12084,6 +12449,11 @@ FusionPageBuilder.options.fusionToggleField = {
 			if ( $repeater.length && !this.repeaterInitialized ) {
 				jQuery( document ).trigger( 'fusion-init-repeater-in-toggle', { $toggle, option: option.fields } );
 				this.repeaterInitialized = true;
+			}
+
+			// Init auth map inside toggle.
+			if ( $target.find( '.auth_map' ) ) {
+				new awbAuthMapOption( $target );
 			}
 
 			//init mailchimp map inside toggle.
@@ -12760,7 +13130,6 @@ FusionPageBuilder.options.fusionRepeaterField = {
 
 			if ( ! _.isEmpty( values ) ) {
 				if ( 'string' === typeof values ) {
-					values = JSON.parse( values );
 					try {
 						values = JSON.parse( values );
 					} catch ( e ) {
@@ -12802,20 +13171,22 @@ FusionPageBuilder.options.fusionRepeaterField = {
 
 				if ( '' !== rowTitle && 'object' === typeof titleField && 'select' === titleField.type && ( 'object' === typeof titleField.choices || 'object' === typeof titleField.value ) ) {
 					switch ( this.context ) {
-					case 'TO':
-					case 'FBE':
-					case 'PO':
-						rowTitle = titleField.choices ? titleField.choices[ rowTitle ] : rowTitle;
-						break;
+						case 'TO':
+						case 'FBE':
+						case 'PO':
+							rowTitle = titleField.choices ? titleField.choices[ rowTitle ] : rowTitle;
+							break;
 
-					default:
-						rowTitle = titleField.value ? titleField.value[ rowTitle ] : rowTitle;
-						break;
+						default:
+							rowTitle = titleField.value ? titleField.value[ rowTitle ] : rowTitle;
+							break;
 					}
 				}
 				if ( '' === rowTitle && 'undefined' !== typeof option.row_title ) {
 					rowTitle = option.row_title;
 				}
+
+				rowTitle = 'undefined' !== typeof option.title_prefix ? option.title_prefix + ' ' + rowTitle : rowTitle;
 
 				self.createRepeaterRow( fields, values[ index ], $target, rowTitle );
 			} );
@@ -12824,12 +13195,18 @@ FusionPageBuilder.options.fusionRepeaterField = {
 			if ( '' === rowTitle && 'undefined' !== typeof option.row_title ) {
 				rowTitle = option.row_title;
 			}
+
+			rowTitle = 'undefined' !== typeof option.title_prefix ? option.title_prefix + ' ' + rowTitle : rowTitle;
+
 			self.createRepeaterRow( fields, {}, $target, rowTitle );
 		}
 
 		// Repeater row add click event.
 		$repeater.on( 'click', '.repeater-row-add', function( event ) {
 			var newRowTitle = 'undefined' !== typeof option.row_title ? option.row_title : false;
+
+			newRowTitle = 'undefined' !== typeof option.title_prefix ? option.title_prefix + ' ' + newRowTitle : newRowTitle;
+
 			event.preventDefault();
 			self.createRepeaterRow( fields, {}, $target, newRowTitle );
 		} );
@@ -12924,6 +13301,7 @@ FusionPageBuilder.options.fusionRepeaterField = {
 				context: self.context,
 				rowId: self.repeaterRowId
 			};
+
 			$html += jQuery( repeater( attributes ) ).html();
 		} );
 
@@ -12936,7 +13314,9 @@ FusionPageBuilder.options.fusionRepeaterField = {
 			this.addRepeaterRowData( $target, fields );
 		}
 
-		if ( 'function' === typeof this.initOptions ) {
+		if ( 'function' === typeof this.debouncedInitOptions ) {
+			this.debouncedInitOptions( $target.children( 'div:last-child' ) );
+		} else if ( 'function' === typeof this.initOptions ) {
 			this.initOptions( $target.children( 'div:last-child' ) );
 		}
 
@@ -13101,12 +13481,39 @@ FusionPageBuilder.options.fusionRepeaterField = {
 	 * @return {void}
 	 */
 	setRepeaterValue: function( $option, param, index, value ) {
-		var values  = this.getRepeaterValue( $option );
+		let values              = this.getRepeaterValue( $option ),
+			repeaterName        = $option.attr( 'name' ),
+			element             = fusionAllElements[ this.model.get( 'element_type' ) ],
+			view                = FusionPageBuilderViewManager.getView( this.model.get( 'cid' ) ),
+			modelData           = jQuery.extend( this.model.attributes, {} ),
+			repeaterChildOption = {},
+			callbackFunction    = {},
+			triggerRowChange    = true,
+			hasCallbackAjax     = false;
+
+		if ('undefined' !== typeof element && 'undefined' !== typeof element.params[ repeaterName ] && 'undefined' !== typeof element.params[ repeaterName ].fields[ param ] ) {
+			repeaterChildOption = element.params[ repeaterName ].fields[ param ],
+			callbackFunction    = FusionPageBuilderApp.CheckIfCallback( element, repeaterChildOption, view.model );
+
+			if ( false !== callbackFunction ) {
+				triggerRowChange = false;
+				if ( callbackFunction.ajax && 'function' === typeof FusionApp.callback[ callbackFunction[ 'function' ] ] ) {
+					hasCallbackAjax = true;
+				}
+			}
+		}
 
 		if ( 'undefined' !== typeof values[ index ] ) {
 			values[ index ][ param ] = value;
-			this.updateRepeaterValues( $option, values );
+			this.updateRepeaterValues( $option, values, triggerRowChange );
 		}
+
+		if ( hasCallbackAjax ) {
+			reRender = view.doCallbackFunction( callbackFunction, false, param, value, modelData );
+			return reRender;
+		}
+
+		return ! triggerRowChange;
 	},
 
 	/**
@@ -13116,7 +13523,7 @@ FusionPageBuilder.options.fusionRepeaterField = {
 	 * @since 2.0.0
 	 * @return {void}
 	 */
-	updateRepeaterValues: function( $option, values ) {
+	updateRepeaterValues: function( $option, values, triggerFullChange = true ) {
 
 		// When doing a search we need to set the context correctly.
 		if ( 'search' === this.context ) {
@@ -13141,7 +13548,14 @@ FusionPageBuilder.options.fusionRepeaterField = {
 				break;
 			}
 		}
-		$option.val( values ).trigger( 'change' );
+
+		$option.val( values );
+
+		if ( triggerFullChange ) {
+			$option.trigger( 'change' );
+		} else {
+			$option.trigger( 'change', { silent: true } );
+		}
 	},
 
 	/**
@@ -13708,7 +14122,7 @@ FASElement.prototype.renderOptions = function() {
 	}
 
 	_.each( this.options, function( option ) {
-		var theID =  self.prefix + '-' + option.id.replace( '|', '__' );
+		var theID =  self.prefix + '-' + String( option.id ).replace( '|', '__' );
 		var checked = option.checked ? 'checked' : '';
 		var arrayOption = ( self.notArrayFormat ? '' : '[]' );
 		var $option = jQuery( '<input type="checkbox" id="' + theID + '" name="' + self.fieldId + arrayOption + '" value="' + option.id + '" data-label="' + option.text + '" class="fusion-select-option" ' + checked + '><label for="' + theID + '" class="fusion-select-label">' + option.text + '</label>' );

@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<section class="avada-db-card avada-db-card-first avada-db-support-start">
 		<h1 class="avada-db-support-heading"><?php esc_html_e( 'Avada Support', 'Avada' ); ?></h1>
 		<p>
-			<?php /* translators: %1$s: "Status" link. %2$s: "View more info here" link. */ ?>
+			<?php /* translators: %1$s: support extension link. %2$s: "View more info here" link. */ ?>
 			<?php printf( __( 'Avada comes with 6 months of free support for every license you purchase. Support can be <a %1$s>extended through subscription</a> via ThemeForest (<a %2$s>more information on support extension</a>). To access Avada support, you must first setup an account by <a %3$s>following these steps</a>.', 'Avada' ), 'href="http://bit.ly/2l3jd8A" target="_blank"', 'href="https://help.market.envato.com/hc/en-us/articles/207886473-Extending-and-Renewing-Item-Support" target="_blank"', 'href="https://avada.com/documentation/how-to-register-for-avada-support/" target="_blank"' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 		</p>
 

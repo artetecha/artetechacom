@@ -10,6 +10,9 @@
 <textarea
 	id="{{ param.param_name }}"
 	class="fusion-editor-field"
+	<# if ( 'undefined' !== typeof param.wpautop ) { #>
+		data-wpautop="{{ param.wpautop }}"
+	<# } #>	
 	<# if ( param.placeholder ) { #>
 		data-placeholder="{{ param.value }}"
 	<# } #>

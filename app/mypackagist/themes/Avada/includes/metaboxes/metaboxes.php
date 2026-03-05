@@ -38,6 +38,15 @@ class PyreThemeFrameworkMetaboxes {
 	public $data;
 
 	/**
+	 * Form fields for conditional rendering.
+	 *
+	 * @since 7.13
+	 * @access private
+	 * @var array
+	 */	
+	private $form_fields;
+
+	/**
 	 * The class constructor.
 	 *
 	 * @access public
@@ -600,6 +609,9 @@ class PyreThemeFrameworkMetaboxes {
 				case 'layout_conditions':
 					$this->layout_conditions( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['responsive'] );
 					break;
+				case 'auth_map':
+					$this->auth_map( $field['id'], $field['label'], $field['choices'], $field['description'], $field['dependency'], $field['default'], $field['responsive'] );
+					break;
 				case 'hubspot_map':
 					$this->hubspot_map( $field['id'], $field['label'], $field['choices'], $field['description'], $field['dependency'], $field['default'], $field['responsive'] );
 					break;
@@ -616,6 +628,13 @@ class PyreThemeFrameworkMetaboxes {
 					];
 					$this->repeater( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['fields'], $field['bind_title'], $labels, $field['responsive'], $field['default'] );
 					break;
+				case 'fusion_logics':
+					$labels = [
+						'row_add'   => $field['row_add'],
+						'row_title' => $field['row_title'],
+					];
+					$this->logics( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['comparisons'], $labels, $field['responsive'], $field['default'] );
+					break;
 				case 'toggle':
 				case 'group':
 					$this->toggle( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['fields'], $field['responsive'], $field['row_title'], $field['state'] );
@@ -626,8 +645,6 @@ class PyreThemeFrameworkMetaboxes {
 				case 'date_time_picker':
 					$this->date_time_picker( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['responsive'] );
 					break;
-
-					
 			}
 		}
 	}
@@ -871,7 +888,6 @@ class PyreThemeFrameworkMetaboxes {
 		$default            = $this->is_meta_data_key_saved_in_db( $id ) ? '' : $default;
 		$value              = $db_value ? $db_value : $default;
 		$hidden_state_class = ( ! empty( $state ) ? ' pyre_metabox_field_state_hidden' : '' );
-
 		?>
 
 		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo $hidden_state_class; ?>" data-id="<?php echo esc_attr( $id ); ?>">
@@ -1730,6 +1746,7 @@ class PyreThemeFrameworkMetaboxes {
 		$value       = $post ? fusion_data()->post_meta( $post->ID )->get( $id ) : [];
 		$value       = ! empty( $value ) ? $value : $default;
 		$value       = 'awb_pages' === $id ? '' : $value;
+
 		if ( is_array( $value ) ) {
 			$value = wp_json_encode( $value );
 		}
@@ -1762,6 +1779,48 @@ class PyreThemeFrameworkMetaboxes {
 		</div>
 		<?php
 
+	}
+
+	/**
+	 * Authentication map control.
+	 *
+	 * @since 7.5
+	 * @access public
+	 * @param string       $id         The ID.
+	 * @param string       $label      The label.
+	 * @param array        $options    The options array.
+	 * @param string       $desc       The description.
+	 * @param array        $dependency The dependencies array.
+	 * @param string|array $default    The default value.
+	 * @param mixed        $responsive The responsive param data.
+	 */
+	public function auth_map( $id, $label, $options, $desc = '', $dependency = [], $default = '', $responsive = false ) {
+		$value = $this->get_value( $id );
+		if ( is_array( $value ) ) {
+			$value = wp_json_encode( $value );
+		}
+		?>
+
+		<div data-option-id="<?php echo esc_attr( $id ); ?>" class="pyre_metabox_field fusion-auth-option auth_map<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
+			<?php // No need to sanitize this, we already know what's in here. ?>
+			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+			<div class="pyre_desc">
+				<label for="pyre_<?php echo esc_attr( $id ); ?>"><?php echo esc_textarea( $label ); ?></label>
+				<?php if ( $desc ) : ?>
+					<p><?php echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
+				<?php endif; ?>
+			</div>
+			<div class="pyre_field">
+				<div class="auth-map-holder">
+					<div class="fusion-mapping">
+						<span><?php esc_attr_e( 'No form fields found.', 'Avada' ); ?></span>
+					</div>
+
+					<input type="hidden" id="pyre_<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $this->format_option_name( $id ) ); ?>" value="<?php echo esc_attr( $value ); ?>">
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
@@ -1887,8 +1946,8 @@ class PyreThemeFrameworkMetaboxes {
 			</div>
 		</div>
 		<?php
-
 	}
+
 		/**
 		 * Icon field.
 		 *
@@ -2007,6 +2066,104 @@ class PyreThemeFrameworkMetaboxes {
 		<?php
 
 	}
+
+	/**
+	 * Set the form fields.
+	 *
+	 * @since 7.7
+	 * @access public
+	 * @return void
+	 */	
+	public function set_form_fields() {
+		if ( empty( $this->form_fields ) ) {
+			global $post;
+
+			$form_post_content = $post->post_content;
+
+			if ( '' !== $form_post_content ) {
+				// Get form field names.
+				preg_match_all( '/\[fusion_form_[^\]]*\sname=\"([^\"]*)\"/', $form_post_content, $matches );
+				$field_names = isset( $matches[1] ) ? $matches[1] : [];
+	
+				// Get form field labels.
+				preg_match_all( '/\[fusion_form_[^\]]*\slabel=\"([^\"]*)\"/', $form_post_content, $matches );
+				$field_labels = isset( $matches[1] ) ? $matches[1] : [];
+	
+				// If (some) labels are missing or empty use name instead.
+				if ( count( $field_names ) !== count( array_filter( $field_labels ) ) || count( array_unique( $field_labels ) ) !== count( $field_labels ) ) {
+					$field_labels = map_deep( $field_names, 'Fusion_Builder_Form_Helper::fusion_name_to_label' );
+				}
+
+				if ( count( $field_names ) === count( $field_labels ) ) {
+					$this->form_fields = array_combine( $field_names, $field_labels );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Logic
+	 *
+	 * @since 7.13.07
+	 * @access public
+	 * @param string $id          The ID.
+	 * @param string $label       The label.
+	 * @param string $desc        The description.
+	 * @param array  $dependency  The dependencies array.
+	 * @param array  $comparisons An array of fields.
+	 * @param array  $labels      An array of our labels.
+	 * @param mixed  $responsive  The responsive param data.
+	 * @param mixed  $default     The default value.
+	 */
+	public function logics( $id, $label, $desc = '', $dependency = [], $comparisons = [], $labels = [], $responsive = false, $default = '' ) {
+		global $post;
+		$add_label   = isset( $labels['row_add'] ) ? $labels['row_add'] : __( 'Add New', 'Avada' );
+		$title_label = isset( $labels['row_title'] ) ? $labels['row_title'] : __( 'Repeater Row', 'Avada' );
+		$value       = $post ? fusion_data()->post_meta( $post->ID )->get( $id ) : [];
+		$value       = ! empty( $value ) ? $value : $default;
+		$value       = 'awb_pages' === $id ? '' : $value;
+
+		if ( is_array( $value ) ) {
+			$value = wp_json_encode( $value );
+		}
+
+		$this->set_form_fields();
+		?>
+
+		<div class="pyre_metabox_field fusion-logics-wrapper fusion-repeater-wrapper<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
+			<?php // No need to sanitize this, we already know what's in here. ?>
+			<?php echo $this->dependency( $dependency ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+			<div class="pyre_desc">
+				<label for="pyre_<?php echo esc_attr( $id ); ?>"><?php echo esc_textarea( $label ); ?></label>
+				<a class="fusion-add-row button button-primary button-large" href="#"><?php echo esc_html( $add_label ); ?></a>
+				<?php if ( $desc ) : ?>
+					<p><?php echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
+				<?php endif; ?>
+			</div>
+			<div class="pyre_field">
+				<div class="fusion-repeater-default-fields" style="display:none;">
+					<div class="fusion-row-title fusion-logic-title">
+						<span class="repeater-toggle-icon fusiona-pen"></span>
+						<h4><?php echo esc_html( $title_label ); ?></h4>
+						<span class="repeater-row-remove fusiona-trash-o"></span>
+					</div>
+					<div class="fusion-row-fields clearfix" style="display:none;">
+						<?php $this->select( 'field', __( 'Conditional Field', 'Avada' ), $this->form_fields, __( 'Select the conditional field.', 'Avada' ) ); ?>
+
+						<?php $this->select( 'comparison', __( 'Comparison', 'Avada' ), $comparisons, __( 'Select the comparison.', 'Avada' ) ); ?>
+
+						<?php $this->text( 'value', __( 'Value', 'Avada' ), __( 'Set a value for comparison.', 'Avada' ) ); ?>
+
+						<?php $this->radio_buttonset( 'operator', __( 'Operator', 'Avada' ), [ 'and' => __( 'AND', 'Avada' ), 'or' => __( 'OR', 'Avada' ) ], __( 'Set an operatot to connect several conditionals.', 'Avada' ), 'and' ); ?>
+					</div>
+				</div>
+				<div class="fusion-repeater-rows" data-or-label="<?php esc_attr_e( 'OR', 'Avada' ); ?>"></div>
+				<input class="logics-value" type="hidden" id="pyre_<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $this->format_option_name( $id ) ); ?>" value="<?php echo esc_attr( $value ); ?>">
+			</div>
+		</div>
+		<?php
+
+	}	
 
 	/**
 	 * Dependency markup.

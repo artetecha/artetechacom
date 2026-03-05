@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'icomoon';
   src:
-    url('fonts/icomoon.ttf?vqw24p') format('truetype'),
-    url('fonts/icomoon.woff?vqw24p') format('woff'),
-    url('fonts/icomoon.svg?vqw24p#icomoon') format('svg');
+    url('fonts/icomoon.ttf?xkndjc') format('truetype'),
+    url('fonts/icomoon.woff?xkndjc') format('woff'),
+    url('fonts/icomoon.svg?xkndjc#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -24,6 +24,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.fusiona-woo-filters-brands:before {
+  content: "\e9c9";
+}
 .fusiona-mega-menu:before {
   content: "\e9c1";
 }
@@ -1046,4 +1049,13 @@
 }
 .fusiona-file-code-o:before {
   content: "\f1c9";
+}
+.fusiona-text-path:before {
+  content: "\ea0f";
+}
+.fusiona-cloudflare:before {
+  content: "\ea10";
+}
+.fusiona-avada-ai:before {
+  content: "\e9c8";
 }

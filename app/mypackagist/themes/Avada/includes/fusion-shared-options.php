@@ -56,6 +56,7 @@ function avada_set_builder_classes( $default_elements, $class ) {
 	if ( class_exists( 'WooCommerce' ) ) {
 		$elements[] = ' #reviews input#submit';
 		$elements[] = ' .price_slider_amount button';
+		$elements[] = ' .woocommerce-widget-layered-nav-dropdown__submit';
 		$elements[] = ' .woocommerce .single_add_to_cart_button';
 		$elements[] = '.woocommerce button.button';
 		$elements[] = ' .woocommerce button.button';

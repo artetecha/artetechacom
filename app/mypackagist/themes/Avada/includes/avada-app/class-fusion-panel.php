@@ -243,53 +243,7 @@ class Fusion_Panel {
 	 * @return string
 	 */
 	public function show_theme_options() {
-		return current_user_can( 'manage_options' );
-	}
-
-	/**
-	 * Whether or not to show PO.
-	 *
-	 * @since 6.0
-	 * @param string $post_id Id of current post.
-	 * @return string
-	 */
-	public function show_page_options( $post_id = '' ) {
-		$post_id          = '' === $post_id ? Avada()->fusion_library->get_page_id() : $post_id;
-		$post_type        = get_post_type( $post_id );
-		$post_type_object = get_post_type_object( $post_type );
-		return current_user_can( $post_type_object->cap->edit_post, $post_id );
-	}
-
-	/**
-	 * Whether or not to show taxonomy options.
-	 *
-	 * @since 6.0
-	 * @param string $term_id Id of current term.
-	 * @return bool
-	 */
-	public function show_tax_options( $term_id = '' ) {
-		$term_id = $term_id && '' !== $term_id ? $term_id : (int) str_replace( 'archive-', '', fusion_library()->get_page_id() );
-
-		// If this is an archive which is not editable.
-		if ( 0 === $term_id ) {
-			return false;
-		}
-
-		if ( '' === $term_id ) {
-			$query_object = get_queried_object();
-			if ( $query_object ) {
-				$taxonomy_object = get_taxonomy( $query_object->taxonomy );
-				return current_user_can( $taxonomy_object->cap->edit_terms, $query_object->term_id );
-			}
-		}
-
-		$term = get_term( $term_id );
-		if ( $term && ! is_wp_error( $term ) ) {
-			$taxonomy_object = get_taxonomy( $term->taxonomy );
-			return current_user_can( $taxonomy_object->cap->edit_terms, $term_id );
-		}
-
-		return false;
+		return current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_global_options' ) );
 	}
 
 	/**
@@ -314,12 +268,12 @@ class Fusion_Panel {
 
 			$file_type       = wp_check_filetype_and_ext( $_FILES['po_file_upload']['tmp_name'], $_FILES['po_file_upload']['name'] );
 			$proper_filename = $file_type['proper_filename'] ? $file_type['proper_filename'] : $_FILES['po_file_upload']['tmp_name'];
-	
+
 			if ( 'json' !== $file_type['ext'] ) {
 				wp_die();
 			}
-	
-			$content_json = $wp_filesystem->get_contents( $proper_filename );           
+
+			$content_json = $wp_filesystem->get_contents( $proper_filename );
 
 		} elseif ( isset( $_POST['toUrl'] ) ) {
 			$args = [
@@ -373,7 +327,7 @@ class Fusion_Panel {
 						$fusion_cache = new Fusion_Cache();
 						$fusion_cache->reset_all_caches();
 					}
-					
+
 					$app->add_save_data( 'theme_options', true, esc_html__( 'The Global Options updated.', 'Avada' ) );
 				}
 			} else {
@@ -387,7 +341,7 @@ class Fusion_Panel {
 
 				if ( ! strpos( $post_id, '-archive' ) ) {
 
-					if ( $this->show_page_options( $post_id ) ) {
+					if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $post_id ), 'page_options' ) ) ) {
 						foreach ( $meta_values as $key => $value ) {
 							if ( '_fusion' === $key ) {
 								foreach ( $value as $_fusion_k => $_fusion_v ) {
@@ -412,7 +366,7 @@ class Fusion_Panel {
 					// Archive, save term meta.
 					$term_id = (int) str_replace( '-archive', '', $post_id );
 					if ( 0 !== $term_id ) {
-						if ( $this->show_tax_options( $term_id ) ) {
+						if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $post_id ), 'page_options' ) ) ) {
 
 							// Update the fusion meta.
 							$update_taxonomy_options = false;
@@ -678,7 +632,7 @@ class Fusion_Panel {
 		global $post;
 		$sections = [];
 
-		if ( ! $this->show_tax_options() ) {
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $post->ID ), 'page_options' ) ) ) {
 			return;
 		}
 
@@ -790,7 +744,7 @@ class Fusion_Panel {
 			'id'        => 'description',
 			'label'     => esc_html__( 'Description', 'fusion-builder' ),
 			'type'      => 'textarea',
-			'default'   => $_term->description,
+			'value'     => $_term->description,
 			'transport' => 'postMessage',
 			'location'  => 'PS',
 		];
@@ -1034,6 +988,17 @@ class Fusion_Panel {
 			}
 		}
 
+		if ( post_type_supports( $post_type, 'excerpt' ) ) {
+			$data['fusion_page_settings_section']['fields']['post_excerpt'] = [
+				'id'        => 'post_excerpt',
+				'label'     => esc_html__( 'Excerpt', 'fusion-builder' ),
+				'type'      => 'textarea',
+				'value'     => isset( $_post->post_excerpt ) ? $_post->post_excerpt : '',
+				'transport' => 'postMessage',
+				'location'  => 'PS',
+			];
+		}
+
 		if ( post_type_supports( $post_type, 'thumbnail' ) ) {
 			$data['fusion_page_settings_section']['fields']['fusion_page_options_featured_image_info'] = [
 				'label'       => esc_html__( 'Featured Image', 'fusion-builder' ),
@@ -1119,14 +1084,14 @@ class Fusion_Panel {
 			if ( $terms ) {
 				$type = $terms[0]->name;
 			}
-		}	
+		}
 
 		if ( ! is_singular() && get_option( 'page_for_posts' ) !== fusion_library()->get_page_id() && ! ( class_exists( 'WooCommerce' ) && is_shop() ) ) {
 			$this->get_archive_options();
 			return;
 		}
 
-		if ( ! $this->show_page_options() ) {
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', $post_type, 'page_options' ) ) ) {
 			return;
 		}
 
@@ -1164,7 +1129,7 @@ class Fusion_Panel {
 							'theme'    => 'chrome',
 							'minLines' => 40,
 							'maxLines' => 50,
-						],
+						]
 					],
 				],
 			];
@@ -1198,6 +1163,8 @@ class Fusion_Panel {
 		if ( apply_filters( 'fusion_load_page_settings', true, $post_type ) ) {
 			$sections = array_merge( $this->get_page_settings(), $sections );
 		}
+
+		$sections = apply_filters( 'avada_ai_sections', $sections );
 
 		foreach ( $sections as $section_id => $section ) {
 			foreach ( $section['fields'] as $field_id => $field ) {
@@ -1260,6 +1227,12 @@ class Fusion_Panel {
 					$values[ $id ] = $custom_fields[ $id ][0];
 				}
 			}
+		}
+
+		if ( post_type_supports( $post_type, 'excerpt' ) ) {
+			global $post;
+
+			$values['post_excerpt'] = isset( $post->post_excerpt ) ? $post->post_excerpt : '';
 		}
 
 		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', $post_type, 'page_options' ) ) ) {
@@ -1765,7 +1738,7 @@ class Fusion_Panel {
 					'product'         => esc_html__( 'WooCommerce Products', 'Avada' ),
 					'tribe_events'    => esc_html__( 'Events Calendar Posts', 'Avada' ),
 				];
-			
+
 				$args       = [
 					'public'              => true,
 					'show_ui'             => true,
@@ -1778,7 +1751,7 @@ class Fusion_Panel {
 					}
 					$avada_post_types[ $post_type->name ] = $post_type->label;
 				}
-			
+
 				// Remove media.
 				unset( $avada_post_types['attachment'] );
 				$field['choices'] = apply_filters( 'avada_search_results_post_types', $avada_post_types );

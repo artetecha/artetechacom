@@ -132,28 +132,16 @@
   color: inherit;
   box-shadow: none;
 }
-.avada-dashboard .avada-db-header-main .avada-db-logo .avada-db-logo-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0.5em;
-  width: 36px;
-  height: 36px;
-  background-color: #65bc7b;
-  border-radius: 0.35em;
-}
-.avada-dashboard .avada-db-header-main .avada-db-logo .avada-db-logo-icon:before {
-  font-size: 22px;
-  color: #fff;
-}
 .avada-dashboard .avada-db-header-main .avada-db-logo .avada-db-logo-image {
   margin: 0 0.5em;
 }
 .avada-dashboard .avada-db-header-main .avada-db-logo .avada-db-logo-image img {
   display: block;
   width: 115px;
-  margin-left: -35px;
-  clip-path: inset(0 0 0 35px);
+}
+.avada-dashboard .avada-db-header-main .avada-db-logo .avada-db-logo-image-clipped img {
+  clip-path: inset(0 88px 0 0);
+  margin-inline-end: -88px;
 }
 .avada-dashboard .avada-db-header-main .avada-db-logo .avada-db-logo-version {
   margin-top: 0.2em;
@@ -534,10 +522,10 @@
   background-color: #65bc7b;
   color: #fff;
 }
-.avada-dashboard .avada-db-welcome-resources .avada-db-imgae-link {
+.avada-dashboard .avada-db-welcome-resources .avada-db-image-link {
   display: block;
 }
-.avada-dashboard .avada-db-welcome-resources .avada-db-imgae-link img {
+.avada-dashboard .avada-db-welcome-resources .avada-db-image-link img {
   max-width: 400px;
 }
 .avada-dashboard .avada-db-welcome-resources .avada-db-welcome-resources-hosting .avada-db-card-notice-heading-image-half {
@@ -553,10 +541,10 @@
   background-color: #198fd9;
   color: #fff;
 }
-.avada-dashboard .avada-db-welcome-partners .avada-db-imgae-link {
+.avada-dashboard .avada-db-welcome-partners .avada-db-image-link {
   display: block;
 }
-.avada-dashboard .avada-db-welcome-partners .avada-db-imgae-link img {
+.avada-dashboard .avada-db-welcome-partners .avada-db-image-link img {
   max-width: 400px;
 }
 .avada-dashboard .fusion-layout-sections-table {
@@ -1691,8 +1679,12 @@
 .avada-wrap .fusion-system-status-debug .system-report-msg {
   padding: 0 10px;
 }
+.avada-dashboard.wrap {
+  margin-top: 22px;
+  margin-left: 2px;
+}
 .avada-dashboard.fusion-builder-wrap {
-  margin-top: 25px;
+  margin-top: 22px;
   margin-right: 20px;
   max-width: 1100px;
 }
@@ -1853,9 +1845,6 @@
   padding: 0.4em 0.6em;
   min-width: auto;
 }
-.term-php .avada-dashboard.avada-db-sliders {
-  margin-top: 25px;
-}
 .avada-dashboard.avada-db-sliders .wrap {
   padding: 2.8em;
   background-color: #fff;
@@ -1936,9 +1925,10 @@
   color: inherit;
 }
 .avada-dashboard.avada-db-edit-screen {
-  margin: 3em 0 -65px 0;
+  margin-bottom: -65px;
 }
 .post-php .avada-dashboard.avada-db-edit-screen {
+  margin-top: 40px;
   max-width: none;
 }
 .ltr .avada-dashboard.avada-db-edit-screen {
@@ -2244,9 +2234,12 @@
   .avada-dashboard .avada-db-header-main .avada-db-header-main-container {
     margin: 0 -1em;
   }
-  .avada-dashboard .avada-db-header-main .avada-db-logo-version,
-  .avada-dashboard .avada-db-header-main .avada-db-logo-image {
+  .avada-dashboard .avada-db-header-main .avada-db-logo-version {
     display: none;
+  }
+  .avada-dashboard .avada-db-header-main .avada-db-logo-image img {
+    clip-path: inset(0 88px 0 0);
+    margin-inline-end: -88px;
   }
   .avada-dashboard .avada-db-header-main .avada-db-logo {
     margin: 0 0.5em;

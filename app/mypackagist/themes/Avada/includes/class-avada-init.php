@@ -63,7 +63,7 @@ class Avada_Init {
 		// Remove post_format from preview link.
 		add_filter( 'preview_post_link', [ $this, 'remove_post_format_from_link' ], 9999 );
 
-		add_filter( 'wp_tag_cloud', [ $this, 'remove_font_size_from_tagcloud' ] );
+		add_filter( 'wp_generate_tag_cloud', [ $this, 'remove_font_size_from_tagcloud' ] );
 
 		// Add contact methods for author page.
 		add_filter( 'user_contactmethods', [ $this, 'modify_contact_methods' ] );
@@ -522,6 +522,59 @@ class Avada_Init {
 				'terms'    => $product_visibility_term_ids['exclude-from-search'],
 				'operator' => 'NOT IN',
 			];
+		}
+
+		$tax_query         = [];
+		$tax_query_include = [];
+		$tax_query_exclude = [];
+
+		if ( isset( $_POST['include_terms'] ) ) {
+			$terms = explode( ',', $_POST['include_terms'] );
+
+			foreach( $terms as $term ) {
+				$taxonomy_and_term = explode( '|', $term );
+				$tax_query_include[] = [
+					'taxonomy' => $taxonomy_and_term[0],
+					'terms'    => [ $taxonomy_and_term[1] ],
+					'field'    => is_numeric( $taxonomy_and_term[1] ) ? 'term_taxonomy_id' : 'slug'
+				];
+			}
+
+			if ( 1 < count( $tax_query_include ) ) {
+				$tax_query_include['relation'] = 'OR';
+			}
+
+		}
+
+		if ( isset( $_POST['exclude_terms'] ) ) {
+			$terms = explode( ',', $_POST['exclude_terms'] );
+
+			foreach( $terms as $term ) {
+				$taxonomy_and_term = explode( '|', $term );
+				$tax_query_exclude[] = [
+					'taxonomy' => $taxonomy_and_term[0],
+					'terms'    => [ $taxonomy_and_term[1] ],
+					'field'    => is_numeric( $taxonomy_and_term[1] ) ? 'term_taxonomy_id' : 'slug',
+					'operator' => 'NOT IN',
+				];
+			}
+
+			if ( 1 < count( $tax_query_exclude ) ) {
+				$tax_query_exclude['relation'] = 'AND';
+			}
+		}
+
+		if ( ! empty( $args['tax_query'] ) || ( ! empty( $tax_query_include ) && ! empty( $tax_query_exclude ) ) ) {
+			$args['tax_query']['relation'] = 'AND';
+		}
+
+		if ( ! empty( $tax_query_include ) && ! empty( $tax_query_exclude ) ) {
+			$args['tax_query'][] = $tax_query_include;
+			$args['tax_query'][] = $tax_query_exclude;
+		} else if ( ! empty( $tax_query_include ) ) {
+			$args['tax_query'][] = $tax_query_include;
+		} else if ( ! empty( $tax_query_exclude ) ) {
+			$args['tax_query'][] = $tax_query_exclude;
 		}
 
 		$args = apply_filters( 'fusion_live_search_query_args', $args );

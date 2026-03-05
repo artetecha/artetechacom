@@ -69,7 +69,7 @@ class Avada_Images extends Fusion_Images {
 		}
 
 		add_filter( 'jpeg_quality', [ $this, 'set_jpeg_quality' ] );
-		add_filter( 'wp_editor_set_quality', [ $this, 'set_jpeg_quality' ] );
+		add_filter( 'wp_editor_set_quality', [ $this, 'set_image_quality' ], 10, 3 );
 		add_filter( 'big_image_size_threshold', [ $this, 'set_big_image_size_threshold' ] );
 
 		add_filter( 'fusion_library_content_break_point', [ $this, 'content_break_point' ] );
@@ -83,10 +83,34 @@ class Avada_Images extends Fusion_Images {
 	/**
 	 * Modify the image quality and set it to chosen Global Options value.
 	 *
-	 * @since 3.9
+	 * @since 3.14.1
+	 * @param int    $quality   Quality level between 1 (low) and 100 (high).
+	 * @param string $mime_type Image mime type.
+	 * @param array $size {
+	 *     Dimensions of the image.
+	 *
+	 *     @type int $width  The image width.
+	 *     @type int $height The image height.
+	 * }
 	 * @return string The new image quality.
 	 */
-	public function set_jpeg_quality() {
+	public function set_image_quality( $default_quality = 100, $mime_type = '', $size = [] ) {
+
+		if ( 'image/webp' === $mime_type ) {
+			return Avada()->settings->get( 'webp_image_quality' );
+		}
+
+		return Avada()->settings->get( 'pw_jpeg_quality' );
+	}
+
+	/**
+	 * Modify the jpeg image quality and set it to chosen Global Options value.
+	 *
+	 * @since 3.9
+ 	 * @param int    $quality Quality level between 0 (low) and 100 (high) of the JPEG.
+	 * @return string The new image quality.
+	 */
+	public function set_jpeg_quality( $quality ) {
 		return Avada()->settings->get( 'pw_jpeg_quality' );
 	}
 

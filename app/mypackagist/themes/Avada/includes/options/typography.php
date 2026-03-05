@@ -318,7 +318,7 @@ function avada_options_section_typography( $sections ) {
 						'label'       => esc_html__( 'Exclude Elements From Link Decoration', 'Avada' ),
 						'description' => esc_html__( 'Choose which elements should be excluded from the link decoration.', 'Avada' ),
 						'id'          => 'link_decoration_exclusion',
-						'default'     => [ 'buttons', 'menus', 'tocs', 'tabstoggles' ],
+						'default'     => [ 'buttons', 'menus', 'tocs', 'tabstoggles', 'off_canvas' ],
 						'type'        => 'select',
 						'multi'       => true,
 						'choices'     => [
@@ -328,6 +328,7 @@ function avada_options_section_typography( $sections ) {
 							'menus'       => esc_html__( 'Menus', 'Avada' ),
 							'tocs'        => esc_html__( 'TOC Elements', 'Avada' ),
 							'tabstoggles' => esc_html__( 'Tabs & Toggles', 'Avada' ),
+							'off_canvas'  => esc_html__( 'Off Canvas', 'Avada' ),
 						],
 						// No need to refresh the page.
 						'transport'   => 'postMessage',

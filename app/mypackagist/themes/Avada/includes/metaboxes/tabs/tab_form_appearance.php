@@ -66,6 +66,33 @@ function avada_page_options_tab_form_appearance( $sections ) {
 					'fusion-rerender-form-inputs',
 				],
 			],
+			'label_typo'                   => [
+				'id'          => 'label_typo',
+				'label'       => esc_html__( 'Label Typography', 'Avada' ),
+				'description' => esc_html__( 'Controls the typography of the labels. Leave empty for the global font family.', 'Avada' ),
+				'type'        => 'typography',
+				'choices'     => [
+					'font-family'    => true,
+					'font-weight'    => true,
+					'line-height'    => true,
+					'letter-spacing' => true,
+					'text-transform' => true,
+					'font-size'      => false,
+				],
+				'default'     => [
+					'font-family'    => '',
+					'font-weight'    => '',
+					'line-height'    => '',
+					'letter-spacing' => '',
+					'text-transform' => '',
+				],
+				'transport'   => 'postMessage',
+				'events'      => [
+					'fusion-form-styles',
+				],
+				'global'      => true,
+				'backup_font' => false,
+			],			
 			'label_font_size'                  => [
 				'type'        => 'text',
 				'label'       => esc_html__( 'Label Font Size', 'fusion-builder' ),
@@ -223,6 +250,22 @@ function avada_page_options_tab_form_appearance( $sections ) {
 					'fusion-form-styles',
 				],
 			],
+			'form_placeholder_focus_animation' => [
+				'type'        => 'radio-buttonset',
+				'label'       => esc_html__( 'Field Placeholder Focus Animation', 'Avada' ),
+				'description' => esc_html__( 'Choose to animate the field placeholders to the top or bottom of the form fields. The animation only works, if no form labels are used. If set to "none" placeholders will disappear on field focus.', 'Avada' ),
+				'id'          => 'form_placeholder_focus_animation',
+				'default'     => 'none',
+				'choices'     => [
+					'none'   => esc_html__( 'None', 'Avada' ),
+					'top'    => esc_html__( 'To Top', 'Avada' ),
+					'bottom' => esc_html__( 'To Bottom', 'Avada' ),
+				],
+				'transport'   => 'postMessage',
+				'events'      => [
+					'fusion-form-styles',
+				],
+			],
 			'form_border_width'                => [
 				'type'        => 'dimensions',
 				'label'       => esc_html__( 'Field Border Size', 'fusion-builder' ),
@@ -254,7 +297,7 @@ function avada_page_options_tab_form_appearance( $sections ) {
 				'type'        => 'color-alpha',
 				'label'       => esc_html__( 'Field Border Color', 'fusion-builder' ),
 				/* translators: Additional description (defaults). */
-				'description' => sprintf( esc_html__( 'Controls the border color of the form input field. %s', 'Avada' ), Avada()->settings->get_default_description( 'form_border_color' ) ),
+				'description' => sprintf( esc_html__( 'Controls the border color of the form input fields. %s', 'Avada' ), Avada()->settings->get_default_description( 'form_border_color' ) ),
 				'id'          => 'form_border_color',
 				'default'     => Avada()->settings->get( 'form_border_color' ),
 				'dependency'  => [],
@@ -267,9 +310,9 @@ function avada_page_options_tab_form_appearance( $sections ) {
 				],
 			],
 			'form_focus_border_color'          => [
-				'label'       => esc_html__( 'Form Border Color On Focus', 'Avada' ),
+				'label'       => esc_html__( 'Field Border Color On Focus', 'Avada' ),
 				/* translators: Additional description (defaults). */
-				'description' => sprintf( esc_html__( 'Controls the border color of the form input field on focus. %s', 'Avada' ), Avada()->settings->get_default_description( 'form_focus_border_color' ) ),
+				'description' => sprintf( esc_html__( 'Controls the border color of the form input fields on focus. %s', 'Avada' ), Avada()->settings->get_default_description( 'form_focus_border_color' ) ),
 				'id'          => 'form_focus_border_color',
 				'default'     => Avada()->settings->get( 'form_focus_border_color' ),
 				'type'        => 'color-alpha',

@@ -43,7 +43,7 @@ function avada_options_section_custom_css( $sections ) {
 					'theme'    => 'chrome',
 					'minLines' => 40,
 					'maxLines' => 50,
-				],
+				]
 			],
 		],
 	];

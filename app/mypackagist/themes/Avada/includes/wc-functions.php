@@ -52,6 +52,8 @@ function woocommerce_cross_sell_display( $posts_per_page = 3, $columns = 3, $ord
 function woocommerce_shipping_calculator() {
 	if ( ! is_cart() ) {
 		wc_get_template( 'cart/shipping-calculator.php' );
+	} else {
+		echo '<span class="awb-calc-shipping">' . esc_html__( 'Please calculate shipping', 'Avada' ) . '</span>';
 	}
 }
 

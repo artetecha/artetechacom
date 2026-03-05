@@ -22,6 +22,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return array
  */
 function avada_options_section_breadcrumbs( $sections ) {
+	$info = [];
+
+	if ( function_exists( 'yoast_breadcrumb' ) ) {
+		$info = [
+			'type'        => 'custom',
+			'description' => '<div class="fusion-redux-important-notice">' . esc_attr__( 'Yoast SEO plugin is active, and its breadcrumb function is overwriting Avada\'s output.', 'fusion-builder' ) . '</div>',
+			'id'          => 'breadcrumb_info',
+
+		];
+	} else if ( function_exists( 'rank_math_get_breadcrumbs' ) ) {
+		$info = [
+			'type'        => 'custom',
+			'description' => '<div class="fusion-redux-important-notice">' . esc_attr__( 'RankMath SEO plugin is active, and its breadcrumb function is overwriting Avada\'s output.', 'fusion-builder' ) . '</div>',
+			'id'          => 'breadcrumb_info',
+		];
+	}
 
 	$sections['breadcrumbs'] = [
 		'label'    => esc_html__( 'Breadcrumbs', 'Avada' ),
@@ -30,6 +46,7 @@ function avada_options_section_breadcrumbs( $sections ) {
 		'icon'     => 'el-icon-chevron-right',
 		'alt_icon' => 'fusiona-breadcrumb',
 		'fields'   => [
+			$info,
 			'breadcrumb_mobile'                 => [
 				'label'           => esc_html__( 'Breadcrumbs on Mobile Devices', 'Avada' ),
 				'description'     => esc_html__( 'Turn on to display breadcrumbs on mobile devices.', 'Avada' ),
@@ -62,6 +79,22 @@ function avada_options_section_breadcrumbs( $sections ) {
 				'soft_dependency' => true,
 				'partial_refresh' => [
 					'page_title_bar_contents_breacrumb_prefix' => [
+						'selector'              => '.avada-page-titlebar-wrapper',
+						'container_inclusive'   => false,
+						'render_callback'       => [ 'Avada_Partial_Refresh_Callbacks', 'page_titlebar_wrapper' ],
+						'success_trigger_event' => 'fusion-ptb-refreshed',
+					],
+				],
+			],
+			'breacrumb_home_label'              => [
+				'label'           => esc_html__( 'Breadcrumbs Home Anchor Text', 'Avada' ),
+				'description'     => esc_html__( 'Controls the text anchor of the Homelink. Leave empty for translatable default of "Home".', 'Avada' ),
+				'id'              => 'breacrumb_home_label',
+				'default'         => '',
+				'type'            => 'text',
+				'soft_dependency' => true,
+				'partial_refresh' => [
+					'page_title_bar_contents_breacrumb_home_label' => [
 						'selector'              => '.avada-page-titlebar-wrapper',
 						'container_inclusive'   => false,
 						'render_callback'       => [ 'Avada_Partial_Refresh_Callbacks', 'page_titlebar_wrapper' ],
@@ -134,6 +167,48 @@ function avada_options_section_breadcrumbs( $sections ) {
 						'name'     => '--breadcrumbs_text_hover_color',
 						'element'  => '.fusion-page-title-bar, .fusion-breadcrumbs',
 						'callback' => [ 'sanitize_color' ],
+					],
+				],
+			],
+			'breadcrumbs_prefix_color'       => [
+				'label'           => esc_html__( 'Breadcrumbs Prefix Color', 'Avada' ),
+				'description'     => esc_html__( 'Controls the text color of the breadcrumbs prefix. Leave empty to use the text color above.', 'Avada' ),
+				'id'              => 'breadcrumbs_prefix_color',
+				'default'         => '',
+				'type'            => 'color-alpha',
+				'soft_dependency' => true,
+				'css_vars'        => [
+					[
+						'name'     => '--breadcrumbs_prefix_color',
+						'element'  => '.fusion-page-title-bar, .fusion-breadcrumbs',
+					],
+				],
+			],			
+			'breadcrumbs_current_page_color'       => [
+				'label'           => esc_html__( 'Breadcrumbs Current Page Color', 'Avada' ),
+				'description'     => esc_html__( 'Controls the text color of the current page in the breadcrumbs path. Leave empty to use the text color above.', 'Avada' ),
+				'id'              => 'breadcrumbs_current_page_color',
+				'default'         => '',
+				'type'            => 'color-alpha',
+				'soft_dependency' => true,
+				'css_vars'        => [
+					[
+						'name'     => '--breadcrumbs_current_page_color',
+						'element'  => '.fusion-page-title-bar, .fusion-breadcrumbs',
+					],
+				],
+			],
+			'breadcrumbs_separator_color'       => [
+				'label'           => esc_html__( 'Breadcrumbs Separator Color', 'Avada' ),
+				'description'     => esc_html__( 'Controls the separator color of the breadcrumbs. Leave empty to use the text color above.', 'Avada' ),
+				'id'              => 'breadcrumbs_separator_color',
+				'default'         => '',
+				'type'            => 'color-alpha',
+				'soft_dependency' => true,
+				'css_vars'        => [
+					[
+						'name'     => '--breadcrumbs_separator_color',
+						'element'  => '.fusion-page-title-bar, .fusion-breadcrumbs',
 					],
 				],
 			],

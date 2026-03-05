@@ -138,8 +138,17 @@ class Fusion_Image_Resizer {
 					'height' => $height,
 				];
 			}
+
+			// Force WP_Image_Editor_GD callback.
+			$force_gd_editor = function( $editors ) {
+				return [ 'WP_Image_Editor_GD' ];
+			};
+
 			// Load WordPress Image Editor.
+			add_filter( 'wp_image_editors', $force_gd_editor );
 			$editor = wp_get_image_editor( $file_path );
+			remove_filter( 'wp_image_editors', $force_gd_editor );
+
 			if ( is_wp_error( $editor ) ) {
 				return [
 					'url'    => $url,

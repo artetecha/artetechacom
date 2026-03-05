@@ -785,8 +785,6 @@ function avada_page_options_tab_form_steps( $sections ) {
 				'transport'     => 'postMessage',
 				'events'        => [ 'fusion-rerender-form-steps' ],
 			],
-
-
 			'steps_title'                 => [
 				'type'        => 'radio-buttonset',
 				'label'       => esc_attr__( 'Steps Title', 'Avada' ),
@@ -1195,7 +1193,7 @@ function avada_page_options_tab_form_steps( $sections ) {
 					'min'  => 0,
 					'max'  => 20,
 				],
-				'default'     => $fusion_settings->get( 'progressbar_filled_border_size' ),
+				'default'     => $fusion_settings->get( 'progressbar_filled_border_size' ) ? $fusion_settings->get( 'progressbar_filled_border_size' ) : 0,
 				'dependency'  => [
 					[
 						'field'      => 'steps_nav',

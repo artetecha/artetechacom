@@ -59,7 +59,9 @@ $organizer = tribe_get_organizer();
 	<div class="fusion-tribe-secondary-info">
 		<!-- Event Meta -->
 		<?php do_action( 'tribe_events_before_the_meta' ) ?>
+		<?php ob_start(); ?>
 		<?php tribe_get_template_part( 'list/meta' ); ?>
+		<?php echo apply_filters( 'privacy_iframe_embed', ob_get_clean() ); ?>
 		<?php do_action( 'tribe_events_after_the_meta' ) ?>
 
 		<!-- Event Content -->

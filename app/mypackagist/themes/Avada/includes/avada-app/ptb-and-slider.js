@@ -126,7 +126,7 @@ var FusionPageBuilder = FusionPageBuilder || {},
 			 * @since 6.0
 			 * @member {string}
 			 */
-			sliderContainerSelector: '#sliders-container .rev_slider_wrapper',
+			sliderContainerSelector: 'undefined' !== typeof SR7 ? '#sliders-container sr7-module' : '#sliders-container .rev_slider_wrapper',
 
 			/**
 			 * The value we should set in the slider-type selector.
@@ -151,11 +151,17 @@ var FusionPageBuilder = FusionPageBuilder || {},
 			 * @return {string} - Returns URL.
 			 */
 			getSliderEditURL: function() {
-				var $slide = jQuery( '#sliders-container rs-slide' ).first(),
-					id     = $slide.length ? parseInt( $slide.attr( 'data-key' ).replace( 'rs-', '' ) ) : false;
+				return false;
+				let id;
+				if ( jQuery( '#sliders-container > sr7-module' ).length ) {
+					id = jQuery( '#sliders-container > sr7-module' ).attr( 'data-id' );
+				} else {
+					const $slide = jQuery( '#sliders-container rs-slide' ).first();
+					id           = $slide.length ? parseInt( $slide.attr( 'data-key' ).replace( 'rs-', '' ) ) : false;
+				}
 
 				if ( id ) {
-					return window.fusionSiteVars.adminUrl + 'admin.php?page=revslider&view=slide&id=' + id;
+					return window.fusionSiteVars.adminUrl + 'admin.php?page=revslider&view=slider&id=' + id;
 				}
 
 				// Fallback in case we could not find the ID.
@@ -169,10 +175,11 @@ var FusionPageBuilder = FusionPageBuilder || {},
 			 * @return {string} - Returns URL.
 			 */
 			getSlideEditUrl: function() {
-				var $slide = jQuery( '#sliders-container .active-rs-slide:visible' ).filter( function() {
-						return 0 !== jQuery( this ).css( 'opacity' ) && 'hidden' !== jQuery( this ).css( 'visibility' );
-					} ),
-					id = $slide.length ? parseInt( $slide.attr( 'data-key' ).replace( 'rs-', '' ) ) : false;
+				if ( jQuery( '#sliders-container > sr7-module' ).length ) {
+					var id = jQuery( '#sliders-container > sr7-module' ).attr( 'data-current' )
+				} else {
+					var id = jQuery( '#sliders-container rs-module' ).attr( 'data-slideactive' ).replace( 'rs-', '' );
+				}
 
 				if ( id ) {
 					return window.fusionSiteVars.adminUrl + 'admin.php?page=revslider&view=slide&id=' + id;
@@ -708,9 +715,7 @@ var FusionPageBuilder = FusionPageBuilder || {},
 		 */
 		theSlider: function() {
 			var sliderContainer;
-			if ( this.$sliderContainer ) {
-				return this.$sliderContainer;
-			}
+
 			sliderContainer = jQuery( this.getSlider().sliderContainerSelector );
 			return ( sliderContainer.length ) ? sliderContainer : false;
 		},

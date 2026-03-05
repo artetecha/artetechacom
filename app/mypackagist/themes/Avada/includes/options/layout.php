@@ -210,13 +210,7 @@ function avada_options_section_layout( $sections ) {
 					'bottom' => '0px',
 				],
 				'type'        => 'spacing',
-				'required'    => [
-					[
-						'setting'  => 'layout',
-						'operator' => '==',
-						'value'    => 'boxed',
-					],
-				],
+				'soft_dependency' => true,
 				'css_vars'    => [
 					[
 						'name'   => '--margin_offset-top',

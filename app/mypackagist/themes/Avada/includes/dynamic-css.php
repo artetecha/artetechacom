@@ -169,34 +169,43 @@ function avada_dynamic_css_array( $original_css = [] ) {
 	}
 
 	if ( Avada()->settings->get( 'link_decoration' ) ) {
-		$exclusions    = Avada()->settings->get( 'link_decoration_exclusion' );
-		$base_celector = '.awb-link-decoration #wrapper a';
-		$end_selector  = ':not(.awb-no-decoration,.fusion-builder-module-control):not([data-filter], .pagination *, .flex-next, .flex-prev, .awb-image-hotspots-hotspot, .fusion-social-network-icon, .fb-icon-element, .avada-button-select, .fusion-countdown-link, .fusion-button-bar, .tag-cloud-link)';
-		$end_selector  = Avada()->settings->get( 'image_rollover' ) ? $end_selector . ':not(.fusion-rollover-link, .fusion-rollover-gallery, .fusion-rollover-title-link)' : $end_selector;
-		$end_selector  = class_exists( 'Woocommerce' ) ? $end_selector . ':not([class^="star"], [role="tab"] *, .catalog-ordering *, .view-cart *, .woocommerce-side-nav *, .wc-forward, .remove, .add_to_cart_button, .show_details_button, .product_type_external, .fusion-view-cart, .fusion-quick-view)' : $end_selector;
-		$end_selector  = class_exists( 'Tribe__Events__Main' ) ? $end_selector . ':not(.tribe-common-c-btn-icon, .tribe-common-c-btn-border-small, .tribe-events-c-view-selector__list-item-link, .tribe-events-c-nav__list-item *)' : $end_selector;
-		$end_selector  = in_array( 'breadcrumbs', $exclusions, true ) ? $end_selector . ':not(.fusion-breadcrumb-link)' : $end_selector;
-		$end_selector  = in_array( 'breadcrumbs', $exclusions, true ) && function_exists( 'yoast_breadcrumb' ) ? $end_selector . ':not(.awb-yoast-breadcrumbs *)' : $end_selector;
-		$end_selector  = in_array( 'breadcrumbs', $exclusions, true ) && function_exists( 'rank_math_get_breadcrumbs' ) ? $end_selector . ':not(.awb-rankmath-breadcrumbs *)' : $end_selector;
-		$end_selector  = in_array( 'buttons', $exclusions, true ) ? $end_selector . ':not(.fusion-button, .tribe-button)' : $end_selector;
-		$end_selector  = in_array( 'headings', $exclusions, true ) ? $end_selector . ':not(:where(h1 *, h2 *, h3 *, h4 *, h5 *, h6 *), .heading-link)' : $end_selector;
-		$end_selector  = in_array( 'menus', $exclusions, true ) ? $end_selector . ':not(.awb-menu__main-a, .awb-menu__sub-a, .awb-submenu__main-a, .awb-submenu__sub-a, .fusion-header *, .fusion-secondary-header *)' : $end_selector;
-		$end_selector  = in_array( 'tabstoggles', $exclusions, true ) ? $end_selector . ':not([role="tab"], [role="button"])' : $end_selector;
-		$end_selector  = in_array( 'tocs', $exclusions, true ) ? $end_selector . ':not(.awb-toc-el__item-anchor)' : $end_selector;
-		$selector      = $base_celector . $end_selector;
+		$exclusions = Avada()->settings->get( 'link_decoration_exclusion' );
+		$is_builder = ( function_exists( 'fusion_is_preview_frame' ) && fusion_is_preview_frame() ) || ( function_exists( 'fusion_is_builder_frame' ) && fusion_is_builder_frame() );
 
-		$css['global'][ $selector ]['text-decoration-line']      = 'var(--awb-link_decoration_line)';
-		$css['global'][ $selector ]['text-decoration-style']     = 'var(--awb-link_decoration_style)';
-		$css['global'][ $selector ]['text-decoration-thickness'] = 'var(--awb-link_decoration_thickness)';
-		$css['global'][ $selector ]['text-underline-offset']     = 'var(--awb-link_decoration_underline_offset)';
-		$css['global'][ $selector ]['transition-property']       = 'text-decoration,color,background-color,border-color';
+		if ( ! ( $is_builder && 'awb_off_canvas' === get_post_type() && in_array( 'off_canvas', $exclusions, true ) ) ) {
+			$base_selector = '.awb-link-decoration #wrapper a';
+			$end_selector  = ':not(.awb-no-decoration,.fusion-builder-module-control,#fusion-edit-slider-options-action-button,#fusion-edit-slider-action-button):not([data-filter], .pagination *, .flex-next, .flex-prev, .awb-image-hotspots-hotspot, .fusion-social-network-icon, .awb-text-path a, .fb-icon-element, .avada-button-select, .fusion-countdown-link, .fusion-button-bar, .tag-cloud-link)';
+			$end_selector  = Avada()->settings->get( 'image_rollover' ) ? $end_selector . ':not(.fusion-rollover-link, .fusion-rollover-gallery, .fusion-rollover-title-link)' : $end_selector;
+			$end_selector  = class_exists( 'Woocommerce' ) ? $end_selector . ':not([class^="star"], [role="tab"] *, .catalog-ordering *, .view-cart *, .woocommerce-side-nav *, .wc-forward, .remove, .fusion-post-card-cart-add-to-cart, .add_to_cart_button, .show_details_button, .product_type_external, .fusion-view-cart, .fusion-quick-view, .fusion-update-cart)' : $end_selector;
+			$end_selector  = class_exists( 'Tribe__Events__Main' ) ? $end_selector . ':not(.tribe-common-c-btn-icon, .tribe-common-c-btn-border-small, .tribe-events-c-view-selector__list-item-link, .tribe-events-c-nav__list-item *)' : $end_selector;
+			$end_selector  = in_array( 'breadcrumbs', $exclusions, true ) ? $end_selector . ':not(.fusion-breadcrumb-link)' : $end_selector;
+			$end_selector  = in_array( 'breadcrumbs', $exclusions, true ) && function_exists( 'yoast_breadcrumb' ) ? $end_selector . ':not(.awb-yoast-breadcrumbs *)' : $end_selector;
+			$end_selector  = in_array( 'breadcrumbs', $exclusions, true ) && function_exists( 'rank_math_get_breadcrumbs' ) ? $end_selector . ':not(.awb-rankmath-breadcrumbs *)' : $end_selector;
+			$end_selector  = in_array( 'buttons', $exclusions, true ) ? $end_selector . ':not(.fusion-button, .tribe-button)' : $end_selector;
+			$end_selector  = in_array( 'headings', $exclusions, true ) ? $end_selector . ':not(:where(h1 *, h2 *, h3 *, h4 *, h5 *, h6 *), .heading-link)' : $end_selector;
+			$end_selector  = in_array( 'menus', $exclusions, true ) ? $end_selector . ':not(.awb-menu__main-a, .awb-menu__sub-a, .awb-submenu__main-a, .awb-submenu__sub-a, .fusion-header *, .fusion-secondary-header *)' : $end_selector;
+			$end_selector  = in_array( 'tabstoggles', $exclusions, true ) ? $end_selector . ':not([role="tab"], [role="button"])' : $end_selector;
+			$end_selector  = in_array( 'tocs', $exclusions, true ) ? $end_selector . ':not(.awb-toc-el__item-anchor)' : $end_selector;
+			$selectors[]    = $base_selector . $end_selector;
 
-		$selector = $selector . ':hover,' . $selector . ':focus';
-		$css['global'][ $selector ]['text-decoration-line']      = 'var(--awb-link_decoration_line_hover)';
-		$css['global'][ $selector ]['text-decoration-style']     = 'var(--awb-link_decoration_style_hover)';
-		$css['global'][ $selector ]['text-decoration-thickness'] = 'var(--awb-link_decoration_thickness_hover)';
-		$css['global'][ $selector ]['text-underline-offset']     = 'var(--awb-link_decoration_underline_offset_hover)';
+			if ( ! in_array( 'off_canvas', $exclusions, true ) && class_exists( 'AWB_Off_Canvas' ) &&  false !== AWB_Off_Canvas::is_enabled() ) {
+				$selectors[]    = '.awb-link-decoration .awb-off-canvas-wrap a' . $end_selector;
+			}
 
+			foreach( $selectors as $selector ) {
+				$css['global'][ $selector ]['text-decoration-line']      = 'var(--awb-link_decoration_line)';
+				$css['global'][ $selector ]['text-decoration-style']     = 'var(--awb-link_decoration_style)';
+				$css['global'][ $selector ]['text-decoration-thickness'] = 'var(--awb-link_decoration_thickness)';
+				$css['global'][ $selector ]['text-underline-offset']     = 'var(--awb-link_decoration_underline_offset)';
+				$css['global'][ $selector ]['transition-property']       = 'text-decoration,color,background-color,border-color';
+
+				$selector = $selector . ':hover,' . $selector . ':focus';
+				$css['global'][ $selector ]['text-decoration-line']      = 'var(--awb-link_decoration_line_hover)';
+				$css['global'][ $selector ]['text-decoration-style']     = 'var(--awb-link_decoration_style_hover)';
+				$css['global'][ $selector ]['text-decoration-thickness'] = 'var(--awb-link_decoration_thickness_hover)';
+				$css['global'][ $selector ]['text-underline-offset']     = 'var(--awb-link_decoration_underline_offset_hover)';
+			}
+		}
 	}
 
 	$avada_dynamic_css_array_added = true;

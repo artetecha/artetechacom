@@ -317,7 +317,7 @@ window.awbWizard = {
 				if ( 'object' === typeof value && 'function' === typeof value.join ) {
 					value = value.join( ',' );
 				}
-				if ( recommended === value ) {
+				if ( ( -1 !== recommended.indexOf( ',' ) && -1 !== recommended.indexOf( value ) ) || recommended === value ) {
 					$field.removeClass( 'value-bad' ).addClass( 'value-good' );
 				} else {
 					$field.removeClass( 'value-good' ).addClass( 'value-bad' );
@@ -582,7 +582,7 @@ window.awbWizard = {
 				value = value.join( ',' );
 			}
 
-			if ( recommended === value ) {
+			if ( ( -1 !== recommended.indexOf( ',' ) && -1 !== recommended.indexOf( value ) ) || recommended === value ) {
 				$element.addClass( 'value-good' ).removeClass( 'value-bad' );
 			} else {
 				$element.addClass( 'value-bad' ).removeClass( 'value-good' );
@@ -620,7 +620,7 @@ window.awbWizard = {
 				return;
 			}
 
-			if ( null !== value && recommended === value ) {
+			if ( null !== value && ( ( -1 !== recommended.indexOf( ',' ) && -1 !== recommended.indexOf( value ) ) || recommended === value ) ) {
 				return;
 			}
 

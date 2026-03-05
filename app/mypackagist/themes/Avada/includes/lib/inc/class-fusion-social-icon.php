@@ -102,6 +102,10 @@ class Fusion_Social_Icon {
 
 		$icon_options['title'] = $tooltip;
 
+		if ( 'copy_link' === $icon_options['social_network'] ) {
+			$icon_options['social_network'] = 'share';
+		}
+
 		if ( ! empty( $args['custom_icon'] ) ) {
 			$icon_options['class'] .= 'fusion-social-network-icon fusion-tooltip ' . fusion_font_awesome_name_handler( $args['custom_icon'] );
 		} else {
@@ -142,6 +146,12 @@ class Fusion_Social_Icon {
 
 			$icon_options['href']   = 'tel:' . str_replace( 'tel:', '', $icon_options['social_link'] );
 			$icon_options['target'] = '_self';
+		}
+
+		if ( 'share' === $icon_options['social_network'] ) {
+			$icon_options['onclick']        = 'copyPageUrl(event)';
+			unset( $icon_options['href'] );
+			unset( $icon_options['target'] );
 		}
 
 		if ( fusion_library()->get_option( 'nofollow_social_links' ) ) {
@@ -204,6 +214,8 @@ class Fusion_Social_Icon {
 			$network_name = $network_names[ $network_name ];
 		} elseif ( 'mail' === $network_name ) {
 			$network_name = esc_attr__( 'Email', 'Avada' );
+		} elseif ( 'copy_link' === $network_name ) {
+			$network_name = esc_attr__( 'Copy Link', 'Avada' );
 		} elseif ( 'phone' === $network_name ) {
 			$network_name = esc_attr__( 'Phone', 'Avada' );
 		} elseif ( 'custom' === substr( $network_name, 0, 7 ) ) {

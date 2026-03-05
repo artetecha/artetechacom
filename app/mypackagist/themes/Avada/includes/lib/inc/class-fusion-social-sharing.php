@@ -160,7 +160,8 @@ class Fusion_Social_Sharing extends Fusion_Social_Icon {
 
 		if ( is_array( $enabled_social_networks ) ) {
 			foreach ( $enabled_social_networks as $index => $network ) {
-				$social_sharing_links_output[ $network ] = [ 'url' => $social_sharing_links_base[ $network ] . $social_sharing_links_content[ $network ] ];
+				$url = isset( $social_sharing_links_base[ $network ] ) && isset( $social_sharing_links_content[ $network ] ) ? $social_sharing_links_base[ $network ] . $social_sharing_links_content[ $network ] : '';
+				$social_sharing_links_output[ $network ] = [ 'url' => $url ];
 			}
 		}
 

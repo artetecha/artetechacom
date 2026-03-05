@@ -622,8 +622,10 @@ class Fusion_Settings {
 					/* translators: The default value. */
 					$setting_description = sprintf( esc_html__( ' Leave empty for default value of %s.', 'Avada' ), $setting_link );
 				} else {
+					$setting_link = str_replace( [ '</a>', '</span>' ], [ apply_filters( 'fusion_options_label', esc_html__( 'Element Options', 'Avada' ) ) . '</a>', apply_filters( 'fusion_options_label', esc_html__( 'Element Options', 'Avada' ) ) . '</span>' ], $setting_link );
+
 					/* translators: %1$s is the link. %2$s is the link text. */
-					$setting_description = sprintf( __( '  Currently no default selected. Can be set globally from the <a %1$s>%2$s</a>.', 'Avada' ), 'href="' . $this->get_setting_link( $setting, $subset ) . '" target="_blank" rel="noopener noreferrer"', apply_filters( 'fusion_options_label', esc_html__( 'Element Options', 'Avada' ) ) );
+					$setting_description = sprintf( __( '  Currently no default selected. Can be set globally from the %s.', 'Avada' ), $setting_link );
 				}
 				break;
 		}

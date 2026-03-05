@@ -191,6 +191,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 							</div>
 						</td>
 					</tr>
+					<tr>
+						<td class="help">&nbsp;</td>
+						<td class="help">&nbsp;</td>
+						<td>
+							<div class="avada-db-status-version-control">
+								<span class="avada-db-status-version-control-desc">
+									<?php esc_html_e( 'Update Avada Forms database submission table.', 'Avada' ); ?>
+								</span>
+								<a href="#" class="button button-primary fusion-update-form-submission-table"><?php esc_html_e( 'Update Table', 'Avada' ); ?></a>
+								<span class="fusion-system-status-spinner" style="display: none;">
+									<img src="<?php echo esc_url( admin_url( 'images/spinner.gif' ) ); ?>" />
+								</span>
+							</div>
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		<?php endif; ?>
@@ -200,7 +215,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<tbody>
 					<tr>
 						<td>
-						<strong><?php esc_html_e( 'Copy Multisite Global Options ', 'Avada' ); ?></strong>
+						<strong><?php esc_html_e( 'Copy Multisite Global Options', 'Avada' ); ?></strong>
 
 						</td>
 						<td class="help">&nbsp;</td>
@@ -220,7 +235,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 				</tbody>
 			</table>
-		<?php endif; ?>		
+		<?php endif; ?>
+
+		<table class="widefat avada-status-no-export" cellspacing="0">
+			<tbody>
+				<tr>
+					<td>
+					<strong><?php esc_html_e( 'Convert Image Formats', 'Avada' ); ?></strong>
+
+					</td>
+					<td class="help">&nbsp;</td>
+					<td>
+						<div class="avada-db-status-version-control">
+							<?php
+								$fusion_settings = awb_get_fusion_settings();
+								$format          = $fusion_settings->get( 'upload_image_format' );
+								$mime_types      = 'webp' === $format ? [ 'image/jpeg', 'image/jpg', 'image/png', 'image/gif' ] : [ 'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp' ];
+								$total_images    = array_sum( array_intersect_key( (array) wp_count_attachments( 'image' ), array_flip( $mime_types ) ) );								
+								$styles          = ( 'webp' !== $format && 'avif' !== $format ) || ! Fusion_Images::get_target_format() || 0 === $total_images ? 'pointer-events: none; opacity: 0.7;' : '';
+							?>
+							<span class="avada-db-status-version-control-desc">
+								<?php esc_html_e( 'Convert all compatible image attachments (*.jpeg, *.jpg, *.png) in the media library to webP or AVIF format. Before running this conversion, please set your preferred format in Global Options:', 'Avada' ); ?>
+								<a href="<?php echo esc_url( admin_url( 'themes.php?page=avada_options#upload_image_format' ) ); ?>" target="_blank"><?php esc_html_e( 'Upload Image Format', 'Avada' ); ?></a>
+								<br />
+								<?php esc_html_e( 'WARNING: This can\'t be reversed.', 'Avada' ); ?>
+
+								<p id="conversion-status" style="font-size: inherit;margin-top: 1em;margin-bottom: 0;" data-format="<?php echo esc_attr( $format ); ?>" data-text="<?php esc_attr_e( 'Converting images:', 'Avada' ); ?>" data-text-of="<?php esc_attr_e( 'of', 'Avada' ); ?>" data-text-total="<?php esc_attr_e( 'Conversion complete! Images processed:', 'Avada' ); ?>" data-total="<?php echo esc_attr( $total_images ); ?>"><?php printf( esc_html__( '%s images can be converted.', 'Avada' ), esc_html( $total_images ) ) ?></p>
+								<div id="conversion-progress" style="display: none; width: 100%; background: #dfdfdf; margin-top: 5px;">
+									<div id="conversion-progress-bar" style="width: 0%; background: #65bc7b; height: 2px;"></div>
+								</div>
+							</span>
+							<a href="#" class="button button-primary awb-convert-images" style="<?php echo esc_attr( $styles ); ?>" data-confirm-text="<?php esc_attr_e( 'Are you sure you want to convert all image attachments in the media library?', 'Avada' ); ?>"><?php esc_html_e( 'Convert Images', 'Avada' ); ?></a>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>		
 
 		<?php // Display Avada 4.0 and/or 5.0 conversions if available. ?>
 		<?php if ( ( $show_400_migration && false === $force_hide_400_migration ) || $show_500_migration ) : ?>
@@ -773,7 +823,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						// Link the plugin name to the plugin url if available.
 						if ( ! empty( $plugin_data['PluginURI'] ) ) {
-							$plugin_name = '<a href="' . esc_url( $plugin_data['PluginURI'] ) . '" title="' . __( 'Visit plugin homepage', 'Avada' ) . '">' . esc_html( $plugin_data['Name'] ) . '</a>';
+							$plugin_name = '<a href="' . esc_url( $plugin_data['PluginURI'] ) . '" title="' . __( 'Visit plugin homepage', 'Avada' ) . '" target="_blank">>' . esc_html( $plugin_data['Name'] ) . '</a>';
 						} else {
 							$plugin_name = esc_html( $plugin_data['Name'] );
 						}

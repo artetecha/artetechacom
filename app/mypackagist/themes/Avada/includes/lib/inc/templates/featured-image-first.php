@@ -67,6 +67,8 @@ if ( 'related' === $type && 'fixed' === $post_featured_image_size && $post_thumb
 		if ( $image_id ) {
 			$image_markup = wp_get_attachment_image( $image_id, $post_featured_image_size );
 		}
+	} elseif ( 'attachment' === $type ) {
+		$image_markup = wp_get_attachment_image( $post_id, $post_featured_image_size );
 	}
 
 	if ( $image_markup ) {
@@ -152,7 +154,7 @@ foreach ( $attributes as $key => $value ) {
 					echo $featured_image; // phpcs:ignore WordPress.Security.EscapeOutput
 
 					if ( $is_product ) {
-						$icon_class = ( $in_cart ) ? 'awb-icon-check-square-o' : 'awb-icon-spinner';
+						$icon_class = ( $in_cart ) ? 'awb-icon-shopping-cart' : 'awb-icon-spinner';
 						echo sprintf( '<div class="cart-loading"><i class="%s" aria-hidden="true"></i></div>', $icon_class ); // phpcs:ignore WordPress.Security.EscapeOutput
 					}
 

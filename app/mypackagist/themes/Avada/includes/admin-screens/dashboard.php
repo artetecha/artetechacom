@@ -124,7 +124,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				?>
 				<div class="avada-db-card-notice avada-db-welcome-resources-license<?php echo esc_attr( $notice_sale_class ); ?>" data-sale="<?php esc_attr_e( 'Sale', 'Avada' ); ?>">
 					<p class="avada-db-card-notice-heading-image">
-						<a href="<?php echo esc_url( 'https://1.envato.market/nYa3R' ); ?>" class="avada-db-imgae-link" target="_blank" rel="noopener noreferrer">
+						<a href="<?php echo esc_url( 'https://1.envato.market/nYa3R' ); ?>" class="avada-db-image-link" target="_blank" rel="noopener noreferrer">
 							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/admin/images/buy-avada.png' ); ?>" alt="<?php esc_html_e( 'Avada Logo', 'Avada' ); ?>" width="800" height="315" />
 						</a>
 					</p>
@@ -141,7 +141,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<div class="avada-db-card-notice avada-db-welcome-resources-hosting avada-db-sale" style="order:<?php echo esc_attr( $resource_order[0] ); ?>;<?php echo 4 === $resource_order[0] ? 'display:none;' : ''; ?>" data-sale="<?php esc_attr_e( 'Discount', 'Avada' ); ?>">
 					<p class="avada-db-card-notice-heading-image">
-						<a href="<?php echo esc_url( 'https://shareasale.com/r.cfm?b=1632110&u=873588&m=41388' ); ?>" class="avada-db-imgae-link" target="_blank" rel="noopener noreferrer">
+						<a href="<?php echo esc_url( 'https://www.wqwln8trk.com/2RKFKXP2T/2L6NT615T/?__efq=GzmHQ_Rb-IiMVcfkgCTbdIewEvcUEC7suQmABap-1rk' ); ?>" class="avada-db-image-link" target="_blank" rel="noopener noreferrer">
 							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/admin/images/avada-wpe-large.png' ); ?>" alt="<?php esc_html_e( 'WPEngine Logo', 'Avada' ); ?>" width="800" height="315" />
 						</a>
 					</p>
@@ -153,13 +153,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<?php esc_html_e( 'Enjoy 4 months free!', 'Avada' ); ?>
 					</p>
 					<p class="avada-db-card-notice-content">
-						<a href="<?php echo esc_url( 'https://shareasale.com/r.cfm?b=1632110&u=873588&m=41388' ); ?>" class="button button-primary" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get Special Offer', 'Avada' ); ?></a>
+						<a href="<?php echo esc_url( 'https://www.wqwln8trk.com/2RKFKXP2T/2L6NT615T/?__efq=GzmHQ_Rb-IiMVcfkgCTbdIewEvcUEC7suQmABap-1rk' ); ?>" class="button button-primary" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get Special Offer', 'Avada' ); ?></a>
 					</p>
 				</div>
 
 				<div class="avada-db-card-notice avada-db-welcome-resources-hosting avada-db-sale" style="order:<?php echo esc_attr( $resource_order[1] ); ?>;<?php echo 4 === $resource_order[1] ? 'display:none;' : ''; ?>" data-sale="<?php esc_attr_e( 'Discount', 'Avada' ); ?>">
 					<p class="avada-db-card-notice-heading-image">
-						<a href="<?php echo esc_url( 'https://www.siteground.com/avada?afcode=452502cf59bfef470b2806e5ba67670a' ); ?>" class="avada-db-imgae-link" target="_blank" rel="noopener noreferrer">
+						<a href="<?php echo esc_url( 'https://www.siteground.com/avada?afcode=452502cf59bfef470b2806e5ba67670a' ); ?>" class="avada-db-image-link" target="_blank" rel="noopener noreferrer">
 							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/admin/images/avada-siteground-large.png' ); ?>" alt="<?php esc_html_e( 'WPEngine Logo', 'Avada' ); ?>" width="800" height="315" />
 						</a>
 					</p>
@@ -176,7 +176,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<div class="avada-db-card-notice avada-db-welcome-resources-customization" style="order:<?php echo esc_attr( $resource_order[2] ); ?>;<?php echo 4 === $resource_order[2] ? 'display:none;' : ''; ?>">
 					<p class="avada-db-card-notice-heading-image">
-						<a href="<?php echo esc_url( 'https://codeable.io/?ref=jMHpp' ); ?>" class="avada-db-imgae-link" target="_blank" rel="noopener noreferrer">
+						<a href="<?php echo esc_url( 'https://codeable.io/?ref=jMHpp' ); ?>" class="avada-db-image-link" target="_blank" rel="noopener noreferrer">
 							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/admin/images/avada-codeable.png' ); ?>" alt="<?php esc_html_e( 'Codeable Logo', 'Avada' ); ?>" width="800" height="315" />
 						</a>
 					</p>
@@ -205,7 +205,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="avada-db-card-grid">
 				<div class="avada-db-card-notice avada-db-welcome-partners-hubspot">
 					<p class="avada-db-card-notice-heading-image">
-						<a href="<?php echo esc_url( 'https://hubs.to/39HcRH' ); ?>" class="avada-db-imgae-link" target="_blank" rel="noopener noreferrer">
+						<a href="<?php echo esc_url( 'https://hubs.to/39HcRH' ); ?>" class="avada-db-image-link" target="_blank" rel="noopener noreferrer">
 							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/admin/images/avada-hubspot.png' ); ?>" alt="<?php esc_html_e( 'HubSpot Logo', 'Avada' ); ?>" width="800" height="315" />
 						</a>
 					</p>
@@ -222,7 +222,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<div class="avada-db-card-notice avada-db-welcome-partners-wpml">
 					<p class="avada-db-card-notice-heading-image">
-						<a href="<?php echo esc_url( 'https://wpml.org/?aid=38405&affiliate_key=DYLA9bEPLvPY&dr=avada_theme' ); ?>" class="avada-db-imgae-link" target="_blank" rel="noopener">
+						<a href="<?php echo esc_url( 'https://wpml.org/?aid=38405&affiliate_key=DYLA9bEPLvPY&dr=avada_theme' ); ?>" class="avada-db-image-link" target="_blank" rel="noopener">
 							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/admin/images/avada-wpml.png' ); ?>" alt="<?php esc_html_e( 'WPML Logo', 'Avada' ); ?>" width="400" height="315" />
 						</a>
 					</p>
@@ -239,7 +239,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<div class="avada-db-card-notice avada-db-welcome-partners-ec">
 					<p class="avada-db-card-notice-heading-image">
-						<a href="<?php echo esc_url( 'https://theeventscalendar.pxf.io/c/1292887/975969/12892' ); ?>" class="avada-db-imgae-link" target="_blank" rel="noopener noreferrer">
+						<a href="<?php echo esc_url( 'https://theeventscalendar.pxf.io/c/1292887/975969/12892' ); ?>" class="avada-db-image-link" target="_blank" rel="noopener noreferrer">
 							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/admin/images/avada-events-calendar.png' ); ?>" alt="<?php esc_html_e( 'EC Logo', 'Avada' ); ?>" width="800" height="315" />
 						</a>
 					</p>

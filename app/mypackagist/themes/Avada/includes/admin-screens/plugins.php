@@ -86,7 +86,7 @@ if ( ! $wp_api_plugins ) {
 				printf(
 					/* translators: %1$s = Status text & link. %2$s: Plugin Installation text & link. %3$s: Support Dashboard text & link. */
 					esc_attr__( 'Please check on the %1$s page if wp_remote_get() is working. For more information you can check our documentation of the %2$s. If the issue persists, you can also get the plugins through our alternate method directly from the %3$s.', 'Avada' ),
-					'<a href="' . esc_url_raw( admin_url( 'admin.php?page=avada-status' ) ) . '" target="_blank">' . esc_attr__( 'Status', 'Avada' ) . '</a>',
+					'<a href="' . esc_url_raw( admin_url( 'admin.php?page=avada-status' ) ) . '" target="_blank">' . esc_attr__( 'System Status', 'Avada' ) . '</a>',
 					'<a href="https://avada.com/documentation/plugin-installation-and-maintenance/" target="_blank">' . esc_attr__( 'Plugin Installation', 'Avada' ) . '</a>',
 					'<a href="https://my.avada.com/licenses/" target="_blank">' . esc_attr__( 'Support Dashboard', 'Avada' ) . '</a>'
 				);
@@ -135,7 +135,7 @@ if ( ! $wp_api_plugins ) {
 					<div class="theme <?php echo esc_attr( $class ); ?>">
 						<div class="theme-wrapper">
 							<div class="theme-screenshot">
-								<img src="<?php echo esc_url( $plugin_args['image'] ); ?>" alt="<?php esc_attr( $plugin_args['plugin_name'] ); ?>" />
+								<img src="<?php echo esc_url( $plugin_args['image'] ); ?>" width="880" height="660" alt="<?php echo esc_attr( $plugin_args['plugin_name'] ); ?>" />
 							</div>
 							<?php if ( isset( $plugin_action['update'] ) && $plugin_action['update'] ) : ?>
 								<div class="update-message notice inline notice-warning notice-alt">

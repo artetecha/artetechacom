@@ -448,6 +448,61 @@ function avada_options_section_woocommerce( $sections ) {
 							],
 						],
 					],
+					'woocommerce_cart_link_top_nav' => [
+						'label'           => esc_html__( 'WooCommerce Cart Icon in Secondary Menu', 'Avada' ),
+						'description'     => esc_html__( 'Turn on to display the cart icon in the secondary menu. Not compatible with Ubermenu.', 'Avada' ),
+						'id'              => 'woocommerce_cart_link_top_nav',
+						'default'         => '1',
+						'hidden'          =>  $has_global_header,
+						'type'            => 'switch',
+						'class'           => 'fusion-or-gutter',
+						'required'        => [
+							[
+								'setting'  => 'header_position',
+								'operator' => '!=',
+								'value'    => 'top',
+							],
+							[
+								'setting'  => 'header_layout',
+								'operator' => '=',
+								'value'    => 'v2',
+							],
+							[
+								'setting'  => 'header_layout',
+								'operator' => '=',
+								'value'    => 'v3',
+							],
+							[
+								'setting'  => 'header_layout',
+								'operator' => '=',
+								'value'    => 'v4',
+							],
+							[
+								'setting'  => 'header_layout',
+								'operator' => '=',
+								'value'    => 'v5',
+							],
+						],
+						// Partial refresh for the header.
+						'partial_refresh' => [
+							'header_content_woocommerce_cart_link_top_nav_remove_before_hook' => [
+								'selector'            => '.avada-hook-before-header-wrapper',
+								'container_inclusive' => true,
+								'render_callback'     => '__return_null',
+							],
+							'header_content_woocommerce_cart_link_top_nav_remove_after_hook' => [
+								'selector'            => '.avada-hook-after-header-wrapper',
+								'container_inclusive' => true,
+								'render_callback'     => '__return_null',
+							],
+							'header_content_woocommerce_cart_link_top_nav' => [
+								'selector'              => '.fusion-header-wrapper',
+								'container_inclusive'   => true,
+								'render_callback'       => [ 'Avada_Partial_Refresh_Callbacks', 'header' ],
+								'success_trigger_event' => 'header-rendered',
+							],
+						],
+					],					
 					'woocommerce_acc_link_top_nav' => [
 						'label'           => esc_html__( 'WooCommerce My Account Link in Secondary Menu', 'Avada' ),
 						'description'     => esc_html__( 'Turn on to display the "My Account" link in the secondary menu. Not compatible with Ubermenu.', 'Avada' ),
@@ -502,60 +557,6 @@ function avada_options_section_woocommerce( $sections ) {
 							],
 						],
 					],
-					'woocommerce_cart_link_top_nav' => [
-						'label'           => esc_html__( 'WooCommerce Cart Icon in Secondary Menu', 'Avada' ),
-						'description'     => esc_html__( 'Turn on to display the cart icon in the secondary menu. Not compatible with Ubermenu.', 'Avada' ),
-						'id'              => 'woocommerce_cart_link_top_nav',
-						'default'         => '1',
-						'type'            => 'switch',
-						'class'           => 'fusion-or-gutter',
-						'required'        => [
-							[
-								'setting'  => 'header_position',
-								'operator' => '!=',
-								'value'    => 'top',
-							],
-							[
-								'setting'  => 'header_layout',
-								'operator' => '=',
-								'value'    => 'v2',
-							],
-							[
-								'setting'  => 'header_layout',
-								'operator' => '=',
-								'value'    => 'v3',
-							],
-							[
-								'setting'  => 'header_layout',
-								'operator' => '=',
-								'value'    => 'v4',
-							],
-							[
-								'setting'  => 'header_layout',
-								'operator' => '=',
-								'value'    => 'v5',
-							],
-						],
-						// Partial refresh for the header.
-						'partial_refresh' => [
-							'header_content_woocommerce_cart_link_top_nav_remove_before_hook' => [
-								'selector'            => '.avada-hook-before-header-wrapper',
-								'container_inclusive' => true,
-								'render_callback'     => '__return_null',
-							],
-							'header_content_woocommerce_cart_link_top_nav_remove_after_hook' => [
-								'selector'            => '.avada-hook-after-header-wrapper',
-								'container_inclusive' => true,
-								'render_callback'     => '__return_null',
-							],
-							'header_content_woocommerce_cart_link_top_nav' => [
-								'selector'              => '.fusion-header-wrapper',
-								'container_inclusive'   => true,
-								'render_callback'       => [ 'Avada_Partial_Refresh_Callbacks', 'header' ],
-								'success_trigger_event' => 'header-rendered',
-							],
-						],
-					],
 					'woocommerce_social_links' => [
 						'label'           => esc_html__( 'WooCommerce Social Icons', 'Avada' ),
 						'description'     => esc_html__( 'Turn on to display the social icons on single product posts.', 'Avada' ),
@@ -592,6 +593,25 @@ function avada_options_section_woocommerce( $sections ) {
 						'label'           => esc_html__( 'WooCommerce Load Cart Fragments Script', 'Avada' ),
 						'description'     => esc_html__( 'Turn on to load the cart fragments script on all WooComemrce pages. This will enable AJAX driven updates of the cart and mini cart, but can be resource intensive on large shops.', 'Avada' ),
 						'id'              => 'woocommerce_load_cart_fragments',
+						'default'         => '0',
+						'type'            => 'switch',
+					],
+					'woocommerce_ajax_filters' => [
+						'type'            => 'radio-buttonset',
+						'label'           => esc_html__( 'WooCommerce AJAX Product Filters', 'Avada' ),
+						'description'     => esc_html__( 'Set to one of the AJAX options to enable WooCommerce product filters without page reload.', 'Avada' ),
+						'id'              => 'woocommerce_ajax_filters',
+						'default'         => 'no',
+						'choices'         => [
+							'no'     => esc_html__( 'No', 'Avada' ),
+							'submit' => esc_html__( 'AJAX On Submit', 'Avada' ),
+							'change' => esc_html__( 'AJAX On Change', 'Avada' ),
+						],
+					],
+					'woocommerce_ajax_sorting' => [
+						'label'           => esc_html__( 'WooCommerce AJAX Product Sorting', 'Avada' ),
+						'description'     => esc_html__( 'Turn on to use AJAX loading on the WooCommerce product sorting.', 'Avada' ),
+						'id'              => 'woocommerce_ajax_sorting',
 						'default'         => '0',
 						'type'            => 'switch',
 					],					

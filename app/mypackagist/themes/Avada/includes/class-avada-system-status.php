@@ -35,8 +35,16 @@ class Avada_System_Status {
 		// Re-create Avada Forms DB tables.
 		add_action( 'wp_ajax_fusion_create_forms_tables', [ $this, 'create_forms_tables' ] );
 
+		// Update the form submissions table.
+		add_action( 'wp_ajax_awb_update_form_submissions_table', [ $this, 'update_form_submissions_table' ] );		
+
 		// Copy multisite global options.
 		add_action( 'wp_ajax_awb_copy_multisite_global_options', [ $this, 'copy_multisite_global_options' ] );      
+
+		// Convert images in media library.
+		add_action( 'wp_ajax_awb_convert_images_in_media_library', [ $this, 'convert_images_in_media_library' ] );
+
+
 	}
 
 	/**
@@ -158,6 +166,27 @@ class Avada_System_Status {
 		die();
 	}
 
+	/**
+	 * Ajax callback for adding the device_type column to the Form Submissions table.
+	 *
+	 * @since 7.15
+	 * @access public
+	 * @return void
+	 */	
+	public function update_form_submissions_table() {
+		if ( ! check_ajax_referer( 'fusion_system_status_nonce', 'nonce', false ) ) {
+			$response = [ 'message' => __( 'Security check failed.' ) ];
+		}
+
+		if ( function_exists( 'Fusion_Form_Builder' ) ) {
+			$response = Fusion_Form_Builder()->add_device_type_to_submissions_table();
+		} else {
+			$response = [ 'message' => __( 'Updating submissions database table failed.' ) ];
+		}
+
+		echo wp_json_encode( $response );
+		die();
+	}
 
 	/**
 	 * Copy Avada Global Options from main site to all sites across the multisite install.
@@ -190,6 +219,167 @@ class Avada_System_Status {
 
 		echo wp_json_encode( $response );
 		die();      
+	}
+
+	/**
+	 * Converts images in media library in batches to new image formats.
+	 *
+	 * @since 7.14.0
+	 * @access public
+	 * @return void
+	 */
+	public static function convert_images_in_media_library() {
+		if ( ! current_user_can( 'manage_options' ) || ! check_ajax_referer( 'fusion_system_status_nonce', 'nonce', false ) ) {
+			wp_send_json_error( 'Unauthorized' );
+		}
+	
+		$batch_size           = isset( $_POST['batch_size'] ) ? intval( $_POST['batch_size'] ) : 10;
+		$format               = Fusion_Images::get_target_format();
+		$mime                 = 'image/' . $format;
+		$fusion_settings      = awb_get_fusion_settings();
+		$keep_original_images = 'enable' === $fusion_settings->get( 'keep_original_images' );
+		$upload_dir           = wp_get_upload_dir();
+
+		if ( ! isset( $upload_dir['basedir'] ) ) {
+			wp_send_json_error( 'Could not access upload folder.' );
+		}
+
+		if ( ! $format ) {
+			wp_send_json_error( 'Target mime type is unsupported.' );
+		}
+
+		$args = [
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'image/webp' === $mime ? [ 'image/jpeg', 'image/jpg', 'image/png' ] : [ 'image/jpeg', 'image/jpg', 'image/png', 'image/webp' ],
+			'posts_per_page' => $batch_size,
+			'post_status'    => 'inherit',
+		];
+		$query = new WP_Query( $args );
+	
+		if ( ! $query->have_posts() ) {
+			wp_send_json_success( [
+				'finished'  => true,
+				'processed' => 0,
+			] );
+		}
+
+		$processed = 0;
+		foreach ( $query->posts as $attachment ) {
+			$file = get_attached_file( $attachment->ID );
+			if ( ! $file || ! file_exists( $file ) ) {
+				continue;
+			}
+
+			$original_mime = get_post_mime_type( $attachment->ID );
+
+			// Can happen in case of webP.
+			if ( $mime === $original_mime ) {
+				continue;
+			}
+
+			$abs_dir_path           = path_join( $upload_dir['basedir'], dirname( $file ) );
+			$metadata               = wp_get_attachment_metadata( $attachment->ID );
+			$size_data              = [];
+			$size_data['size_name'] = 'full';
+			$size_data['width']     = $metadata['width'] ? $metadata['width'] : 0;
+			$size_data['height']    = $metadata['height'] ? $metadata['height'] : 0;
+			$size_data['crop']      = false;
+	
+			// Convert original
+			$new_file = Fusion_Images::convert_image_to_modern_format( $attachment->ID, $size_data, $mime );
+	
+			if ( is_array( $new_file ) ) {
+
+				// Make sure the custom "sources" index is set and an array.
+				$metadata['sources'] = ! isset( $metadata['sources'] ) || ! is_array( $metadata['sources'] ) ? [] : $metadata['sources'];
+
+				// Set the original mime to sources.
+				$metadata['sources'][ $original_mime ] = [
+					'file'     => wp_basename( $file ),
+					'filesize' => $metadata['filesize'],
+				];
+
+				$metadata['original_image'] = isset( $metadata['original_image'] ) ? $metadata['original_image'] : wp_basename( $file );
+
+				// Always store the modern format mime.
+				$metadata['sources'][ $mime ] = [
+					'file'     => $new_file['file'],
+					'filesize' => $new_file['filesize'],
+				];
+
+				// Update the attached file.
+				update_attached_file( $attachment->ID, $new_file['path'] );
+
+				// Update the MIME type.
+				wp_update_post( [
+					'ID'             => $attachment->ID,
+					'post_mime_type' => $mime,
+				] );
+
+				// Update the file attribute in metadata.
+				$metadata['file'] = _wp_relative_upload_path( $new_file['path'] );
+
+			}
+	
+       		 // Convert each registered size.
+			if ( ! empty( $metadata['sizes'] ) && is_array( $metadata['sizes'] ) ) {
+				$registered_subsizes = wp_get_registered_image_subsizes();
+				foreach ( $metadata['sizes'] as $size_name => $size_data ) {
+					$sub_size_data              = [];
+					$sub_size_data['size_name'] = $size_name;
+					$sub_size_data['width']     = $registered_subsizes[ $size_name ]['width'] ?? $size_data['width'] ?? 0;
+					$sub_size_data['height']    = $registered_subsizes[ $size_name ]['height'] ?? $size_data['height'] ?? 0;
+					$sub_size_data['crop']      = $registered_subsizes[ $size_name ]['crop'] ?? false;
+		
+					// Convert original
+					$new_file = Fusion_Images::convert_image_to_modern_format( $attachment->ID, $sub_size_data, $mime );
+
+					if ( is_array( $new_file ) ) {
+
+						// Make sure the custom "sources" index is set and an array.
+						$size_data['sources'] = ! isset( $size_data['sources'] ) || ! is_array( $size_data['sources'] ) ? [] : $size_data['sources'];
+
+						// Set the original mime to sources if we keep the files.
+						if ( $keep_original_images ) {
+							$size_data['sources'][ $original_mime ] = [
+								'file'     => $size_data['file'],
+								'filesize' => $size_data['filesize'],
+							];
+						} else {
+							$abs_file_path = path_join( $abs_dir_path, $size_data['file'] );
+
+							// Remove the original source file.
+							if ( file_exists( $abs_file_path ) ) {
+								wp_delete_file_from_directory( $abs_file_path, $abs_dir_path );
+							}
+						}
+
+						// Update the size metadata.
+						$size_data['file']      = $new_file['file'];
+						$size_data['filesize']  = $new_file['filesize'];
+						$size_data['mime-type'] = $mime;
+
+						// Always store the modern format mime.
+						$size_data['sources'][ $mime ] = [
+							'file'     => $new_file['file'],
+							'filesize' => $new_file['filesize'],
+						];
+
+						$metadata['sizes'][ $size_name ] = $size_data;
+	
+					}
+				}
+			}
+
+			wp_update_attachment_metadata( $attachment->ID, $metadata );
+			$processed++;
+		}
+
+		wp_send_json_success( [
+			'finished'    => false,
+			'processed'   => $processed,
+			'file'        => $file,
+		] );
 	}
 }
 

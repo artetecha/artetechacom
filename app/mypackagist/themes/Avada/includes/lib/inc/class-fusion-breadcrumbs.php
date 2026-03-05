@@ -36,11 +36,32 @@ class Fusion_Breadcrumbs {
 	private $home_prefix;
 
 	/**
+	 * Label for the "Home" link.
+	 *
+	 * @var string
+	 */
+	private $home_label;
+
+	/**
+	 * Home icon name.
+	 *
+	 * @var string
+	 */
+	private $home_icon;
+
+	/**
 	 * Separator between single breadscrumbs.
 	 *
 	 * @var string
 	 */
 	private $separator;
+
+	/**
+	 * Separator icon name.
+	 *
+	 * @var string
+	 */
+	private $separator_icon;
 
 	/**
 	 * True if terms should be shown in breadcrumb path.
@@ -55,13 +76,6 @@ class Fusion_Breadcrumbs {
 	 * @var bool
 	 */
 	private $show_leaf; 
-
-	/**
-	 * Label for the "Home" link.
-	 *
-	 * @var string
-	 */
-	private $home_label;
 
 	/**
 	 * Prefix used for pages like date archive.
@@ -149,11 +163,13 @@ class Fusion_Breadcrumbs {
 			'show_post_type_archive' => $fusion_settings->get( 'breadcrumb_show_post_type_archive' ) ? $fusion_settings->get( 'breadcrumb_show_post_type_archive' ) : '',
 			'show_leaf'              => $fusion_settings->get( 'breadcrumb_show_leaf' ) ? $fusion_settings->get( 'breadcrumb_show_leaf' ) : '',
 			'show_terms'             => $fusion_settings->get( 'breadcrumb_show_categories' ) ? $fusion_settings->get( 'breadcrumb_show_categories' ) : '',
-			'home_label'             => esc_html__( 'Home', 'Avada' ),
+			'home_label'             => $fusion_settings->get( 'breacrumb_home_label' ) ? $fusion_settings->get( 'breacrumb_home_label' ) : esc_html__( 'Home', 'Avada' ),
 			'tag_archive_prefix'     => esc_html__( 'Tag:', 'Avada' ),
 			'search_prefix'          => esc_html__( 'Search:', 'Avada' ),
 			'error_prefix'           => esc_html__( '404 - Page not Found', 'Avada' ),
 			'use_microdata'          => $fusion_settings->get( 'disable_date_rich_snippet_pages' ) && $fusion_settings->get( 'disable_rich_snippet_title' ),
+			'home_icon'              => '',
+			'separator_icon'         => '',
 		];
 
 		// Setup a filter for changeable variables and merge it with the defaults.
@@ -173,6 +189,8 @@ class Fusion_Breadcrumbs {
 		$this->search_prefix          = $defaults['search_prefix'];
 		$this->error_prefix           = $defaults['error_prefix'];
 		$this->use_microdata          = $defaults['use_microdata'];
+		$this->home_icon              = $defaults['home_icon'];
+		$this->separator_icon         = $defaults['separator_icon'];
 	}
 
 	/**
@@ -288,11 +306,11 @@ class Fusion_Breadcrumbs {
 
 		// Add the "Home" link.
 		if ( is_home() && is_front_page() && $fusion_settings->get( 'blog_title' ) ) { // If the home page is the main blog page.
-			$this->breadcrumbs_parts['home'] = $this->get_single_breadcrumb_data( $fusion_settings->get( 'blog_title' ), '', false, true, true );
+			$label = $this->is_home_icon ? $this->home_label : $fusion_settings->get( 'blog_title' );
+			$this->breadcrumbs_parts['home'] = $this->get_single_breadcrumb_data( $label, '', false, true, true );
 		} else {
-			$separator = is_front_page() ? false : true;
-
-			$this->breadcrumbs_parts['home'] = $this->get_single_breadcrumb_data( $this->home_label, get_home_url(), $separator );
+			$separator                       = is_front_page() ? false : true;
+			$this->breadcrumbs_parts['home'] = $this->get_single_breadcrumb_data( $this->home_label, get_home_url(), $separator, true, false, 'awb-home' );
 
 			// Make sure the breadcrumb does not get doubled up.
 			if ( is_front_page() ) {
@@ -495,15 +513,31 @@ class Fusion_Breadcrumbs {
 		// Set the home prefix item.
 		$leaf_markup = isset( $data['home_prefix'] ) ? ' class="fusion-breadcrumb-prefix"' : $leaf_markup;
 
-		$breadcrumb_content = '<span ' . $leaf_markup . '>' . wp_strip_all_tags( $data['label'] ) . '</span>';
+		// For the home link we can either have text or an icon.
+		$label = 'home' === $data['type'] && $this->home_icon ? '<i class="awb-breadcrumb-home-icon ' . esc_attr( fusion_font_awesome_name_handler( $this->home_icon ) ) . '" role="img" aria-label="' . esc_attr( $data['label'] ) . '"></i>' : wp_strip_all_tags( $data['label'] );
+
+		$breadcrumb_content = '<span ' . $leaf_markup . '>' . $label . '</span>';
 
 		// If a link is set add its markup.
 		if ( $data['url'] ) {
 			$breadcrumb_content = '<a href="' . esc_url( $data['url'] ) . '" class="fusion-breadcrumb-link">' . $breadcrumb_content . '</a>';
 		}
 
-		// If a separator should be added, add the needed class for it.
-		$classes = $data['separator'] ? ' awb-breadcrumb-sep' : '';
+		$classes = '';
+		
+		if ( $data['separator'] ) {
+
+			// If a separator icon should be used, use the i tag.
+			if ( $this->separator_icon ) {
+				$breadcrumb_content .= '<i class="' . esc_attr( fusion_font_awesome_name_handler( $this->separator_icon ) ) . '" aria-hidden="true"></i>';
+
+				$classes = ' awb-breadcrumb-sep-icon';
+			} else {
+
+				// If a separator should be added, add the needed class for it.
+				$classes = ' awb-breadcrumb-sep';
+			}
+		}
 
 		// If an extra class was set, add it in.
 		$classes = $data['extra_class'] ? $classes . ' ' . $data['extra_class'] : $classes;
@@ -532,6 +566,8 @@ class Fusion_Breadcrumbs {
 
 		// Loop through the main data array.
 		foreach ( $this->breadcrumbs_parts as $type => $data ) {
+			$data['type'] = $type;
+
 			if ( 'prefix' === $type ) {
 				$data['home_prefix'] = true;
 				$data['label']       = $data['label'] ? $data['label'] . apply_filters( 'awb_breadcrumbs_prefix_symbol', ':' ) : '';
@@ -543,7 +579,7 @@ class Fusion_Breadcrumbs {
 			} else {
 
 				// If the leaf isn't displayed, the last separator has to be removed.
-				if ( $trail_counter === $trail_size_minus_one && ! $this->show_leaf && isset( $this->breadcrumbs_parts['leaf'] ) ) {
+				if ( $trail_counter === $trail_size_minus_one && ! $this->show_leaf && isset( $this->breadcrumbs_parts['leaf'] ) && ! is_search() && ! is_404() ) {
 					$data['separator'] = false;
 				}
 

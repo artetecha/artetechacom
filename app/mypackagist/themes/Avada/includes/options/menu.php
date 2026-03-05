@@ -111,7 +111,7 @@ function avada_options_section_menu( $sections ) {
 					'label'       => '',
 					'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 						/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a modern, more performant setup, we recommend using the %1$s Builder to create a custom %1$s Layout. <a href="%2$s" target="_blank">visit this page.</a>', 'Avada' ) . '</div>',
 						Fusion_Template_Builder::get_instance()->get_template_terms()['header']['label'],
 						admin_url( 'admin.php?page=avada-layouts' )
 					) : '',
@@ -2889,7 +2889,7 @@ function avada_options_section_menu( $sections ) {
 					'label'       => '',
 					'description' => sprintf(
 						/* translators: %1$s: Avada library URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant mega menu setup, we recommend using the library mega menus. To create a Mega Menu, visit the <a href="%1$s" target="_blank">Avada Library</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a modern, more performant Mega Menu setup, we recommend using the Library Mega Menus. To create a Mega Menu, visit the <a href="%1$s" target="_blank">Avada Library</a>.', 'Avada' ) . '</div>',
 						admin_url( 'admin.php?page=avada-library' )
 					),
 					'type'        => 'custom',

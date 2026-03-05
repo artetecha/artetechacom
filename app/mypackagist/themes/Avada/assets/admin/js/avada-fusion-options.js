@@ -445,6 +445,7 @@ jQuery( document ).ready( function() {
 			jQuery( '#fusion-page-options-export' ).on( 'click', self.exportOptions );
 
 			this.initRepeaters();
+			this.initLogics();
 			this.initToggles();
 			this.initCounterTextareas();
 			this.initDateTimePickers();
@@ -506,32 +507,215 @@ jQuery( document ).ready( function() {
 			counter.css( 'color', color );
 		},
 
+		initLogics: function() {
+			var self = this;
+			/*
+			jQuery( '.fusion-logics-wrapper' ).each( function() {
+				self.initLogic( jQuery( this ) );
+			} );
+			 */
+
+			jQuery( document ).on( 'fusion-builder-content-updated', function( event, data ) {
+				setTimeout( self.rebuildFormFields(), 1000 );
+			} );	
+		},
+
+		rebuildFormFields: function() {
+			const formPostContent = fusionBuilderGetContent( 'content' );
+
+			if ( '' !== formPostContent ) {
+
+				// Get form field names.
+				const nameRegex = /\[fusion_form_[^\]]*\sname="([^"]*)"/g;
+				const labelRegex = /\[fusion_form_[^\]]*\slabel="([^"]*)"/g;
+		  
+				const fieldNames = [];
+				const fieldLabels = [];
+		  
+				let match;
+		  
+				// Extract all field names.
+				while ( null !== ( match = nameRegex.exec( formPostContent ) ) ) {
+					fieldNames.push( match[1] );
+				}
+		  
+				// Extract all field labels.
+				while ( null !== ( match = labelRegex.exec( formPostContent ) ) ) {
+					fieldLabels.push( match[1] );
+				}
+
+				// If labels are missing or not unique, fallback to converted names.
+				const filteredLabels = fieldLabels.filter( label => label && '' !== label.trim() );
+				const isMismatch     = fieldNames.length !== filteredLabels.length || new Set(fieldLabels).size !== fieldLabels.length;
+		  
+				if ( isMismatch ) {
+
+					// Replace with labelified version of name.
+					fieldLabels.length = 0; // clear
+					fieldNames.forEach( name => {
+						name = String( name ); // cast to string
+						name = name.replace( /[_-]/g, ' ' ); // replace underscores and dashes with space
+						name = name.replace( /\b\w/g, c => c.toUpperCase() );		
+
+						fieldLabels.push( name );
+					} );
+				}
+		  
+				// Combine into object: { name: label, ... }.
+				const formFields = {};
+				for ( let i = 0; i < fieldNames.length; i++ ) {
+					formFields[ fieldNames[ i ] ] = fieldLabels[ i ];
+				}
+
+				const $select = jQuery( '.fusion-logics-wrapper' ).find( '#pyre_field.select2-hidden-accessible' );
+
+				$select.each( function() {
+					if ( jQuery( this ).data( 'select2' ) ) {
+						const selected = jQuery( this ).val();
+
+						jQuery( this ).empty();
+					
+						for ( const [value, label] of Object.entries( formFields ) ) {
+							const selectOption = value === selected;
+
+							jQuery( this ).append( new Option( label, value, selectOption, selectOption ) );
+						}
+						
+						jQuery( this ).select2( 'destroy' ).select2( {
+							minimumResultsForSearch: 10,
+							width: '100%'
+						} );
+					}
+				} );
+			}
+		},
+
+		initLogic: function( $element ) {
+			var self           = this,
+				$defaultFields = $element.find( '> .pyre_field > .fusion-repeater-default-fields' ),
+				$addButton     = $element.find( '> .pyre_desc > .fusion-add-row' ),
+				$rows          = $element.find( '> .pyre_field > .fusion-repeater-rows' ),
+				$value         = $element.find( '> .pyre_field > .logics-value' ),
+				values         = $value.val(),
+				titleBind      = $value.data( 'bind' );
+
+			// Empty default fields.
+			$defaultFields.find( 'input, select, textarea' ).each( function() {
+				if ( jQuery( this ).hasClass( 'fusion_upload_button' ) ) {
+					return;
+				}
+				jQuery( this ).removeAttr( 'value' );
+				if ( 'undefined' !== typeof jQuery( this ).attr( 'name' ) ) {
+					jQuery( this ).attr( 'name', jQuery( this ).attr( 'name' ).replace( '_fusion[', '' ).replace( ']', '' ) );
+				}
+
+				if ( jQuery( this ).is( 'textarea' ) ) {
+					jQuery( this ).text( '' );
+				}
+			} );
+
+			const $defaults  = $defaultFields.html();
+
+			$rows.empty();
+			if ( 'string' === typeof values && '' !== values ) {
+				try {
+					values = JSON.parse( self.base64Decode( values ) );
+					self.insertOptionsWithValues( $element, values, titleBind );
+				} catch ( e ) {
+					console.warn( 'Something went wrong! Error triggered - ' + e );
+				}
+			}
+
+			// Add a repeater row on click.
+			$addButton.on( 'click', function( event ) {
+
+				event.preventDefault();
+
+				// Add the markup.
+				$rows.append( '<div class="fusion-repeater-row fusion-needs-init">' + $defaults + '</div>' );
+
+				// Auto open new row.
+				$rows.find( '.fusion-needs-init .fusion-row-fields' ).css( { display: 'block' } );
+
+				// Init the options and dependencies.
+				self.initOptions( $element );
+
+				// Updates value.
+				self.setRepeaterValue( $element );
+			} );
+
+			// Row remove button click.
+			$element.off( 'click.remove' ).on( 'click.remove', '> .pyre_field > .fusion-repeater-rows > .fusion-repeater-row > .fusion-row-title > .repeater-row-remove', function( event ) {
+
+				event.preventDefault();
+
+				// Remove visible row.
+				jQuery( event.target ).closest( '.fusion-repeater-row' ).remove();
+
+				// Update the hidden input value.
+				self.setRepeaterValue( $element );
+			} );
+
+			// Row remove button click.
+			$element.off( 'click.toggle' ).on( 'click.toggle', '> .pyre_field > .fusion-repeater-rows > .fusion-repeater-row > .fusion-row-title:not(.fusion-toggle-title)', function( event ) {
+				if ( jQuery( event.target ).hasClass( 'repeater-row-remove' ) ) {
+					return;
+				}
+
+				jQuery( event.target ).closest( '.fusion-repeater-row' ).find( '> .fusion-row-fields' ).slideToggle( 300 );				
+			} );
+
+			// Any option change, need to update repeater value.
+			$element.on( 'change', '[id^="pyre"]', function() {
+				self.setRepeaterValue( $element );
+			} );
+
+			$element.on( 'change', '#pyre_operator', function( e ) {
+				e.preventDefault();
+
+				if ( 'or' === jQuery( this ).val() ) {
+					jQuery( this ).closest( '.fusion-repeater-row' ).addClass( 'has-or' );
+				} else {
+					jQuery( this ).closest( '.fusion-repeater-row' ).removeClass( 'has-or' );
+				}
+			} );
+		},
+
 		initRepeaters: function() {
 			var self = this;
-			jQuery( '.fusion-repeater-wrapper:not(.fusion-toggle-wrapper)' ).each( function() {
+
+			jQuery( '.fusion-repeater-wrapper:not(.fusion-toggle-wrapper):not(.fusion-logics-wrapper)' ).each( function() {
 				self.initRepeater( jQuery( this ) );
 			} );
 		},
 
 		initRepeater: function( $element ) {
-			var self       = this,
-				$addButton = $element.find( '.fusion-add-row' ),
-				$rows      = $element.find( '.fusion-repeater-rows' ),
-				$value     = $element.find( '.repeater-value' ),
-				values     = $value.val(),
-				titleBind  = $value.data( 'bind' );
+			var self           = this,
+				$defaultFields = $element.find( '> .pyre_field > .fusion-repeater-default-fields' ),
+				$addButton     = $element.find( '> .pyre_desc > .fusion-add-row' ),
+				$rows          = $element.find( '> .pyre_field > .fusion-repeater-rows' ),
+				$value         = $element.find( '> .pyre_field > .repeater-value' ),
+				values         = $value.val(),
+				titleBind      = $value.data( 'bind' );
 
-			// empty defaults field
-			$element.find( '.fusion-repeater-default-fields' ).find( 'input, select, textarea' ).each( function() {
+			// Empty default fields.
+			$defaultFields.find( 'input, select, textarea' ).each( function() {
+				if ( jQuery( this ).hasClass( 'fusion_upload_button' ) ) {
+					return;
+				}
+				
 				jQuery( this ).removeAttr( 'value' );
-				jQuery( this ).attr( 'name', jQuery( this ).attr( 'name' ).replace( '_fusion[', '' ).replace( ']', '' ) );
+
+				if ( 'undefined' !== typeof jQuery( this ).attr( 'name' ) ) {
+					jQuery( this ).attr( 'name', jQuery( this ).attr( 'name' ).replace( '_fusion[', '' ).replace( ']', '' ) );
+				}
+
 				if ( jQuery( this ).is( 'textarea' ) ) {
 					jQuery( this ).text( '' );
 				}
-
 			} );
 
-			const $defaults  = $element.find( '.fusion-repeater-default-fields' ).html();
+			const $defaults  = $defaultFields.html();
 
 			$rows.empty();
 			if ( 'string' === typeof values && '' !== values ) {
@@ -562,7 +746,7 @@ jQuery( document ).ready( function() {
 			} );
 
 			// Row remove button click.
-			$element.off( 'click.remove' ).on( 'click.remove', '.repeater-row-remove', function( event ) {
+			$element.off( 'click.remove' ).on( 'click.remove', '> .pyre_field > .fusion-repeater-rows > .fusion-repeater-row > .fusion-row-title > .repeater-row-remove', function( event ) {
 
 				event.preventDefault();
 
@@ -574,13 +758,13 @@ jQuery( document ).ready( function() {
 			} );
 
 			// Row remove button click.
-			$element.off( 'click.toggle' ).on( 'click.toggle', '.fusion-row-title:not(.fusion-toggle-title)', function( event ) {
+			$element.off( 'click.toggle' ).on( 'click.toggle', '> .pyre_field > .fusion-repeater-rows > .fusion-repeater-row > .fusion-row-title:not(.fusion-toggle-title)', function( event ) {
 				if ( jQuery( event.target ).hasClass( 'repeater-row-remove' ) ) {
 					return;
 				}
 
 				// Toggle visibility of fields.
-				jQuery( event.target ).closest( '.fusion-repeater-row' ).find( '.fusion-row-fields' ).slideToggle( 300 );
+				jQuery( event.target ).closest( '.fusion-repeater-row' ).find( '> .fusion-row-fields' ).slideToggle( 300 );
 			} );
 
 			// Bind title to option if set.
@@ -591,14 +775,19 @@ jQuery( document ).ready( function() {
 			}
 
 			// Any option change, need to update repeater value.
-			$element.on( 'change', '[id*="pyre"]', function() {
-				self.setRepeaterValue( $element );
+			$element.on( 'change', '[id^="pyre"]', function() {
+				if ( ! jQuery( this ).closest( '.pyre_metabox_field' ).hasClass( '.fusion-toggle-wrapper') && ! jQuery( this ).closest( '.pyre_metabox_field' ).hasClass( '.fusion-logics-wrapper' ) ) {
+					self.setRepeaterValue( $element );
+				}
 			} );
 		},
 
 		setInputLabel: function( $input ) {
 			var value  = $input.val(),
-				$title = $input.closest( '.fusion-repeater-row' ).find( 'h4' );
+				$repeaterRow = $input.closest( '.fusion-repeater-row' ),
+				$title = $repeaterRow.find( 'h4' ).filter( function() {
+					return ! jQuery( this ).closest( '.pyre_metabox_field' ).length;
+				} );
 
 			if ( $input.is( 'select' ) ) {
 				value = $input.find( 'option:selected' ).text();
@@ -608,16 +797,28 @@ jQuery( document ).ready( function() {
 
 		insertOptionsWithValues: function( $wrapper, values, titleBind ) {
 			var self      = this,
-				$defaults = $wrapper.find( '.fusion-repeater-default-fields' ),
-				$rows     = $wrapper.find( '.fusion-repeater-rows' );
+				$defaults = $wrapper.find( '> .pyre_field > .fusion-repeater-default-fields' ),
+				$rows     = $wrapper.find( '> .pyre_field > .fusion-repeater-rows' );
 
 			if ( 'object' === typeof values ) {
 				jQuery.each( values, function( key, valueObject ) {
 					var $newrow = jQuery( '<div class="fusion-repeater-row fusion-needs-init">' + $defaults.clone().html() + '</div>' );
-
+	
 					jQuery.each( valueObject, function( valueKey, value ) {
 						var $input = $newrow.find( '#pyre_' + valueKey );
+
 						if ( '' !== value ) {
+
+							if ( 'operator' === valueKey && 'or' === value ) {
+								$newrow.addClass( 'has-or' );
+							}
+
+							if ( $input.hasClass( 'upload_field' ) ) {
+								const objectId = $input.attr( 'name' ).replace( valueKey + '[', '' ).replace( ']', '' );
+
+								value = 'undefined' !== typeof value[ objectId ] ? value[ objectId ] : value;
+							}
+
 							// Save values for ajax-select call
 							if ( $input.data( 'ajax' ) ) {
 								$input.siblings( '.initial-values' ).val( _.escape( JSON.stringify( value ) ) );
@@ -633,58 +834,85 @@ jQuery( document ).ready( function() {
 					$rows.append( $newrow );
 				} );
 
-				this.initOptions( $wrapper );
+				self.initOptions( $wrapper );
 			}
 		},
 
+		base64Decode: function( string ) {
+			return new TextDecoder().decode( Uint8Array.from( atob( string ), c => c.charCodeAt( 0 ) ) );
+		},
+
+		base64Encode: function( string ) {
+			const bytes = new TextEncoder().encode( string );
+			let binary = '';
+			bytes.forEach( b => binary += String.fromCharCode( b ) );
+			return btoa( binary );
+		},
+
 		setRepeaterValue: function( $wrapper ) {
-			var $value = $wrapper.find( '.repeater-value' ),
+			var $value = $wrapper.hasClass( 'fusion-logics-wrapper' ) ? $wrapper.find( '.logics-value' ) : $wrapper.find( '.repeater-value' ),
 				value  = [];
 
-			$wrapper.find( '.fusion-repeater-row' ).each( function() {
+			$wrapper.find( '> .pyre_field > .fusion-repeater-rows > .fusion-repeater-row' ).each( function() {
 				var values = {};
 
-				jQuery( this ).find( '[id*="pyre"]' ).each( function() {
-					var id   = jQuery( this ).attr( 'id' ).replace( 'pyre_', '' ),
+				jQuery( this ).find( '[id^="pyre"]' ).each( function() {
+					const id = jQuery( this ).attr( 'id' ).replace( 'pyre_', '' ),
 						val  = jQuery( this ).val();
 
 					if ( null !== val && '' !== val ) {
-						values[ id ] = jQuery( this ).val();
+						values[ id ] = val;
 					}
 				} );
+
 				value.push( values );
 			} );
 
-			$value.val( JSON.stringify( value ) );
+			value = JSON.stringify( value );
+
+			if ( $value.hasClass( 'logics-value' ) ) {
+				value = this.base64Encode( value );
+			}
+
+			$value.val( value );
 		},
 
 		initOptions: function( $wrapper ) {
-			var self = this;
+			var mainSelf = this;
+
 			$wrapper.find( '.fusion-repeater-rows .fusion-needs-init' ).each( function() {
 				jQuery( this ).removeClass( 'fusion-needs-init' );
-				self.initDependencies( jQuery( this ) );
-				self.initSelect( jQuery( this ) );
-				self.initRadios( jQuery( this ) );
-				self.initCheckBoxes( jQuery( this ) );
+
+				if ( 'undefined' !== typeof jQuery( this ).parent().data( 'or-label' ) ) {
+					jQuery( this ).attr( 'data-or-label', jQuery( this ).parent().data( 'or-label' ) );
+				}
+
+				let $firstLevelRowFields = jQuery( this ).find( '> .fusion-row-fields' );
+
+				mainSelf.initDependencies( $firstLevelRowFields );
+				mainSelf.initSelect( $firstLevelRowFields );
+				mainSelf.initRadios( $firstLevelRowFields );
+				mainSelf.initCheckBoxes( $firstLevelRowFields );
+				mainSelf.initLogic( $firstLevelRowFields.find( '.fusion-logics-wrapper' ) );
 			} );
 		},
 
 		initDependencies: function( $wrapper ) {
-			$wrapper.find( '.avada-dependency' ).each( function() {
+			$wrapper.find( '> .pyre_metabox_field:not(.fusion-repeater-wrapper) > .avada-dependency' ).each( function() {
 				avadaLoopDependencies( jQuery( this ) );
 			} );
-			$wrapper.find( '[id*="pyre"]' ).off( 'change.dependency' ).on( 'change.dependency', function() {
+			$wrapper.find( '> .pyre_metabox_field:not(.fusion-repeater-wrapper) [id*="pyre"]' ).off( 'change.dependency' ).on( 'change.dependency', function() {
 				var $id    = jQuery( this ).attr( 'id' ),
 					$field = $id.replace( 'pyre_', '' );
 
-				$wrapper.find( 'span[data-field="' + $field + '"]' ).each( function() {
+				$wrapper.find( '> .pyre_metabox_field:not(.fusion-repeater-wrapper) span[data-field="' + $field + '"]' ).each( function() {
 					avadaLoopDependencies( jQuery( this ).closest( '.avada-dependency' ) );
 				} );
 			} );
 		},
 
 		initRadios: function( $wrapper ) {
-			$wrapper.find( '.pyre_field.avada-buttonset.radio a' ).on( 'click', function( e ) {
+			$wrapper.find( '> .pyre_metabox_field > .pyre_field.avada-buttonset.radio a' ).on( 'click', function( e ) {
 				var $radiosetcontainer;
 
 				e.preventDefault();
@@ -696,7 +924,7 @@ jQuery( document ).ready( function() {
 		},
 
 		initCheckBoxes: function( $wrapper ) {
-			$wrapper.find( '.pyre_field.avada-buttonset.checkbox a' ).on( 'click', function( e ) {
+			$wrapper.find( '> .pyre_metabox_field:not(.fusion-repeater-wrapper) > .pyre_field.avada-buttonset.checkbox a' ).on( 'click', function( e ) {
 				var $checkboxsetcontainer;
 
 				e.preventDefault();
@@ -709,24 +937,22 @@ jQuery( document ).ready( function() {
 		},
 
 		initSelect: function( $wrapper ) {
-			fusionSelect2 = $wrapper.find( '.pyre_field select:not(.hidden-sidebar):not([data-ajax])' ).select2( {
+			fusionSelect2 = $wrapper.find( '> .pyre_metabox_field:not(.fusion-repeater-wrapper) > .pyre_field select:not(.hidden-sidebar):not([data-ajax])' ).select2( {
 				minimumResultsForSearch: 10,
 				width: '100%'
 			} );
 
-
 			if ( 'undefined' !== typeof ajaxurl ) {
 
-				$wrapper.find( '.pyre_field select[data-ajax]' ).each( function() {
+				$wrapper.find( '> .pyre_metabox_field:not(.fusion-repeater-wrapper) > .pyre_field select[data-ajax]' ).each( function() {
 					var $select, ajax, ajaxParams, labels, initAjaxSelect;
 
 					$select 		= jQuery( this );
 					ajax    		= $select.data( 'ajax' );
 					ajaxParams 		= $select.siblings( '.params' ).val();
 					labels 			= $select.siblings( '.initial-values' ).val();
-
-					ajaxParams 	= JSON.parse( ajaxParams );
-					labels 		= JSON.parse( _.unescape( labels ) );
+					ajaxParams 	    = JSON.parse( ajaxParams );
+					labels 		    = JSON.parse( _.unescape( labels ) );
 					initAjaxSelect 	= function() {
 						var ajaxSelect = $select.select2( {
 							width: '100%',
@@ -1020,6 +1246,16 @@ function awbUpdatePOPanel( customFields ) {
 		if ( $el.hasClass( 'button-set-value' ) ) {
 
 			$el.siblings( '[data-value="' + value + '"]' ).trigger( 'click' );
+
+			// Continue.
+			return true;
+		}
+
+		if ( $el.hasClass( 'logics-value' ) ) {
+
+			$el.val( value );
+
+			fusionPageOptions.initLogic( $el.closest( '.fusion-logics-wrapper' ) );
 
 			// Continue.
 			return true;
