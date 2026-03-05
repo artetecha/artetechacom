@@ -68,7 +68,7 @@ function avada_options_section_footer( $sections ) {
 					'label'       => '',
 					'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 						/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a modern, more performant setup, we recommend using the %1$s Builder to create a custom %1$s Layout. <a href="%2$s" target="_blank">visit this page.</a>', 'Avada' ) . '</div>',
 						Fusion_Template_Builder::get_instance()->get_template_terms()['footer']['label'],
 						admin_url( 'admin.php?page=avada-layouts' )
 					) : '',
@@ -359,7 +359,7 @@ function avada_options_section_footer( $sections ) {
 					'label'       => '',
 					'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 						/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a modern, more performant setup, we recommend using the %1$s Builder to create a custom %1$s Layout. <a href="%2$s" target="_blank">visit this page.</a>', 'Avada' ) . '</div>',
 						Fusion_Template_Builder::get_instance()->get_template_terms()['footer']['label'],
 						admin_url( 'admin.php?page=avada-layouts' )
 					) : '',
@@ -492,7 +492,7 @@ function avada_options_section_footer( $sections ) {
 					'label'       => '',
 					'description' => class_exists( 'Fusion_Template_Builder' ) ? sprintf(
 						/* translators: %1$s: Content|Footer|Page Title Bar. %2$s: Layout selection URL. */
-						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant setup, we recommend using the %1$s Builder. To create a custom %1$s Layout, <a href="%2$s" target="_blank">visit this page</a>.', 'Avada' ) . '</div>',
+						'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a modern, more performant setup, we recommend using the %1$s Builder to create a custom %1$s Layout. <a href="%2$s" target="_blank">visit this page.</a>', 'Avada' ) . '</div>',
 						Fusion_Template_Builder::get_instance()->get_template_terms()['footer']['label'],
 						admin_url( 'admin.php?page=avada-layouts' )
 					) : '',

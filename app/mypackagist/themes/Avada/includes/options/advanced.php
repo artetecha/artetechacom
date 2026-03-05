@@ -511,7 +511,7 @@ function avada_options_section_advanced( $sections ) {
 							'theme'    => 'chrome',
 						],
 						// No need to refresh the page.
-						'transport'   => 'postMessage',
+						'transport'   => 'postMessage'
 					],
 					'space_head'       => [
 						'label'       => esc_html__( 'Space before &lt;/head&gt;', 'Avada' ),

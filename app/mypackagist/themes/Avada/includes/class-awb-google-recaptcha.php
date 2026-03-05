@@ -264,10 +264,32 @@ final class AWB_Google_Recaptcha {
 						);
 
 						active_captcha[ id ] = renderId;
+						
+						const $form = $el.closest( 'form' );
+						if ( $form.hasClass( 'fusion-form' ) ) {
+							const $submit = $form.find( '[type="submit"]' );
 
-						grecaptcha.execute( renderId, { action: 'contact_form' } ).then( function ( token ) {
-							$el.val( token );
-						});
+							$submit.attr( 'data-captcha-token', 'unset' ).on ( 'click', function( e ) {
+								if ( 'unset' === jQuery( this ).attr( 'data-captcha-token' ) ) {
+									e.preventDefault();
+
+									grecaptcha.execute( renderId, { action: 'contact_form' } ).then( function ( token ) {
+										$el.val( token );
+										$submit.attr( 'data-captcha-token', 'received' );
+										$form.trigger( 'submit' );
+
+										setTimeout( function() {
+											$el.empty();
+											$submit.attr( 'data-captcha-token', 'unset' );
+										}, 1000 );
+									} );
+								}
+							} );
+						} else {
+							grecaptcha.execute( renderId, { action: 'contact_form' } ).then( function ( token ) {
+								$el.val( token );
+							} );
+						}
 					});
 				});
 			};
@@ -315,7 +337,7 @@ final class AWB_Google_Recaptcha {
 			if ( null === $re_captcha_response || ! $re_captcha_response->isSuccess() ) {
 				$response    = [
 					'has_error' => true,
-					'message'   => __( 'Sorry, reCAPTCHA could not verify that you are a human. Please try again.', 'fusion-builder' ),
+					'message'   => __( 'Sorry, reCAPTCHA could not verify that you are a human.', 'fusion-builder' ),
 				];
 				$error_codes = [];
 				if ( null !== $re_captcha_response ) {
@@ -324,14 +346,14 @@ final class AWB_Google_Recaptcha {
 				if ( empty( $error_codes ) || in_array( 'score-threshold-not-met', $error_codes, true ) ) {
 					$response = [
 						'has_error' => true,
-						'message'   => __( 'Sorry, reCAPTCHA could not verify that you are a human. Please try again.', 'fusion-builder' ),
+						'message'   => __( 'Sorry, reCAPTCHA could not verify that you are a human.', 'fusion-builder' ),
 					];
 				}
 			}
 		} else {
 			$response = [
 				'has_error' => true,
-				'message'   => __( 'Sorry, reCAPTCHA could not verify that you are a human. Please try again.', 'fusion-builder' ),
+				'message'   => __( 'Sorry, reCAPTCHA could not verify that you are a human.', 'fusion-builder' ),
 			];
 		}
 		return $response;

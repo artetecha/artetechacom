@@ -117,7 +117,7 @@ class Fusion_Scripts {
 				self::$js_folder_url . '/library/swiper.js',
 				self::$js_folder_path . '/library/swiper.js',
 				[],
-				'11.1.0',
+				'11.2.5',
 				true,
 			],
 
@@ -571,6 +571,7 @@ class Fusion_Scripts {
 				'lightbox_gallery'         => fusion_get_option( 'lightbox_gallery' ),
 				'lightbox_skin'            => fusion_get_option( 'lightbox_skin' ),
 				'lightbox_title'           => fusion_get_option( 'lightbox_title' ),
+				'lightbox_zoom'            => fusion_get_option( 'lightbox_zoom' ),
 				'lightbox_arrows'          => fusion_get_option( 'lightbox_arrows' ),
 				'lightbox_slideshow_speed' => fusion_get_option( 'lightbox_slideshow_speed' ),
 				'lightbox_loop'            => fusion_get_option( 'lightbox_loop' ),

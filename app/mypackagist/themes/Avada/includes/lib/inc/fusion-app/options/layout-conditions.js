@@ -250,7 +250,7 @@ FusionPageBuilder.options = FusionPageBuilder.options || {};
 				dataType: 'json',
 				data: data,
 				complete: function( response ) {
-					if ( 200 === response.status ) {
+					if ( 200 === response.responseJSON.status ) {
 						return callback( response.responseJSON );
 					}
 					return callback( null, response );

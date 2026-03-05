@@ -84,7 +84,7 @@ class Avada_Admin_Bar {
 			$this->add_wp_toolbar_menu_item( esc_html__( 'Patcher', 'Avada' ), 'avada', admin_url( 'admin.php?page=avada-patcher' ) );
 
 			$this->add_wp_toolbar_menu_item( esc_html__( 'Plugins', 'Avada' ), 'avada', admin_url( 'admin.php?page=avada-plugins' ) );
-			$this->add_wp_toolbar_menu_item( esc_html__( 'Status', 'Avada' ), 'avada', admin_url( 'admin.php?page=avada-status' ) );
+			$this->add_wp_toolbar_menu_item( esc_html__( 'System Status', 'Avada' ), 'avada', admin_url( 'admin.php?page=avada-status' ) );
 
 			$option_name = Fusion_Settings::get_option_name();
 			$nonce       = wp_create_nonce( 'fusionredux_ajax_nonce' . $option_name );

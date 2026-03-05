@@ -32,7 +32,7 @@ function avada_options_section_slideshows( $sections ) {
 		'fields'   => [
 			'posts_slideshow_number'    => [
 				'label'       => esc_html__( 'Posts Slideshow Images', 'Avada' ),
-				'description' => esc_html__( 'Controls the number of featured image boxes for blog/portfolio posts.', 'Avada' ),
+				'description' => esc_html__( 'Controls the number of featured image boxes for blog/portfolio posts and pages.', 'Avada' ),
 				'id'          => 'posts_slideshow_number',
 				'default'     => '5',
 				'type'        => 'slider',

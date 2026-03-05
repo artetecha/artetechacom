@@ -1529,7 +1529,7 @@ if ( ! function_exists( 'avada_menu_element_woo_cart' ) ) {
 				$thumbnail_id = ( $cart_item['variation_id'] && has_post_thumbnail( $cart_item['variation_id'] ) ) ? $cart_item['variation_id'] : $cart_item['product_id'];
 
 				if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_widget_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
-					$output .= '<li class="menu-item fusion-menu-cart-item awb-menu__sub-li">';
+					$output .= '<li class="menu-item fusion-menu-cart-item awb-menu__sub-li" data-cart-item-key="' . esc_attr( $cart_item_key ) . '">';
 					$output .= '<a href="' . $product_link . '" class="awb-menu__sub-a">';
 					$output .= get_the_post_thumbnail( $thumbnail_id, 'recent-works-thumbnail' );
 
@@ -1540,7 +1540,7 @@ if ( ! function_exists( 'avada_menu_element_woo_cart' ) ) {
 					if ( '' !== $product_price ) {
 						$product_price = ' x ' . $product_price;
 					}
-					$output .= '<span class="fusion-menu-cart-item-quantity">' . $cart_item['quantity'] . $product_price . '</span>';
+					$output .= '<span class="fusion-menu-cart-item-quantity"><span class="awb-quantity">' . $cart_item['quantity'] . '</span>' . $product_price . '</span>';
 					$output .= '</div>';
 					$output .= '</a>';
 					$output .= '</li>';
@@ -1645,11 +1645,21 @@ if ( ! function_exists( 'fusion_is_post_card' ) ) {
 	 * @return boolean
 	 */
 	function fusion_is_post_card( $id = false ) {
-		$id       = ! $id ? fusion_library()->get_page_id() : $id;
+		$id = ! $id ? fusion_library()->get_page_id() : $id;
+
+		if ( ! $id && is_admin() ) {
+			global $post;
+			if ( isset( $_GET['post'] ) ) {
+				$id = intval( $_GET['post'] );
+			} elseif ( isset( $post->ID ) ) {
+				$id = $post->ID;
+			}
+		}
+
 		$posttype = get_post_type( $id );
 		if ( 'fusion_element' === $posttype ) {
 			$terms = get_the_terms( $id, 'element_category' );
-			if ( $terms && 'post_cards' === $terms[0]->name ) {
+			if ( $terms && ! is_wp_error( $terms ) && 'post_cards' === $terms[0]->name ) {
 				return true;
 			}
 		}
@@ -1829,7 +1839,7 @@ if ( ! function_exists( 'awb_get_responsive_type_data' ) ) {
 				$base_font = $font_size;
 			}
 			$line_height = Fusion_Sanitize::convert_font_size_to_px( $line_height, $base_font );
-			if ( $responsive_font_size ) {
+			if ( $responsive_font_size && is_numeric( $responsive_font_size ) ) {
 				$line_height = round( ( $line_height / $responsive_font_size ) * 100 ) / 100;
 			}
 		}
@@ -1916,9 +1926,10 @@ if ( ! function_exists( 'awb_get_approx_nr_of_headings' ) ) {
 	 *
 	 * @since 3.9
 	 * @param WP_Post|int|string $post The post.
+	 * @param string $post_cards_headings Flag to include or exclude post cards headings.
 	 * @return int
 	 */
-	function awb_get_approx_nr_of_headings( $post ) {
+	function awb_get_approx_nr_of_headings( $post, $post_cards_headings = 'exclude' ) {
 		global $shortcode_tags;
 
 		$post = get_post( $post );
@@ -1938,6 +1949,10 @@ if ( ! function_exists( 'awb_get_approx_nr_of_headings' ) ) {
 		$GLOBALS['awb_current_number_of_titles'] = 0; // Partially hold the titles count into a global variable.
 
 		$pattern = get_shortcode_regex();
+		if ( 'include' === $post_cards_headings ) {
+			$content = awb_get_and_render_post_cards( $content );
+		}
+
 		$content = preg_replace_callback( "/$pattern/s", 'awb_count_headings_and_return_shortcode_content', $content );
 
 		$nr_titles = $GLOBALS['awb_current_number_of_titles'];
@@ -1953,6 +1968,26 @@ if ( ! function_exists( 'awb_get_approx_nr_of_headings' ) ) {
 
 		return apply_filters( 'awb_nr_of_headings', $nr_titles, $post );
 	}
+
+	/**
+	 * Gets and renders the post cards elements, so that we get accurate headings count.
+	 *
+	 * @since 3.13.3
+	 * @param string $content The post content.
+	 * @return string The original content plus the rendered HTML from post cards.
+	 */	
+	function awb_get_and_render_post_cards( $content ) {
+		$pattern   = get_shortcode_regex( [ 'fusion_post_cards' ] );
+		$rendered  = '';
+
+		if ( preg_match_all( '/'. $pattern .'/s', $content, $matches ) ) {
+			foreach ( $matches[0] as $shortcode_string ) {
+				$rendered .= do_shortcode( $shortcode_string );
+			}
+		}
+
+		return $content . $rendered;
+	}	
 
 	/**
 	 * Increase the title counter if needed, and return the content, without shortcodes.

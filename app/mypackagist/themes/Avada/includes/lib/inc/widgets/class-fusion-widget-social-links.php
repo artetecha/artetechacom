@@ -472,6 +472,10 @@ class Fusion_Widget_Social_Links extends WP_Widget {
 		$instance['yelp_link']          = isset( $new_instance['yelp_link'] ) ? $new_instance['yelp_link'] : '';
 		$instance['email_link']         = isset( $new_instance['email_link'] ) ? $new_instance['email_link'] : '';
 		$instance['phone_link']         = isset( $new_instance['phone_link'] ) ? $new_instance['phone_link'] : '';
+		$instance['bluesky_link']       = isset( $new_instance['bluesky_link'] ) ? $new_instance['bluesky_link'] : '';
+		$instance['github_link']        = isset( $new_instance['github_link'] ) ? $new_instance['github_link'] : '';
+		$instance['mastodon_link']      = isset( $new_instance['mastodon_link'] ) ? $new_instance['mastodon_link'] : '';
+		$instance['threads_link']       = isset( $new_instance['threads_link'] ) ? $new_instance['threads_link'] : '';
 		$instance['use_to']             = isset( $new_instance['use_to'] ) ? $new_instance['use_to'] : '';
 
 		if ( 0 < count( self::$custom_icons ) ) {
@@ -505,6 +509,7 @@ class Fusion_Widget_Social_Links extends WP_Widget {
 			'boxed_icon_padding' => '8px',
 			'tooltip_pos'        => 'top',
 			'blogger_link'       => '',
+			'bluesky_link'       => '',
 			'deviantart_link'    => '',
 			'discord_link'       => '',
 			'digg_link'          => '',
@@ -515,8 +520,10 @@ class Fusion_Widget_Social_Links extends WP_Widget {
 			'fb_link'            => '',
 			'flickr_link'        => '',
 			'forrst_link'        => '',
+			'github_link'        => '',
 			'instagram_link'     => '',
 			'linkedin_link'      => '',
+			'mastodon_link'      => '',
 			'myspace_link'       => '',
 			'paypal_link'        => '',
 			'pinterest_link'     => '',
@@ -528,6 +535,7 @@ class Fusion_Widget_Social_Links extends WP_Widget {
 			'soundcloud_link'    => '',
 			'spotify_link'       => '',
 			'telegram_link'      => '',
+			'threads_link'       => '',
 			'tiktok_link'        => '',
 			'tumblr_link'        => '',
 			'twitter_link'       => '',

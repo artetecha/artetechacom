@@ -19,7 +19,7 @@ function avada_page_options_tab_post( $sections ) {
 	$override = function_exists( 'Fusion_Template_Builder' ) ? Fusion_Template_Builder()->get_override() : false;
 
 	$sections['post'] = [
-		'label'    => esc_html__( 'Post', 'Avada' ),
+		'label'    => 'avada_faq' === get_post_type() ? esc_html__( 'FAQ', 'Avada' ) : esc_html__( 'Post', 'Avada' ),
 		'id'       => 'post',
 		'alt_icon' => 'fusiona-feather',
 		'fields'   => [],

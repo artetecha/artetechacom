@@ -23,19 +23,12 @@
             function( idx ) {
 
                 var id = $( this ).attr( 'data-sortid' );
-                var input = $( this ).find( "input[name*='[" + id + "]']" );
-                input.each(
-                    function() {
-                        $( this ).attr( 'name', $( this ).attr( 'name' ).replace( '[' + id + ']', '[' + idx + ']' ) );
-                    }
-                );
+                var input = $( this ).find( "input[name*='[" + id + "]'], textarea[name*='[" + id + "]'], select[name*='[" + id + "]']" );
 
-                var select = $( this ).find( "select[name*='[" + id + "]']" );
-                select.each(
-                    function() {
-                        $( this ).attr( 'name', $( this ).attr( 'name' ).replace( '[' + id + ']', '[' + idx + ']' ) );
-                    }
-                );
+                input.each( function() {
+                    $( this ).attr( 'name', $( this ).attr( 'name' ).replace( '[' + id + ']', '[' + idx + ']' ) );
+                } );
+
                 $( this ).attr( 'data-sortid', idx );
 
                 // Fix the accordian header

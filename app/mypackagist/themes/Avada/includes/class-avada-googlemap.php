@@ -252,7 +252,7 @@ class Avada_GoogleMap {
 				var counter = 0;
 				var fusionMapNonce = '<?php echo wp_create_nonce( 'avada_admin_ajax' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>';
 				function fusion_run_map_<?php echo esc_attr( $map_id ); ?>() {
-					jQuery('#<?php echo esc_attr( $map_id ); ?>').fusion_maps({
+					jQuery( '#<?php echo esc_attr( $map_id ); ?>' ).fusion_maps( {
 						addresses: <?php echo $json_addresses; // phpcs:ignore WordPress.Security.EscapeOutput ?>,
 						address_pin: <?php echo ( 'yes' === $address_pin ) ? 'true' : 'false'; ?>,
 						animations: <?php echo ( 'yes' === $animation ) ? 'true' : 'false'; ?>,
@@ -270,7 +270,7 @@ class Avada_GoogleMap {
 						scrollwheel: <?php echo ( 'yes' === $scrollwheel ) ? 'true' : 'false'; ?>,
 						zoom: <?php echo esc_attr( $zoom ); ?>,
 						zoom_control: <?php echo ( 'yes' === $zoom_pancontrol ) ? 'true' : 'false'; ?>,
-					});
+					} );
 				}
 
 				google.maps.event.addDomListener(window, 'load', fusion_run_map_<?php echo esc_attr( $map_id ); ?>);

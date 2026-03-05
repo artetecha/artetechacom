@@ -48,7 +48,25 @@
 }
 .fusion-page-title-bar .fusion-breadcrumbs .awb-breadcrumb-sep:after {
   content: var(--breadcrumbs_separator);
-  margin: 0 5px;
+  margin: 0 0.35em;
+  color: var(--breadcrumbs_separator_color);
+}
+.fusion-page-title-bar .fusion-breadcrumbs .awb-breadcrumb-home-icon {
+  font-size: 1.15em;
+}
+.fusion-page-title-bar .fusion-breadcrumbs .awb-term-sep:after {
+  content: ",";
+  margin-inline-end: 0.175em;
+}
+.fusion-page-title-bar .fusion-breadcrumbs .awb-breadcrumb-sep-icon i:not(.awb-breadcrumb-home-icon) {
+  margin: 0 0.4em;
+  color: var(--breadcrumbs_separator_color);
+}
+.fusion-page-title-bar .fusion-breadcrumbs .fusion-breadcrumb-prefix {
+  color: var(--breadcrumbs_prefix_color);
+}
+.fusion-page-title-bar .fusion-breadcrumbs [aria-current="page"] {
+  color: var(--breadcrumbs_current_page_color);
 }
 .fusion-page-title-bar .fusion-breadcrumbs li,
 .fusion-page-title-bar .fusion-breadcrumbs li a {

@@ -103,11 +103,6 @@ function avada_page_options_tab_off_canvas_general( $sections ) {
 					],
 					[
 						'field'      => 'position',
-						'value'      => 'top',
-						'comparison' => '!=',
-					],
-					[
-						'field'      => 'position',
 						'value'      => 'bottom',
 						'comparison' => '!=',
 					],

@@ -76,28 +76,28 @@
 }
 .fusion-woo-checkout-order-review-tb ul li > label,
 .fusion-woo-checkout-payment-tb ul li > label {
+  display: inline-flex;
+  align-items: center;
   position: relative;
   cursor: pointer;
 }
 .fusion-woo-checkout-order-review-tb ul li > label:before,
 .fusion-woo-checkout-payment-tb ul li > label:before {
   content: "";
+  display: flex;
+  margin-inline-end: 0.5em;
   min-width: 13px;
   height: 13px;
   border: 1px solid var(--form_border_color);
   border-radius: 100%;
-  position: absolute;
-  left: 30px;
-  top: 50%;
-  transform: translateY(-50%);
   transition: all 0.2s ease;
 }
 .fusion-woo-checkout-order-review-tb ul li > label:after,
 .fusion-woo-checkout-payment-tb ul li > label:after {
   content: "";
-  left: 34px;
-  width: 7px;
-  height: 7px;
+  left: 3.625px;
+  width: 7.5px;
+  height: 7.5px;
   border-radius: 100%;
   position: absolute;
   top: 50%;
@@ -107,10 +107,14 @@
 .fusion-woo-checkout-payment-tb ul li > label:hover:before {
   border-color: var(--form_focus_border_color);
 }
+.fusion-woo-checkout-order-review-tb ul li.awb-checked label:before,
+.fusion-woo-checkout-payment-tb ul li.awb-checked label:before,
 .fusion-woo-checkout-order-review-tb ul li input:checked + label:before,
 .fusion-woo-checkout-payment-tb ul li input:checked + label:before {
   border-color: var(--form_focus_border_color);
 }
+.fusion-woo-checkout-order-review-tb ul li.awb-checked label:after,
+.fusion-woo-checkout-payment-tb ul li.awb-checked label:after,
 .fusion-woo-checkout-order-review-tb ul li input:checked + label:after,
 .fusion-woo-checkout-payment-tb ul li input:checked + label:after {
   background: var(--form_focus_border_color);
@@ -119,7 +123,45 @@
 .fusion-woo-checkout-payment-tb ul li input[type="hidden"] + label:before {
   display: none;
 }
-.fusion-woo-checkout-order-review-tb ul.woocommerce-shipping-methods li label,
-.fusion-woo-checkout-payment-tb ul.woocommerce-shipping-methods li label {
-  padding-left: 55px;
+.fusion-woo-checkout-order-review-tb ul li input[type="hidden"] + label .woocommerce-Price-amount,
+.fusion-woo-checkout-payment-tb ul li input[type="hidden"] + label .woocommerce-Price-amount {
+  opacity: 1;
+}
+.fusion-woo-checkout-order-review-tb .woocommerce-checkout-review-order-table tfoot td ul li > label,
+.fusion-woo-checkout-payment-tb .woocommerce-checkout-review-order-table tfoot td ul li > label {
+  display: inline-flex;
+}
+.fusion-woo-checkout-order-review-tb .woocommerce-checkout-review-order-table tfoot tr.awb-checkout-totals-wrapper > td,
+.fusion-woo-checkout-payment-tb .woocommerce-checkout-review-order-table tfoot tr.awb-checkout-totals-wrapper > td {
+  padding: 0;
+}
+.fusion-woo-checkout-order-review-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table,
+.fusion-woo-checkout-payment-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table {
+  width: 100%;
+}
+.fusion-woo-checkout-order-review-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table tr,
+.fusion-woo-checkout-payment-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table tr {
+  height: auto;
+}
+.fusion-woo-checkout-order-review-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table tr:first-of-type th,
+.fusion-woo-checkout-payment-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table tr:first-of-type th,
+.fusion-woo-checkout-order-review-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table tr:first-of-type td,
+.fusion-woo-checkout-payment-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table tr:first-of-type td {
+  padding-top: 1.5em;
+}
+.fusion-woo-checkout-order-review-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table th,
+.fusion-woo-checkout-payment-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table th {
+  width: 100%;
+  padding-inline-end: 75px;
+  padding-top: 0;
+  padding-bottom: 1.5em;
+  text-align: end;
+}
+.fusion-woo-checkout-order-review-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table td,
+.fusion-woo-checkout-payment-tb .woocommerce-checkout-review-order-table .awb-checkout-totals-wrapper .awb-cart-totals-table td {
+  white-space: nowrap;
+  vertical-align: top;
+  padding-top: 0;
+  padding-bottom: 1.5em;
+  text-align: end;
 }

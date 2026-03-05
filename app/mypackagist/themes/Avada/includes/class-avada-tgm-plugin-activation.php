@@ -325,6 +325,10 @@ if ( ! class_exists( 'Avada_TGM_Plugin_Activation' ) ) {
 				return;
 			}
 
+			if ( ! current_user_can( 'install_plugins' ) && ! current_user_can( 'update_plugins' ) && ! current_user_can( 'activate_plugins' ) ) {
+				return;
+			}
+
 			// Load class strings.
 			$this->strings = array(
 				'page_title'                      => __( 'Install Required Plugins', 'Avada' ),
@@ -456,12 +460,12 @@ if ( ! class_exists( 'Avada_TGM_Plugin_Activation' ) ) {
 			// All plugin information will be stored in an array for processing.
 			$slug = $this->sanitize_key( urldecode( $_GET['plugin'] ) );
 
-			if ( ! isset( $this->plugins[ $slug ] ) ) {
+			if ( ! isset( $this->plugins[ $slug ] ) || ! $this->does_plugin_have_update( $slug ) ) {
 				return false;
 			}
 
 			// Only proceed forward if the parameter is set to true and plugin is active.
-			if ( isset( $_GET['tgmpa-update'] ) && 'update-plugin' === $_GET['tgmpa-update'] && $this->is_plugin_active( $slug ) ) {
+			if ( isset( $_GET['tgmpa-update'], $_GET['page'], $_GET['plugin'], $_GET['tgmpa-nonce'] ) && 'update-plugin' === $_GET['tgmpa-update'] && $this->is_plugin_active( $slug ) ) {
 				deactivate_plugins( $this->plugins[ $slug ]['file_path'], true );
 
 				if ( ! isset( $_GET['plugin_source'] ) ) {

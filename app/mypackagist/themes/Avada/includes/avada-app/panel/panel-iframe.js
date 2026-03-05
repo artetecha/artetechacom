@@ -351,12 +351,14 @@
 					'undefined' !== typeof FusionApp.data.postMeta._fusion &&
 					'undefined' !== typeof FusionApp.data.postMeta._fusion[ key ] &&
 					'' !== FusionApp.data.postMeta._fusion[ key ] &&
+					! ('object' === typeof FusionApp.data.postMeta._fusion[ key ] && Object.values( FusionApp.data.postMeta._fusion[ key ] ).every (value => '' === value ) ) &&
 					'default' !== FusionApp.data.postMeta._fusion[ key ]
 				) {
 					value = FusionApp.data.postMeta._fusion[ key ];
 				} else if (
 					'undefined' !== typeof FusionApp.data.postMeta[ key ] &&
 					'' !== FusionApp.data.postMeta[ key ] &&
+					! ( 'object' === typeof FusionApp.data.postMeta[ key ] && Object.values( FusionApp.data.postMeta[ key ] ).every (value => '' === value ) ) &&
 					'default' !== FusionApp.data.postMeta[ key ]
 				) {
 					value = FusionApp.data.postMeta[ key ];

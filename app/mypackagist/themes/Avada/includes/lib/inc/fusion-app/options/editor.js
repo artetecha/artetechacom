@@ -110,11 +110,16 @@ FusionPageBuilder.options.fusionEditor = {
 						}
 
 						if ( window.tinyMCE.get( textareaID ) ) {
-							window.tinyMCE.get( textareaID ).on( 'keyup change', function() {
+							window.tinyMCE.get( textareaID ).on( 'keyup change', function( e ) {
 								var editor = window.tinyMCE.get( textareaID );
 
 								$theContent = editor.getContent();
-								jQuery( '#' + textareaID ).val( $theContent ).trigger( 'change' );
+
+								if ( 'undefined' !== typeof e.originalEvent && 'undefined' !== typeof e.originalEvent.is_removing && e.originalEvent.is_removing ) {
+									jQuery( '#' + textareaID ).val( $theContent );
+								} else {
+									jQuery( '#' + textareaID ).val( $theContent ).trigger( 'change' );
+								}
 							} );
 						}
 

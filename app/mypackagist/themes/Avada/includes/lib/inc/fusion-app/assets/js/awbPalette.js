@@ -410,7 +410,7 @@ var awbPalette = awbPalette || {};
     };
 
     function _refreshLiveEditorTargetedElements() {
-        var elementsToRefresh = [ 'fusion_section_separator', 'fusion_counter_circle', 'fusion_map', 'fusion_soundcloud', 'fusion_chart' ];
+        var elementsToRefresh = [ 'fusion_builder_container', 'fusion_section_separator', 'fusion_counter_circle', 'fusion_map', 'fusion_soundcloud', 'fusion_chart' ];
 
         if ( 'undefined' === typeof FusionPageBuilderViewManager ) {
             return;

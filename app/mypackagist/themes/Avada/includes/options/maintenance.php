@@ -23,13 +23,24 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return array
  */
 function avada_options_section_maintenance( $sections ) {
+	$is_go_backend   = is_admin() && isset( $_GET['page'] ) && 'avada_options' === $_GET['page'];
+	$is_live_builder = ( function_exists( 'fusion_is_preview_frame' ) && fusion_is_preview_frame() ) || ( function_exists( 'fusion_is_builder_frame' ) && fusion_is_builder_frame() );
 
-	// Function exists check for old versions running the GO migrationnnnn where options get loaded early on.
-	$user_roles = function_exists( 'AWB_Maintenance_Mode' ) ? AWB_Maintenance_Mode()->get_user_role_names() : [];
-	$templates  = function_exists( 'AWB_Maintenance_Mode' ) ? AWB_Maintenance_Mode()->get_library_templates() : [
-		'titles'     => [],
-		'permalinks' => [],
-	];
+	if ( $is_go_backend || $is_live_builder ) {	
+
+		// Function exists check for old versions running the GO migration where options get loaded early on.
+		$user_roles = function_exists( 'AWB_Maintenance_Mode' ) ? AWB_Maintenance_Mode()->get_user_role_names() : [];
+		$templates  = function_exists( 'AWB_Maintenance_Mode' ) ? AWB_Maintenance_Mode()->get_library_templates() : [
+			'titles'     => [],
+			'permalinks' => [],
+		];
+	} else {
+		$user_roles = [];
+		$templates  = [
+			'titles'     => [],
+			'permalinks' => [],
+		];
+	}
 
 	$sections['maintenance'] = [
 		'label'    => esc_html__( 'Maintenance Mode', 'Avada' ),

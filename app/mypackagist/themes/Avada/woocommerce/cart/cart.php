@@ -10,9 +10,9 @@
  * happen. When this occurs the version of the template file will be bumped and
  * the readme will list any important changes.
  *
- * @see     https://docs.woocommerce.com/document/template-structure/
+ * @see     https://woocommerce.com/document/template-structure/
  * @package WooCommerce\Templates
- * @version 7.9.0
+ * @version 10.1.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -28,11 +28,11 @@ do_action( 'woocommerce_before_cart' ); ?>
 		<thead>
 			<tr>
 				<?php // ThemeFusion edit for Avada theme: change table layout and columns. ?>
-				<th class="product-name"><?php esc_html_e( 'Product', 'woocommerce' ); ?></th>
-				<th class="product-price"><?php esc_html_e( 'Price', 'woocommerce' ); ?></th>
-				<th class="product-quantity"><?php esc_html_e( 'Quantity', 'woocommerce' ); ?></th>
-				<th class="product-subtotal"><?php esc_html_e( 'Subtotal', 'woocommerce' ); ?></th>
-				<th class="product-remove"><?php esc_html_e( 'Remove', 'woocommerce' ); ?></th>
+				<th scope="col" class="product-name"><?php esc_html_e( 'Product', 'woocommerce' ); ?></th>
+				<th scope="col" class="product-price"><?php esc_html_e( 'Price', 'woocommerce' ); ?></th>
+				<th scope="col" class="product-quantity"><?php esc_html_e( 'Quantity', 'woocommerce' ); ?></th>
+				<th scope="col" class="product-subtotal"><?php esc_html_e( 'Subtotal', 'woocommerce' ); ?></th>
+				<th scope="col" class="product-remove"><?php esc_html_e( 'Remove', 'woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -42,7 +42,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 			foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
 				$_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 				$product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
-				
+
 				/**
 				 * Filter the product name.
 				 *
@@ -58,11 +58,25 @@ do_action( 'woocommerce_before_cart' ); ?>
 					?>
 					<tr class="woocommerce-cart-form__cart-item <?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?>">
 
-						<td class="product-name" data-title="<?php esc_attr_e( 'Product', 'woocommerce' ); ?>">
+						<td scope="row" role="rowheader" class="product-name" data-title="<?php esc_attr_e( 'Product', 'woocommerce' ); ?>">
 							<?php // ThemeFusion edit for Avada theme: add thumbnail to product name column. ?>
 							<div class="fusion-product-name-wrapper">
 								<span class="product-thumbnail">
 									<?php
+
+										/**
+										 * Filter the product thumbnail displayed in the WooCommerce cart.
+										 *
+										 * This filter allows developers to customize the HTML output of the product
+										 * thumbnail. It passes the product image along with cart item data
+										 * for potential modifications before being displayed in the cart.
+										 *
+										 * @param string $thumbnail     The HTML for the product image.
+										 * @param array  $cart_item     The cart item data.
+										 * @param string $cart_item_key Unique key for the cart item.
+										 *
+										 * @since 2.1.0
+										 */
 										$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
 
 										if ( ! $product_permalink ) {
@@ -140,7 +154,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 								echo apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 									'woocommerce_cart_item_remove_link',
 									sprintf(
-										'<a href="%s" class="remove" aria-label="%s" data-product_id="%s" data-product_sku="%s">&times;</a>',
+										'<a role="button" href="%s" class="remove" aria-label="%s" data-product_id="%s" data-product_sku="%s">&times;</a>',
 										esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
 										/* translators: %s is the product name */
 										esc_attr( sprintf( __( 'Remove %s from cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) ),

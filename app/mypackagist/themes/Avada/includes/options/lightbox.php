@@ -177,6 +177,41 @@ function avada_options_section_lightbox( $sections ) {
 					],
 				],
 			],
+			'lightbox_zoom'          => [
+				'label'       => esc_html__( 'Lightbox Image Hover Zoom', 'Avada' ),
+				'description' => esc_html__( 'Set the scale factor for hovered images inside the lightbox. Set to 1 to disable zoom.', 'Avada' ),
+				'id'          => 'lightbox_zoom',
+				'default'     => '1',
+				'type'        => 'slider',
+				'choices'     => [
+					'min'  => '1',
+					'max'  => '2',
+					'step' => '0.05',
+				],
+				'required'    => [
+					[
+						'setting'  => 'status_lightbox',
+						'operator' => '==',
+						'value'    => '1',
+					],
+				],
+				'output'      => [
+					// This is for the fusionLightboxVars.lightbox_gallery var.
+					[
+						'element'           => 'helperElement',
+						'property'          => 'dummy',
+						'js_callback'       => [
+							'fusionGlobalScriptSet',
+							[
+								'globalVar' => 'fusionLightboxVars',
+								'id'        => 'lightbox_zoom',
+								'trigger'   => [ 'avadaLightBoxInitializeLightbox' ],
+							],
+						],
+						'sanitize_callback' => '__return_empty_string',
+					],
+				],
+			],
 			'lightbox_arrows'           => [
 				'label'       => esc_html__( 'Arrows', 'Avada' ),
 				'description' => esc_html__( 'Turn on to display arrows in the lightbox', 'Avada' ),

@@ -41,7 +41,7 @@
   border-radius: var(--totop_border_radius) var(--totop_border_radius) 0 0;
 }
 .to-top-floating #toTop {
-  bottom: 30px;
+  bottom: var(--totop_spacing_bottom, 30px);
   height: 44px;
   width: 44px;
   border-radius: var(--totop_border_radius) var(--totop_border_radius) var(--totop_border_radius) var(--totop_border_radius);
@@ -50,10 +50,10 @@
   line-height: 42px;
 }
 .to-top-right #toTop {
-  right: 75px;
+  right: var(--totop_spacing_side, 75px);
 }
 .to-top-left #toTop {
-  left: 75px;
+  left: var(--totop_spacing_side, 75px);
 }
 .awb-to-top-progress {
   display: none;

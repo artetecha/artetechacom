@@ -227,7 +227,7 @@ function avada_page_options_tab_off_canvas_triggers( $sections ) {
 			'inactivity_duration'   => [
 				'type'        => 'text',
 				'label'       => esc_html__( 'Inactivity Duration', 'Avada' ),
-				'description' => esc_html__( 'Set the time that needs to pass for visitor inactivity before the Off Canvas will be displayed. In seconds, ex: 30.', 'Avada' ),
+				'description' => esc_html__( 'Set the time of visitor inactivity that needs to pass before the Off Canvas will be displayed. In seconds, ex: 30.', 'Avada' ),
 				'id'          => 'inactivity_duration',
 				'default'     => '',
 				'transport'   => 'postMessage',

@@ -40,7 +40,7 @@ function avada_page_options_tab_code_fields( $sections ) {
 				'theme'    => 'chrome',
 				'minLines' => 40,
 				'maxLines' => 50,
-			],
+			]
 		];
 
 		$sections['code_fields']['fields']['space_head_close'] = [
@@ -55,7 +55,7 @@ function avada_page_options_tab_code_fields( $sections ) {
 				'theme'    => 'chrome',
 				'minLines' => 40,
 				'maxLines' => 50,
-			],
+			]
 		];
 
 		$sections['code_fields']['fields']['space_body_open'] = [
@@ -70,7 +70,7 @@ function avada_page_options_tab_code_fields( $sections ) {
 				'theme'    => 'chrome',
 				'minLines' => 40,
 				'maxLines' => 50,
-			],
+			]
 		];
 	}
 
@@ -86,7 +86,7 @@ function avada_page_options_tab_code_fields( $sections ) {
 			'theme'    => 'chrome',
 			'minLines' => 40,
 			'maxLines' => 50,
-		],
+		]
 	];
 
 	return $sections;

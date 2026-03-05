@@ -653,10 +653,10 @@ class Fusion_App {
 
 		<script type="text/javascript">
 			function initFusionAppInitialData() {
-				if ( 'undefined' === typeof parent.window.FusionApp ) {
+				if ( 'undefined' === typeof parent.window.FusionApp || 'undefined' === typeof parent.window.FusionPageBuilder.FormNav ) {
 					setTimeout( function() {
 						initFusionAppInitialData();
-					}, 60 );
+					}, 100 );
 					return;
 				}
 				parent.window.FusionApp.initialData     = <?php echo wp_json_encode( $data, JSON_FORCE_OBJECT ); ?>;
@@ -1096,6 +1096,12 @@ class Fusion_App {
 
 		if ( isset( $preferences::$preferences['element_transform'] ) && 'editing' === $preferences::$preferences['element_transform'] ) {
 			$classes[] = 'fusion-element-transform-on-edit';
+		}
+
+		if ( isset( $preferences::$preferences['inline_dynamic_data_preview'] ) ) {
+			$classes[] = 'awb-inline-dynamic-data-preview-' . $preferences::$preferences['inline_dynamic_data_preview'];
+		} else {
+			$classes[] = 'awb-inline-dynamic-data-preview-never';
 		}
 
 		return $classes;
@@ -1631,6 +1637,7 @@ class Fusion_App {
 			wp_enqueue_script( 'fusion_app_option_column_width', FUSION_LIBRARY_URL . '/inc/fusion-app/options/column-width.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_form_options', FUSION_LIBRARY_URL . '/inc/fusion-app/options/form-options.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_fusion_logics', FUSION_LIBRARY_URL . '/inc/fusion-app/options/fusion-logics.js', [], $fusion_library_latest_version, true );
+			wp_enqueue_script( 'fusion_app_option_auth_map', FUSION_LIBRARY_URL . '/inc/fusion-app/options/auth-map.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_hubspot_map', FUSION_LIBRARY_URL . '/inc/fusion-app/options/hubspot-map.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_hubspot_consent_map', FUSION_LIBRARY_URL . '/inc/fusion-app/options/hubspot-consent-map.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_mailchimp_map', FUSION_LIBRARY_URL . '/inc/fusion-app/options/mailchimp-map.js', [], $fusion_library_latest_version, true );
@@ -1724,8 +1731,7 @@ class Fusion_App {
 		$post_details = $this->get_data( 'post_details' );
 
 		if ( ( false !== $post_content || false !== $post_details ) && $post_id && '' !== $post_id && false === strpos( $post_id, '-archive' ) ) {
-
-			if ( ! $this->can_edit_post( $post_id ) ) {
+			if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $post_id ), 'live_builder_edit' ) ) ) {
 				$this->add_save_data( 'content', false, esc_html__( 'You do not have permission to edit this post.', 'fusion-builder' ) );
 			} else {
 				$post = [
@@ -1783,6 +1789,11 @@ class Fusion_App {
 								wp_set_object_terms( $post_id, $term_data, $taxonomy->name );
 							}
 						}
+					}
+
+					// Post Excerpt.
+					if ( isset( $post_details['post_excerpt'] ) ) {
+						$post['post_excerpt'] = sanitize_textarea_field( $post_details['post_excerpt'] );
 					}
 				}
 
@@ -1846,22 +1857,6 @@ class Fusion_App {
 		wp_send_json_success( $save_data );
 
 		wp_die();
-	}
-
-	/**
-	 * Check if user can edit this post.
-	 *
-	 * @access public
-	 * @since 3.0.10
-	 * @param string $post_id  The id of the post to edit.
-	 * @return boolean
-	 */
-	public function can_edit_post( $post_id ) {
-		$post_id          = ! isset( $post_id ) || '' === $post_id ? fusion_library()->get_page_id() : $post_id;
-		$post_type        = get_post_type( $post_id );
-		$post_type_object = get_post_type_object( $post_type );
-
-		return current_user_can( $post_type_object->cap->edit_post, $post_id );
 	}
 
 	/**

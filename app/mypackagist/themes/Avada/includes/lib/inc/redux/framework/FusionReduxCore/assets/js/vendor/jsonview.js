@@ -214,11 +214,11 @@ function jsonView(id, target) {
 			callback = '';
 		var callback_results = jsonp_regex.exec(this.data);
 		if (callback_results && callback_results.length === 3) {
-			if (this.debug) { console.log("THIS IS JSONp"); }
+			if (this.debug) {
 			callback = callback_results[1];
 			cleanData = callback_results[2];
 		} else {
-			if (this.debug) { console.log("Vanilla JSON"); }
+			if (this.debug) {
 			cleanData = this.data;
 		}
 		if (this.debug) { console.log(cleanData); }

@@ -74,6 +74,8 @@ function fusion_customizer_front_options_loop( $params ) {
 			const isOptionState = 'undefined' !== typeof param.state ? 'is-option-state' : '';
 			const defaultState = 'undefined' !== typeof param.default_state_option ? 'data-default-state-option=' + param.default_state_option : '';
 
+			<?php do_action( 'avada_ai_params' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+
 			const counterClass = 'textarea' === param.type && 'undefined' !== typeof param.counter && param.counter ? 'counter' : '';
 
 			let connectedStates = '';
@@ -106,7 +108,7 @@ function fusion_customizer_front_options_loop( $params ) {
 				option_value = param.value;
 			}
 
-			if ( 'string' === typeof param.location && 'PS' === param.location ) {
+			if ( 'string' === typeof param.location && 'PS' === param.location && 'post_excerpt' !== id ) {
 				option_value = FusionApp.getPost( id );
 			}
 
@@ -194,8 +196,9 @@ function fusion_customizer_front_options_loop( $params ) {
 								</li>
 								<# } #>
 								<# if ( supportsGlobalTypography ) { #>
-								<li><a class="option-global-typography awb-quick-set" href="JavaScript:void(0);" aria-label="<?php esc_attr_e( 'Global Typography', 'fusion-builder' ); ?>"><i class="fusiona-globe" aria-hidden="true"></i></a><span class="fusion-elements-option-tooltip fusion-tooltip-preview"><?php esc_html_e( 'Global Typography', 'fusion-builder' ); ?></span></li>
-							<# } #>
+									<li><a class="option-global-typography awb-quick-set" href="JavaScript:void(0);" aria-label="<?php esc_attr_e( 'Global Typography', 'fusion-builder' ); ?>"><i class="fusiona-globe" aria-hidden="true"></i></a><span class="fusion-elements-option-tooltip fusion-tooltip-preview"><?php esc_html_e( 'Global Typography', 'fusion-builder' ); ?></span></li>
+								<# } #>
+								<?php do_action( 'avada_ai_links' ); ?>
 							</ul>
 
 						<# }; #>
@@ -253,6 +256,7 @@ function fusion_customizer_front_options_loop( $params ) {
 						'mailchimp_map',
 						'layout_conditions',
 						'toggle',
+						'fusion_logics',
 					];
 
 					// Redux on left, template on right.

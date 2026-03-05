@@ -35,7 +35,7 @@ function avada_options_section_sliding_bar( $sections ) {
 				'label'       => '',
 				'description' => sprintf(
 					/* translators: %1$s: Off Canvas page URL. */
-					'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a more modern, performant sliding bar setup, we recommend using the Avada Off Canvas Builder. To create an Off Canvas, <a href="%1$s" target="_blank">visit this page.</a>', 'Avada' ) . '</div>',
+					'<div class="fusion-redux-important-notice">' . __( '<strong>IMPORTANT NOTE:</strong> For more flexibility and a modern, more performant Sliding Bar setup, we recommend using the Avada Off Canvas Builder. To create an Off Canvas, <a href="%1$s" target="_blank">visit this page.</a>', 'Avada' ) . '</div>',
 					admin_url( 'admin.php?page=avada-off-canvas' )
 				),
 				'type'        => 'custom',

@@ -870,10 +870,6 @@
 .rtl form.checkout .continue-checkout {
   float: left;
 }
-.rtl #shipping_method {
-  float: left;
-  text-align: left;
-}
 .rtl form.checkout .shop_table tfoot th {
   text-align: left;
 }

@@ -927,9 +927,11 @@ var FusionEvents = _.extend( {}, Backbone.Events );
 					}
 					return this.data.examplePostDetails.post_meta;
 				}
-				if ( ( 'fusion_tb_section' === FusionApp.data.postDetails.post_type || 'post_cards' === FusionApp.data.fusion_element_type || 'awb_off_canvas' === FusionApp.data.postDetails.post_type ) && 'undefined' !== typeof FusionApp.data.postMeta._fusion && 'undefined' !== typeof FusionApp.data.postMeta._fusion.dynamic_content_preview_type && 'undefined' !== typeof FusionApp.initialData.dynamicPostID ) {
+
+				if ( ( 'fusion_tb_section' === FusionApp.data.postDetails.post_type || 'post_cards' === FusionApp.data.fusion_element_type || 'awb_off_canvas' === FusionApp.data.postDetails.post_type ) && 'undefined' !== typeof FusionApp.data.postMeta._fusion && 'undefined' !== typeof FusionApp.data.postMeta._fusion.dynamic_content_preview_type && 'undefined' !== typeof FusionApp.initialData.dynamicPostID && null !== FusionApp.initialData.dynamicPostID ) {
 					return FusionApp.initialData.dynamicPostID;
 				}
+
 				if ( 'object' !== typeof this.data.examplePostDetails ) {
 					return this.getPost( key );
 				}

@@ -67,88 +67,7 @@ function avada_options_section_performance( $sections ) {
 		'priority' => 25,
 		'icon'     => 'el-icon-time-alt',
 		'alt_icon' => 'fusiona-check',
-		'fields'   => [
-			'svg_upload'                           => [
-				'label'       => esc_html__( 'SVG Media Upload', 'Avada' ),
-				'description' => esc_html__( 'Enable upload of SVG files and improve performance through their smaller image and logo file size.', 'Avada' ),
-				'id'          => 'svg_upload',
-				'default'     => 'disabled',
-				'type'        => 'radio-buttonset',
-				'choices'     => [
-					'enabled'  => esc_html__( 'Enable', 'Avada' ),
-					'disabled' => esc_html__( 'Disable', 'Avada' ),
-				],
-				// No need to refresh the page.
-				'transport'   => 'postMessage',
-			],
-			'pw_jpeg_quality'                      => [
-				'label'       => esc_html__( 'WordPress Image Quality', 'Avada' ),
-				/* translators: "Regenerate Thumbnails" plugin link. */
-				'description' => sprintf( __( 'Controls the quality of the generated image sizes for every uploaded image. Ranges between 0 and 100 percent. Higher values lead to better image qualities but also higher file sizes. <strong>NOTE:</strong> After changing this value, please install and run the %s plugin once.', 'Avada' ), '<a target="_blank" href="' . admin_url( 'plugin-install.php?s=Regenerate+Thumbnails&tab=search&type=term' ) . '" title="' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '">' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '</a>' ),
-				'id'          => 'pw_jpeg_quality',
-				'default'     => '82',
-				'type'        => 'slider',
-				'choices'     => [
-					'min'  => '1',
-					'max'  => '100',
-					'step' => '1',
-				],
-				// No need to refresh the page.
-				'transport'   => 'postMessage',
-			],
-			'awb_image_sizes'                      => [
-				'label'       => esc_html__( 'Avada Image Sizes', 'Avada' ),
-				'description' => sprintf( __( 'Choose which Avada image sizes should be created for every image uploaded to the Media Library. <strong>NOTE:</strong> Image sizes used in legacy areas/features of Avada are marked with (L). When you remove image sizes here, please check your site to make sure all layouts display correctly. After changing this value, please install and run the %s plugin once.', 'Avada' ), '<a target="_blank" href="' . admin_url( 'plugin-install.php?s=Regenerate+Thumbnails&tab=search&type=term' ) . '" title="' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '">' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '</a>' ),
-				'id'          => 'awb_image_sizes',
-				'default'     => [ 'fusion-200', 'fusion-400', 'fusion-600', 'fusion-800', 'fusion-1200', 'blog-large', 'blog-medium', 'recent-posts', 'recent-works-thumbnail', 'portfolio-full', 'portfolio-one', 'portfolio-two', 'portfolio-three', 'portfolio-five' ],
-				'type'        => 'select',
-				'multi'       => true,
-				'choices'     => [
-					'fusion-200'             => esc_html__( '200px Width', 'Avada' ),
-					'fusion-400'             => esc_html__( '400px Width', 'Avada' ),
-					'fusion-600'             => esc_html__( '600px Width', 'Avada' ),
-					'fusion-800'             => esc_html__( '800px Width', 'Avada' ),
-					'fusion-1200'            => esc_html__( '1200px Width', 'Avada' ),
-					'blog-large'             => esc_html__( 'Blog Large (L)', 'Avada' ),
-					'blog-medium'            => esc_html__( 'Blog Medium (L)', 'Avada' ),
-					'recent-posts'           => esc_html__( 'Recent Posts (L)', 'Avada' ),
-					'recent-works-thumbnail' => esc_html__( 'Recent Works (L)', 'Avada' ),
-					'portfolio-full'         => esc_html__( 'Portfolio Full (L)', 'Avada' ),
-					'portfolio-one'          => esc_html__( 'Portfolio 1 Col (L)', 'Avada' ),
-					'portfolio-two'          => esc_html__( 'Portfolio 2 Col (L)', 'Avada' ),
-					'portfolio-three'        => esc_html__( 'Portfolio 3 Col (L)', 'Avada' ),
-					'portfolio-five'         => esc_html__( 'Portfolio 5 Col (L)', 'Avada' ),
-				],
-				// No need to refresh the page.
-				'transport'   => 'postMessage',
-			],
-			'wp_big_image_size_threshold'          => [
-				'label'       => esc_html__( 'WordPress Big Image Size Threshold', 'Avada' ),
-				'description' => esc_html__( 'Sets the threshold for image height and width, above which WordPress will scale down newly uploaded images to this values as max-width or max-height. Set to "0" to disable the threshold completely.', 'Avada' ),
-				'id'          => 'wp_big_image_size_threshold',
-				'default'     => '2560',
-				'type'        => 'slider',
-				'choices'     => [
-					'min'  => '0',
-					'max'  => '5000',
-					'step' => '1',
-				],
-				// No need to refresh the page.
-				'transport'   => 'postMessage',
-			],
-			'lazy_load'                            => [
-				'label'       => esc_html__( 'Image Lazy Loading', 'Avada' ),
-				'description' => __( 'Choose your preferred lazy loading method for your website\'s images to improve performance. <strong>IMPORTANT:</strong> The WordPress native method can cause issues with dynamically loaded elements like image carousels.', 'Avada' ),
-				'id'          => 'lazy_load',
-				'default'     => 'none',
-				'type'        => 'radio-buttonset',
-				'choices'     => [
-					'avada'     => esc_html__( 'Avada', 'Avada' ),
-					'wordpress' => esc_html__( 'WordPress', 'Avada' ),
-					'none'      => esc_html__( 'None', 'Avada' ),
-				],
-				'transport'   => 'postMessage', // No need to refresh the page.
-			],
+		'fields'   => [	
 			'lazy_load_iframes'                    => [
 				'label'       => esc_html__( 'Iframe Lazy Loading', 'Avada' ),
 				'description' => __( 'Choose your preferred lazy loading method for your website\'s iframe to improve performance.', 'Avada' ),
@@ -357,12 +276,181 @@ function avada_options_section_performance( $sections ) {
 			],
 			'clear_object_cache'                   => [
 				'label'       => esc_html__( 'Clear Object Cache ', 'Avada' ),
-				'description' => __( 'Set to \'on\' to clear WP\'s object cache on post edit and post deletion. This is useful, if your setup or hoster uses persistent object caching, to make sure that queries update when you add or remove posts.', 'Avada' ),
+				'description' => __( 'Set to \'on\' to clear WP\'s object cache on post edit, post deletion, and Avada Form Entries page view. This is useful, if your setup or hoster uses persistent object caching, to make sure that queries update when you add or remove posts.', 'Avada' ),
 				'id'          => 'clear_object_cache',
 				'default'     => '0',
 				'type'        => 'switch',
 				// No need to refresh the page.
 				'transport'   => 'postMessage',
+			],
+			'images_section'             => [
+				'label' => esc_html__( 'Images', 'Avada' ),
+				'id'    => 'images_section',
+				'icon'  => true,
+				'type'  => 'info',
+			],
+			'svg_upload'                           => [
+				'label'       => esc_html__( 'SVG Media Upload', 'Avada' ),
+				'description' => esc_html__( 'Enable upload of SVG files and improve performance through their smaller image and logo file size.', 'Avada' ),
+				'id'          => 'svg_upload',
+				'default'     => 'disabled',
+				'type'        => 'radio-buttonset',
+				'choices'     => [
+					'enabled'  => esc_html__( 'Enable', 'Avada' ),
+					'disabled' => esc_html__( 'Disable', 'Avada' ),
+				],
+				// No need to refresh the page.
+				'transport'   => 'postMessage',
+			],
+			'upload_image_format'                  => [
+				'label'       => esc_html__( 'Upload Image Format', 'Avada' ),
+				/* translators: "System Statuss" page link. */
+				'description' => sprintf( __( 'Select a modern format to use when uploading new images to the media library. If you choose AVIF but your server is not able to convert to this format, it will automatically fall back to webP. You can also convert all your existing images on the %s page.', 'Avada' ), '<a target="_blank" href="' . admin_url( 'admin.php?page=avada-status' ) . '" title="' . esc_html__( 'System Status', 'Avada' ) . '">' . esc_html__( 'System Status', 'Avada' ) . '</a>' ),
+				'id'          => 'upload_image_format',
+				'default'     => 'default',
+				'type'        => 'radio-buttonset',
+				'choices'     => [
+					'default' => esc_html__( 'Default', 'Avada' ),
+					'webp'    => esc_html__( 'WebP', 'Avada' ),
+					'avif'    => esc_html__( 'AVIF', 'Avada' ),
+				],
+				// No need to refresh the page.
+				'transport'   => 'postMessage',
+			],
+			'keep_original_images'                  => [
+				'label'       => esc_html__( 'Keep Original Upload Images', 'Avada' ),
+				'description' => esc_html__( 'If enabled, not only the image with its original upload format will be kept, but also the created thumbnails. This will increase the filesystem storage use of your images.', 'Avada' ),
+				'id'          => 'keep_original_images',
+				'default'     => 'disable',
+				'type'        => 'radio-buttonset',
+				'choices'     => [
+					'enable'  => esc_html__( 'Enable', 'Avada' ),
+					'disable' => esc_html__( 'Disable', 'Avada' ),
+				],
+				'required'    => [
+					[
+						'setting'  => 'upload_image_format',
+						'operator' => '!=',
+						'value'    => 'default',
+					],
+				],				
+				// No need to refresh the page.
+				'transport'   => 'postMessage',
+			],
+			'display_image_format'                  => [
+				'label'       => esc_html__( 'Display Image Format', 'Avada' ),
+				'description' => esc_html__( 'If set to "original", Avada will try to load the images in their original upload format. If set to "modern", it will try to load the images in the upload image format you set above.', 'Avada' ),
+				'id'          => 'display_image_format',
+				'default'     => 'modern',
+				'type'        => 'radio-buttonset',
+				'choices'     => [
+					'modern'   => esc_html__( 'Modern', 'Avada' ),
+					'original' => esc_html__( 'Original', 'Avada' ),
+				],
+				'required'    => [
+					[
+						'setting'  => 'upload_image_format',
+						'operator' => '!=',
+						'value'    => 'default',
+					],
+					[
+						'setting'  => 'keep_original_images',
+						'operator' => '=',
+						'value'    => 'enable',
+					],
+				],
+				// No need to refresh the page.
+				'transport'   => 'postMessage',
+			],			
+			'pw_jpeg_quality'                      => [
+				'label'       => esc_html__( 'WordPress Image Quality', 'Avada' ),
+				/* translators: "Regenerate Thumbnails" plugin link. */
+				'description' => sprintf( __( 'Controls the quality of the generated image sizes for every uploaded image. Ranges between 0 and 100 percent. Higher values lead to better image quality but also higher file sizes. <strong>NOTE:</strong> After changing this value, please install and run the %s plugin once.', 'Avada' ), '<a target="_blank" href="' . admin_url( 'plugin-install.php?s=Regenerate+Thumbnails&tab=search&type=term' ) . '" title="' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '">' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '</a>' ),
+				'id'          => 'pw_jpeg_quality',
+				'default'     => '82',
+				'type'        => 'slider',
+				'choices'     => [
+					'min'  => '1',
+					'max'  => '100',
+					'step' => '1',
+				],
+				// No need to refresh the page.
+				'transport'   => 'postMessage',
+			],
+			'webp_image_quality'                      => [
+				'label'       => esc_html__( 'WordPress webP Image Quality', 'Avada' ),
+				/* translators: "Regenerate Thumbnails" plugin link. */
+				'description' => sprintf( __( 'Controls the quality of the generated image sizes for every uploaded webP image. Ranges between 0 and 100 percent. Higher values lead to better image quality but also higher file sizes. <strong>NOTE:</strong> After changing this value, please install and run the %s plugin once.', 'Avada' ), '<a target="_blank" href="' . admin_url( 'plugin-install.php?s=Regenerate+Thumbnails&tab=search&type=term' ) . '" title="' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '">' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '</a>' ),
+				'id'          => 'webp_image_quality',
+				'default'     => '86',
+				'type'        => 'slider',
+				'choices'     => [
+					'min'  => '1',
+					'max'  => '100',
+					'step' => '1',
+				],
+				// No need to refresh the page.
+				'transport'   => 'postMessage',
+				'required'    => [
+					[
+						'setting'  => 'upload_image_format',
+						'operator' => '=',
+						'value'    => 'webp',
+					],
+				],
+			],
+			'awb_image_sizes'                      => [
+				'label'       => esc_html__( 'Avada Image Sizes', 'Avada' ),
+				'description' => sprintf( __( 'Choose which Avada image sizes should be created for every image uploaded to the Media Library. <strong>NOTE:</strong> Image sizes used in legacy areas/features of Avada are marked with (L). When you remove image sizes here, please check your site to make sure all layouts display correctly. After changing this value, please install and run the %s plugin once.', 'Avada' ), '<a target="_blank" href="' . admin_url( 'plugin-install.php?s=Regenerate+Thumbnails&tab=search&type=term' ) . '" title="' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '">' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '</a>' ),
+				'id'          => 'awb_image_sizes',
+				'default'     => [ 'fusion-200', 'fusion-400', 'fusion-600', 'fusion-800', 'fusion-1200', 'blog-large', 'blog-medium', 'recent-posts', 'recent-works-thumbnail', 'portfolio-full', 'portfolio-one', 'portfolio-two', 'portfolio-three', 'portfolio-five' ],
+				'type'        => 'select',
+				'multi'       => true,
+				'choices'     => [
+					'fusion-200'             => esc_html__( '200px Width', 'Avada' ),
+					'fusion-400'             => esc_html__( '400px Width', 'Avada' ),
+					'fusion-600'             => esc_html__( '600px Width', 'Avada' ),
+					'fusion-800'             => esc_html__( '800px Width', 'Avada' ),
+					'fusion-1200'            => esc_html__( '1200px Width', 'Avada' ),
+					'blog-large'             => esc_html__( 'Blog Large (L)', 'Avada' ),
+					'blog-medium'            => esc_html__( 'Blog Medium (L)', 'Avada' ),
+					'recent-posts'           => esc_html__( 'Recent Posts (L)', 'Avada' ),
+					'recent-works-thumbnail' => esc_html__( 'Recent Works (L)', 'Avada' ),
+					'portfolio-full'         => esc_html__( 'Portfolio Full (L)', 'Avada' ),
+					'portfolio-one'          => esc_html__( 'Portfolio 1 Col (L)', 'Avada' ),
+					'portfolio-two'          => esc_html__( 'Portfolio 2 Col (L)', 'Avada' ),
+					'portfolio-three'        => esc_html__( 'Portfolio 3 Col (L)', 'Avada' ),
+					'portfolio-five'         => esc_html__( 'Portfolio 5 Col (L)', 'Avada' ),
+				],
+				// No need to refresh the page.
+				'transport'   => 'postMessage',
+			],
+			'wp_big_image_size_threshold'          => [
+				'label'       => esc_html__( 'WordPress Big Image Size Threshold', 'Avada' ),
+				'description' => esc_html__( 'Sets the threshold for image height and width, above which WordPress will scale down newly uploaded images to this values as max-width or max-height. Set to "0" to disable the threshold completely.', 'Avada' ),
+				'id'          => 'wp_big_image_size_threshold',
+				'default'     => '2560',
+				'type'        => 'slider',
+				'choices'     => [
+					'min'  => '0',
+					'max'  => '5000',
+					'step' => '1',
+				],
+				// No need to refresh the page.
+				'transport'   => 'postMessage',
+			],
+			'lazy_load'                            => [
+				'label'       => esc_html__( 'Image Lazy Loading', 'Avada' ),
+				'description' => __( 'Choose your preferred lazy loading method for your website\'s images to improve performance. <strong>IMPORTANT:</strong> The WordPress native method can cause issues with dynamically loaded elements like image carousels.', 'Avada' ),
+				'id'          => 'lazy_load',
+				'default'     => 'none',
+				'type'        => 'radio-buttonset',
+				'choices'     => [
+					'avada'     => esc_html__( 'Avada', 'Avada' ),
+					'wordpress' => esc_html__( 'WordPress', 'Avada' ),
+					'none'      => esc_html__( 'None', 'Avada' ),
+				],
+				'transport'   => 'postMessage', // No need to refresh the page.
 			],
 			'dynamic_compiler_section'             => [
 				'label' => esc_html__( 'Dynamic CSS & JS', 'Avada' ),
@@ -385,11 +473,18 @@ function avada_options_section_performance( $sections ) {
 			],
 			'css_combine_third_party_assets'       => [
 				'label'       => esc_html__( 'Combine Third Party CSS Files', 'Avada' ),
-				'description' => __( 'When enabled, third party CSS files will be combined into Avada\'s main stylesheet. Plugins affected are The Events Calendar, Slider Revolution, ConvertPlus, Contact Form 7 and bbPress. <strong>IMPORTANT:</strong> Enabling this option is not recommended when you are are using third party file combining services, like cache plugins. <strong>NOTE:</strong> When this option is changed, Avada Caches have to be reset for changes to apply.', 'Avada' ),
+				'description' => __( 'Third party CSS files of the selected plugins will be combined into Avada\'s main stylesheet.<br><strong>IMPORTANT:</strong> Enabling this option is not recommended when you are are using third party file combining services, like cache plugins. When this option is changed, Avada Caches have to be reset for changes to apply.', 'Avada' ),
 				'id'          => 'css_combine_third_party_assets',
-				'default'     => '0',
-				'type'        => 'switch',
-				'transport'   => 'postMessage', // No need to refresh the page.
+				'default'     => [],
+				'type'        => 'select',
+				'multi'       => true,
+				'choices'     => [
+					'tec'            => esc_html__( 'The Events Calendar', 'Avada' ),
+					'slider_rev'     => esc_html__( 'Slider Revolutiln', 'Avada' ),
+					'convert_plus'   => esc_html__( 'Convert Plus', 'Avada' ),
+					'contact_form_7' => esc_html__( 'Contact Form 7', 'Avada' ),
+					'bbpress'        => esc_html__( 'bbPress', 'Avada' ),
+				],
 				'required'    => [
 					[
 						'setting'  => 'css_cache_method',
@@ -397,6 +492,8 @@ function avada_options_section_performance( $sections ) {
 						'value'    => 'file',
 					],
 				],
+				// No need to refresh the page.
+				'transport'   => 'postMessage',
 			],
 			'media_queries_async'                  => [
 				'label'       => esc_html__( 'Load Media-Queries Files Asynchronously', 'Avada' ),

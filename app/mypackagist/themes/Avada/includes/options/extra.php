@@ -46,30 +46,6 @@ function avada_options_section_extra( $sections ) {
 				'icon'        => true,
 				'type'        => 'sub-section',
 				'fields'      => [
-					'post_views'                 => [
-						'label'       => esc_html__( 'Post Views Counter', 'Avada' ),
-						'description' => esc_html__( 'Set the method to update the post views, or disable them entirely. "Page Load" option will update using PHP when a page is retrieved. "Ajax" will send an additional request after the page loads.', 'Avada' ),
-						'id'          => 'post_views',
-						'default'     => 'page_load',
-						'type'        => 'radio-buttonset',
-						'choices'     => [
-							'page_load' => esc_html__( 'Page Load', 'Avada' ),
-							'ajax'      => esc_html__( 'Ajax', 'Avada' ),
-							'disabled'  => esc_html__( 'Disabled', 'Avada' ),
-						],
-					],
-					'post_views_counting'        => [
-						'label'       => esc_html__( 'Post Views User Type Counting', 'Avada' ),
-						'description' => esc_html__( 'Select which types of users will increase post views on visit.', 'Avada' ),
-						'id'          => 'post_views_counting',
-						'default'     => 'all',
-						'type'        => 'select',
-						'choices'     => [
-							'all'        => esc_html__( 'All', 'Avada' ),
-							'logged_out' => esc_html__( 'Logged Out', 'Avada' ),
-							'non_admins' => esc_html__( 'Non-Admins', 'Avada' ),
-						],
-					],
 					'featured_image_placeholder' => [
 						'label'           => esc_html__( 'Image Placeholders', 'Avada' ),
 						'description'     => esc_html__( 'Turn on to display a placeholder image for posts that do not have a featured image. This allows the post to display on portfolio archives and related posts/projects carousels.', 'Avada' ),
@@ -279,6 +255,18 @@ function avada_options_section_extra( $sections ) {
 						'type'        => 'switch',
 						// No need to update the preview.
 						'transport'   => 'postMessage',
+					],
+					'rendering_logic_binding'               => [
+						'label'       => esc_html__( 'Rendering Logic Binding', 'Avada' ),
+						'description' => esc_html__( 'Choose the operator binding when using conditional rendering with several conditions. This option decides when a new evaluation group should be started.', 'Avada' ),
+						'id'          => 'rendering_logic_binding',
+						'default'     => 'or',
+						'type'        => 'radio-buttonset',
+						'transport'   => 'postMessage',
+						'choices'     => [
+							'or'        => esc_html__( 'OR', 'Avada' ),
+							'op_change' => esc_html__( 'Operator Change', 'Avada' ),
+						],
 					],
 				],
 			],
@@ -1166,6 +1154,36 @@ function avada_options_section_extra( $sections ) {
 								'setting'  => 'status_totop',
 								'operator' => '!=',
 								'value'    => 'off',
+							],
+						],
+					],
+					'totop_position_offset'       => [
+						'label'       => esc_html__( 'Bottom & Side Spacing', 'Avada' ),
+						'description' => esc_html__( 'Controls the distance between the ToTop button and the viewport edges. Side spacing follows the selected side (left or right), while bottom spacing applies only to floating layouts.', 'Avada' ),
+						'id'          => 'totop_position_offset',
+						'units'       => false,
+						'default'     => [
+							'width'  => '75px',
+							'height' => '30px',
+						],
+						'type'        => 'dimensions',
+						'required'    => [
+							[
+								'setting'  => 'status_totop',
+								'operator' => '!=',
+								'value'    => 'off',
+							],
+						],
+						'css_vars'    => [
+							[
+								'name'    => '--totop_spacing_side',
+								'element' => '#toTop',
+								'choice'  => 'width',
+							],
+							[
+								'name'    => '--totop_spacing_bottom',
+								'element' => '#toTop',
+								'choice' => 'height',
 							],
 						],
 					],

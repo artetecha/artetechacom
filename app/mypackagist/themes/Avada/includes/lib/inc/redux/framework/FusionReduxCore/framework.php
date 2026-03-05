@@ -2485,11 +2485,10 @@
 				}
 
 				if ( defined( 'WP_CACHE' ) && WP_CACHE && class_exists( 'W3_ObjectCache' ) && function_exists( 'w3_instance' ) ) {
-					//echo "here";
 					$w3_inst = w3_instance( 'W3_ObjectCache' );
 					$w3      = $w3_inst->instance();
 					$key     = $w3->_get_cache_key( $this->args['opt_name'] . '-transients', 'transient' );
-					//echo $key;
+
 					$w3->delete( $key, 'transient', true );
 					//set_transient($this->args['opt_name'].'-transients', $this->transients);
 					//exit();

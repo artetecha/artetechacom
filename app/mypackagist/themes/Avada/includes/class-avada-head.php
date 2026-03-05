@@ -192,7 +192,11 @@ class Avada_Head {
 	 * @return string
 	 */ 
 	public function replace_variables( $string ) {
-		$string = str_replace( [ '[site_title]', '[site_tagline]', '[post_title]', '[separator]', '"', "'" ], [ get_bloginfo( 'name' ), get_bloginfo( 'description' ), get_the_title(), Avada()->settings->get( 'meta_tags_separator' ), '&quot;', '&#39;' ], $string );
+		if ( function_exists( 'FusionBuilder' ) ) {
+			add_filter( 'awb_og_meta_replace_variables', [ FusionBuilder()->dynamic_data, 'parse_and_evaluate_inline_dynamic_data' ] );
+		}
+		
+		$string = apply_filters( 'awb_og_meta_replace_variables', str_replace( [ '[site_title]', '[site_tagline]', '[post_title]', '[separator]', '{separator}', '"', "'" ], [ get_bloginfo( 'name' ), get_bloginfo( 'description' ), get_the_title(), Avada()->settings->get( 'meta_tags_separator' ), Avada()->settings->get( 'meta_tags_separator' ), '&quot;', '&#39;' ], $string ) );
 
 		return $string;
 	}   
@@ -325,32 +329,53 @@ class Avada_Head {
 		}
 
 		if ( $image_id ) {
+			add_filter( 'awb_maybe_switch_image_mime_type', '__return_true' );
+			add_filter( 'awb_maybe_switch_image_mime_type_return_format', [ $this, 'set_image_return_format' ] );
 			$image           = wp_get_attachment_image_src( $image_id, 'full' );
 			$image['url']    = $image[0];
 			$image['width']  = $image[1];
 			$image['height'] = $image[2];
-			$image['type']   = get_post_mime_type( $image_id );   
-		} elseif ( Avada()->settings->get( 'logo' ) ) {
-			$image = Avada()->settings->get( 'logo' );
+			$image['type']   = get_post_mime_type( $image_id );
+			remove_filter( 'awb_maybe_switch_image_mime_type', '__return_true' );
+			remove_filter( 'awb_maybe_switch_image_mime_type_return_format', [ $this, 'set_image_return_format' ] );			
+		} else {
+			$logo_image = Avada()->settings->get( 'logo' );
 
-			// Handling of GO that haven't been saved.
-			if ( isset( $image['url'] ) && ! isset( $image['id'] ) ) {
-				$image = $image['url'];
-			}
+			if ( ( is_array( $logo_image ) && ( ! empty( $logo_image['id'] ) || ! empty( $logo_image['url'] ) ) ) || is_string( $logo_image ) ) {
+				$image = $logo_image;
 
-			if ( is_string( $image ) ) {
-				$image = [
-					'url'    => $image,
-					'width'  => '115',
-					'height' => '25',
-					'type'   => 'image/png',
-				];
-			} else {
-				$image['type'] = get_post_mime_type( $image['id'] );
+				// Handling of GO that haven't been saved.
+				if ( isset( $image['url'] ) && ! isset( $image['id'] ) ) {
+					$image = $image['url'];
+				}
+
+				if ( is_string( $image ) ) {
+					$image = [
+						'url'    => $image,
+						'width'  => '115',
+						'height' => '25',
+						'type'   => 'image/png',
+					];
+				} else {
+					$image['type']   = get_post_mime_type( $image['id'] );
+					$image['width']  = isset( $image['width'] ) ? $image['width'] : '';
+					$image['height'] = isset( $image['height'] ) ? $image['height'] : '';
+				}
 			}
 		}
 
 		return apply_filters( 'awb_og_meta_image', $image );
+	}
+
+	/**
+	 * Helper function to make sure the image format is "original" for OG images.
+	 *
+	 * @access public
+	 * @since 7.14.1
+	 * @return string
+	 */ 	
+	public function set_image_return_format() {
+		return 'original';
 	}
 
 	/**
@@ -438,7 +463,7 @@ class Avada_Head {
 			<meta name="author" content="<?php echo esc_attr( $author ); ?>"/>
 		<?php endif; ?>
 		<?php endif; ?>
-		<?php if ( ! empty( $image ) ) : ?>
+		<?php if ( ! empty( $image['url'] ) ) : ?>
 		<meta property="og:image" content="<?php echo esc_url_raw( $image['url'] ); ?>"/>
 		<meta property="og:image:width" content="<?php echo esc_attr( $image['width'] ); ?>"/>
 		<meta property="og:image:height" content="<?php echo esc_attr( $image['height'] ); ?>"/>
@@ -476,30 +501,41 @@ class Avada_Head {
 	 * @return  void
 	 */
 	public function insert_favicons() {
-		if ( '' !== Avada()->settings->get( 'fav_icon', 'url' ) || '' !== Avada()->settings->get( 'fav_icon_apple_touch', 'url' ) || '' !== Avada()->settings->get( 'fav_icon_android', 'url' ) || '' !== Avada()->settings->get( 'fav_icon_edge', 'url' ) ) {
+		$main_fav_icon        = Avada()->settings->get( 'fav_icon', 'url' );
+		$fav_icon_apple_touch = Avada()->settings->get( 'fav_icon_apple_touch', 'url' );
+		$fav_icon_android     = Avada()->settings->get( 'fav_icon_android', 'url' );
+		$fav_icon_edge        = Avada()->settings->get( 'fav_icon_edge', 'url' );
+
+		if ( '' !== $main_fav_icon || '' !== $fav_icon_apple_touch || '' !== $fav_icon_android || '' !== $fav_icon_edge ) {
 			remove_action( 'admin_head', 'wp_site_icon' );
 			remove_action( 'wp_head', 'wp_site_icon', 99 );
 			remove_action( 'login_head', 'wp_site_icon', 99 );
 		}
-
 		?>
-		<?php if ( '' !== Avada()->settings->get( 'fav_icon', 'url' ) ) : ?>
-			<link rel="shortcut icon" href="<?php echo esc_url( Avada()->settings->get( 'fav_icon', 'url' ) ); ?>" type="image/x-icon" />
+		<?php if ( '' !== $main_fav_icon ) : ?>
+			<?php
+				$mime  = Avada()->images->get_mime_type_from_url( $main_fav_icon );
+				$sizes = is_string( $main_fav_icon ) && 'image/svg+xml' === $mime ? ' sizes="any"' : '';
+			?>
+			<link rel="icon" href="<?php echo esc_url( $main_fav_icon ); ?>" type="<?php echo esc_attr( $mime ); ?>"<?php echo $sizes; ?> />
 		<?php endif; ?>
 
-		<?php if ( '' !== Avada()->settings->get( 'fav_icon_apple_touch', 'url' ) ) : ?>
+		<?php if ( '' !== $fav_icon_apple_touch ) : ?>
 			<!-- Apple Touch Icon -->
-			<link rel="apple-touch-icon" sizes="180x180" href="<?php echo esc_url( Avada()->settings->get( 'fav_icon_apple_touch', 'url' ) ); ?>">
+			<?php $mime  = Avada()->images->get_mime_type_from_url( $fav_icon_apple_touch ); ?>
+			<link rel="apple-touch-icon" sizes="180x180" href="<?php echo esc_url( $fav_icon_apple_touch ); ?>" type="<?php echo esc_attr( $mime ); ?>">
 		<?php endif; ?>
 
-		<?php if ( '' !== Avada()->settings->get( 'fav_icon_android', 'url' ) ) : ?>
+		<?php if ( '' !== $fav_icon_android ) : ?>
 			<!-- Android Icon -->
-			<link rel="icon" sizes="192x192" href="<?php echo esc_url( Avada()->settings->get( 'fav_icon_android', 'url' ) ); ?>">
+			<?php $mime  = Avada()->images->get_mime_type_from_url( $fav_icon_android ); ?>
+			<link rel="icon" sizes="192x192" href="<?php echo esc_url( $fav_icon_android ); ?>" type="<?php echo esc_attr( $mime ); ?>">
 		<?php endif; ?>
 
-		<?php if ( '' !== Avada()->settings->get( 'fav_icon_edge', 'url' ) ) : ?>
+		<?php if ( '' !== $fav_icon_edge ) : ?>
 			<!-- MS Edge Icon -->
-			<meta name="msapplication-TileImage" content="<?php echo esc_url( Avada()->settings->get( 'fav_icon_edge', 'url' ) ); ?>">
+			<?php $mime  = Avada()->images->get_mime_type_from_url( $fav_icon_edge ); ?>
+			<meta name="msapplication-TileImage" content="<?php echo esc_url( $fav_icon_edge ); ?>" type="<?php echo esc_attr( $mime ); ?>">
 		<?php endif; ?>
 		<?php
 

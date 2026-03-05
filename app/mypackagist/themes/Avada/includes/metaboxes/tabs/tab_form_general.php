@@ -60,6 +60,40 @@ function avada_page_options_tab_form_general( $sections ) {
 					],
 				],
 			],
+			'form_views'                 => [
+				'label'       => esc_html__( 'Views Counter', 'Avada' ),
+				'description' => esc_html__( 'Set the method to update the form views, or disable them entirely. "Page Load" option will update using PHP when a page is retrieved. "Ajax" will send an additional request after the page loads.', 'Avada' ) . Avada()->settings->get_default_description( 'form_views' ),
+				'id'          => 'form_views',
+				'default'     => '',
+				'to_default'  => [
+					'id' => 'form_views',
+				],				
+				'type'        => 'select',
+				'transport'   => 'postMessage',
+				'choices'     => [
+					''          => esc_html__( 'Default', 'Avada' ),
+					'page_load' => esc_html__( 'Page Load', 'Avada' ),
+					'ajax'      => esc_html__( 'Ajax', 'Avada' ),
+					'disabled'  => esc_html__( 'Disabled', 'Avada' ),
+				],
+			],
+			'form_views_counting'               => [
+				'label'       => esc_html__( 'Form Views Counting', 'Avada' ),
+				'description' => esc_html__( 'Select which types of users will increase the form views on visit.', 'Avada' ) . Avada()->settings->get_default_description( 'form_views_counting' ),
+				'id'          => 'form_views_counting',
+				'default'     => '',
+				'to_default'  => [
+					'id' => 'form_views_counting',
+				],
+				'type'        => 'select',
+				'transport'   => 'postMessage',
+				'choices'     => [
+					''           => esc_html__( 'Default', 'Avada' ),
+					'all'        => esc_html__( 'All', 'Avada' ),
+					'logged_out' => esc_html__( 'Logged Out', 'Avada' ),
+					'non_admins' => esc_html__( 'Non-Admins', 'Avada' ),
+				],
+			],
 			'nonce_method'     => [
 				'type'        => 'radio-buttonset',
 				'label'       => esc_html__( 'Security Nonce Method', 'fusion-builder' ),

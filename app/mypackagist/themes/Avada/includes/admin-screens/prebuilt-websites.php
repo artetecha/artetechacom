@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<p><strong><?php esc_html_e( 'Solution 1:', 'Avada' ); ?></strong> <?php esc_html_e( 'Import the demo using an alternate method.', 'Avada' ); ?><a href="https://avada.com/documentation/alternate-import-method/" class="button-primary" target="_blank" style="margin-left: 10px;"><?php esc_html_e( 'Alternate Method', 'Avada' ); ?></a></p>
 		<?php /* translators: %1$s: RED. %2$s: "Reset WordPress Plugin" link. */ ?>
-		<p><strong><?php esc_html_e( 'Solution 2:', 'Avada' ); ?></strong> <?php printf( __( 'Fix the PHP configurations reported in %1$s on the Status page, then use the %2$s, then reimport.', 'Avada' ), '<strong style="color: red;">' . esc_html__( 'RED', 'Avada' ) . '</strong>', '<a href="' . esc_url( admin_url( 'plugin-install.php?tab=plugin-information&amp;plugin=wordpress-reset&amp;TB_iframe=true&amp;width=830&amp;height=472' ) ) . '">' . esc_html__( 'Reset WordPress Plugin', 'Avada' ) . '</a>' ); // phpcs:ignore WordPress.Security.EscapeOutput ?><a href="<?php echo esc_url( admin_url( 'admin.php?page=avada-status' ) ); ?>" class="button-primary" target="_blank" style="margin-left: 10px;"><?php esc_html_e( 'Status', 'Avada' ); ?></a></p>
+		<p><strong><?php esc_html_e( 'Solution 2:', 'Avada' ); ?></strong> <?php printf( __( 'Fix the PHP configurations reported in %1$s on the System Status page, then use the %2$s, then reimport.', 'Avada' ), '<strong style="color: red;">' . esc_html__( 'RED', 'Avada' ) . '</strong>', '<a href="' . esc_url( admin_url( 'plugin-install.php?tab=plugin-information&amp;plugin=wordpress-reset&amp;TB_iframe=true&amp;width=830&amp;height=472' ) ) . '">' . esc_html__( 'Reset WordPress Plugin', 'Avada' ) . '</a>' ); // phpcs:ignore WordPress.Security.EscapeOutput ?><a href="<?php echo esc_url( admin_url( 'admin.php?page=avada-status' ) ); ?>" class="button-primary" target="_blank" style="margin-left: 10px;"><?php esc_html_e( 'System Status', 'Avada' ); ?></a></p>
 	</div>
 
 	<div class="updated avada-db-card avada-db-notice avada-db-notice-success importer-notice importer-notice-2" style="display: none;">
@@ -40,7 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<p><strong><?php esc_html_e( 'Solution 1:', 'Avada' ); ?></strong> <?php esc_html_e( 'Import the demo using an alternate method.', 'Avada' ); ?><a href="https://avada.com/documentation/alternate-import-method/" class="button-primary" target="_blank" style="margin-left: 10px;"><?php esc_html_e( 'Alternate Method', 'Avada' ); ?></a></p>
 		<?php /* translators: %1$s: RED. %2$s: "Reset WordPress Plugin" link. */ ?>
-		<p><strong><?php esc_html_e( 'Solution 2:', 'Avada' ); ?></strong> <?php printf( esc_html__( 'Fix the PHP configurations reported in %1$s on the Status page, then use the %2$s, then reimport.', 'Avada' ), '<strong style="color: red;">' . esc_html__( 'RED', 'Avada' ) . '</strong>', '<a href="' . esc_url_raw( admin_url( 'plugin-install.php?tab=plugin-information&amp;plugin=wordpress-reset&amp;TB_iframe=true&amp;width=830&amp;height=472' ) ) . '">' . esc_html__( 'Reset WordPress Plugin', 'Avada' ) . '</a>' ); ?><a href="<?php echo esc_url( admin_url( 'admin.php?page=avada-status' ) ); ?>" class="button-primary" target="_blank" style="margin-left: 10px;"><?php esc_html_e( 'Status', 'Avada' ); ?></a></p>
+		<p><strong><?php esc_html_e( 'Solution 2:', 'Avada' ); ?></strong> <?php printf( esc_html__( 'Fix the PHP configurations reported in %1$s on the System Status page, then use the %2$s, then reimport.', 'Avada' ), '<strong style="color: red;">' . esc_html__( 'RED', 'Avada' ) . '</strong>', '<a href="' . esc_url_raw( admin_url( 'plugin-install.php?tab=plugin-information&amp;plugin=wordpress-reset&amp;TB_iframe=true&amp;width=830&amp;height=472' ) ) . '">' . esc_html__( 'Reset WordPress Plugin', 'Avada' ) . '</a>' ); ?><a href="<?php echo esc_url( admin_url( 'admin.php?page=avada-status' ) ); ?>" class="button-primary" target="_blank" style="margin-left: 10px;"><?php esc_html_e( 'System Status', 'Avada' ); ?></a></p>
 	</div>
 
 	<div class="updated error avada-db-card avada-db-notice importer-notice importer-notice-4" style="display: none;">
@@ -67,9 +67,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<p class="avada-db-card-notice-heading">
 					<?php
 					printf(
-						/* translators: %1$s: "Status" link. %2$s: "View more info here" link. */
+						/* translators: %1$s: "System Status" link. %2$s: "View more info here" link. */
 						esc_html__( 'Prebuilt website imports can vary in time. Please check the %1$s page to ensure your server meets all requirements for a successful import. Settings that need attention will be listed in red. %2$s.', 'Avada' ),
-						'<a href="' . esc_url( admin_url( 'admin.php?page=avada-status' ) ) . '" target="_blank">' . esc_html__( 'Status', 'Avada' ) . '</a>',
+						'<a href="' . esc_url( admin_url( 'admin.php?page=avada-status' ) ) . '" target="_blank">' . esc_html__( 'System Status', 'Avada' ) . '</a>',
 						'<a href="https://avada.com/documentation/how-to-import-a-prebuilt-avada-website/" target="_blank">' . esc_attr__( 'View more info here', 'Avada' ) . '</a>'
 					);
 					?>

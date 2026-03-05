@@ -274,7 +274,7 @@ class AWB_Maintenance_Mode {
 			$saved_custom_css = get_post_meta( $template, '_fusion_builder_custom_css', true );
 
 			if ( isset( $saved_custom_css ) && $saved_custom_css ) {
-				$css .= sanitize_textarea_field( $saved_custom_css );
+				$css .= $saved_custom_css;
 			}
 		} else {
 			$css .= '.awb-maintenance-page #wrapper { background: none; }';
@@ -393,7 +393,7 @@ class AWB_Maintenance_Mode {
 			'0' => 'Default Template',
 		];
 		$template_permalinks = [];
-		$posts               = fusion_cached_query(
+		$posts               = new WP_Query(
 			[
 				'post_status'    => 'publish',
 				'post_type'      => 'fusion_template',
@@ -429,7 +429,17 @@ class AWB_Maintenance_Mode {
 			]
 		);
 
-		$template = shortcode_unautop( wpautop( wptexturize( $template->posts['0']->post_content ) ) );
+		$template = wpautop( wptexturize( trim( $template->posts['0']->post_content ) ) );
+
+		if ( function_exists( 'fusion_builder_fix_shortcodes' ) ) {
+			$template = fusion_builder_fix_shortcodes( $template );
+		}		
+
+		// Remove <p> or <br> between adjacent shortcodes.
+		$template = preg_replace( '/<\/p>\s*<p>(\s*\[)/', '$1', $template );
+
+		// Remove <p> or <br> wrapping self-closing shortcodes.
+		$template = shortcode_unautop( $template );
 
 		return $template;
 	}

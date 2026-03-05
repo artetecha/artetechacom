@@ -585,7 +585,7 @@ if ( ! function_exists( 'avada_nav_woo_cart' ) ) {
 					$thumbnail_id = ( $cart_item['variation_id'] && has_post_thumbnail( $cart_item['variation_id'] ) ) ? $cart_item['variation_id'] : $cart_item['product_id'];
 
 					if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_widget_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
-						$items .= '<div class="fusion-menu-cart-item">';
+						$items .= '<div class="fusion-menu-cart-item" data-cart-item-key="' . esc_attr( $cart_item_key ) . '">';
 						$items .= '<a href="' . $product_link . '">';
 						$items .= get_the_post_thumbnail( $thumbnail_id, 'recent-works-thumbnail' );
 
@@ -599,7 +599,7 @@ if ( ! function_exists( 'avada_nav_woo_cart' ) ) {
 						if ( '' !== $product_price ) {
 							$product_price = ' x ' . $product_price;
 						}
-						$items .= '<span class="fusion-menu-cart-item-quantity">' . $cart_item['quantity'] . $product_price . '</span>';
+						$items .= '<span class="fusion-menu-cart-item-quantity"><span class="awb-quantity">' . $cart_item['quantity'] . '</span>' . $product_price . '</span>';
 						$items .= '</div>';
 						$items .= '</a>';
 						$items .= '</div>';

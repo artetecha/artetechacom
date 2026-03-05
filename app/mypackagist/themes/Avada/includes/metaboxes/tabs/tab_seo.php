@@ -28,7 +28,7 @@ function avada_page_options_tab_seo( $sections ) {
 				'type'        => 'text',
 				'label'       => esc_html__( 'SEO Title', 'Avada' ),
 				/* translators: Option value (defaults). */
-				'description' => sprintf( esc_html__( 'Insert the SEO title. Available placeholders are [site_title], [site_tagline], [post_title], and [separator]. Separator is currently set to: %s.', 'Avada' ), $settings_link ),
+				'description' => sprintf( esc_html__( 'Insert the SEO title. Inline dynamic data can be used here, incl. {separator}. Separator is currently set to: %s.', 'Avada' ), $settings_link ),
 				'default'     => '',
 
 			], 
@@ -40,11 +40,11 @@ function avada_page_options_tab_seo( $sections ) {
 				'range'       => '125|160',
 				/* translators: Option value (defaults). */
 				'label'       => esc_html__( 'Meta Description', 'Avada' ),
-				'description' => sprintf( esc_html__( 'Insert your post meta description. Available placeholders are [site_title], [site_tagline], [post_title], and [separator]. Separator is currently set to: %s.', 'Avada' ), $settings_link ),
+				'description' => sprintf( esc_html__( 'Insert your post meta description. Inline dynamic data can be used here, incl. {separator}. Separator is currently set to: %s.', 'Avada' ), $settings_link ),
 			],
 			'meta_og_image'    => [
 				'id'          => 'meta_og_image',
-				'type'        => 'upload',
+				'type'        => 'media',
 				'label'       => esc_html__( 'Open Graph Image', 'Avada' ),
 				'description' => esc_html__( 'Upload an image to be used as open graph image tag.', 'Avada' ),
 				'default'     => '',

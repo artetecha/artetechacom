@@ -24,7 +24,7 @@ function avada_page_options_tab_off_canvas_conditions( $sections ) {
 			'conditions_enabled' => [
 				'type'        => 'radio-buttonset',
 				'label'       => esc_html__( 'Enable Conditions', 'Avada' ),
-				'description' => __( 'Set conditions for displaying Off Canvas. <strong>NOTE:</strong> When this is disabled, Off Canvas can only be displayed using the Off Canvas Toggle om the Avada Special Menu Items.', 'Avada' ),
+				'description' => __( 'Set conditions for displaying Off Canvas. <strong>NOTE:</strong> When this is disabled, Off Canvas can only be displayed using the Off Canvas Toggle on the Avada Special Menu Items.', 'Avada' ),
 				'id'          => 'conditions_enabled',
 				'default'     => 'no',
 				'transport'   => 'postMessage',

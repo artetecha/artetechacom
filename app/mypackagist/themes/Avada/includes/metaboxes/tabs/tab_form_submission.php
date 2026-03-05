@@ -18,11 +18,15 @@
 function avada_page_options_tab_form_submission( $sections ) {
 
 	$choices = [
-		'database'   => esc_html__( 'Save To Database', 'Avada' ),
-		'url'        => esc_html__( 'Send To URL', 'Avada' ),
-		'mailchimp'  => esc_html__( 'Mailchimp', 'Avada' ),
-		'hubspot'    => esc_html__( 'HubSpot', 'Avada' ),
-		'off-canvas' => esc_html__( 'Open Off Canvas', 'Avada' ),
+		'database'       => esc_html__( 'Save To Database', 'Avada' ),
+		'url'            => esc_html__( 'Send To URL', 'Avada' ),
+		'mailchimp'      => esc_html__( 'Mailchimp', 'Avada' ),
+		'hubspot'        => esc_html__( 'HubSpot', 'Avada' ),
+		'off-canvas'     => esc_html__( 'Open Off Canvas', 'Avada' ),
+		'login'          => esc_html__( 'Login', 'Avada' ),
+		'register'       => esc_html__( 'Register', 'Avada' ),
+		'lost_password'  => esc_html__( 'Lost Password', 'Avada' ),
+		'reset_password' => esc_html__( 'Reset Password', 'Avada' ),
 	];
 
 	if ( class_exists( 'FusionBuilder' ) ) {

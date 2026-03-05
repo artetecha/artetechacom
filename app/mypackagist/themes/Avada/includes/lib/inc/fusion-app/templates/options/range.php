@@ -25,6 +25,11 @@
 	if ( '' === defaultStatus && ( 'undefined' === typeof option_value || '' === option_value ) && 'undefined' !== typeof param.value ) {
 		option_value = displayValue = param.value;
 	}
+
+	if ( 'undefined' === typeof option_value && 'undefined' !== typeof param.default && '' !== param.default ) {
+		option_value = displayValue = param.default;
+	}
+
 	if ( '.' === step.charAt( 0 ) ) {
 		step = '0' + step;
 	}

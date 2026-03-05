@@ -265,6 +265,9 @@ class Fusion_Builder_Migrate {
 	 * @param string $avada_option_name The option-name.
 	 */
 	public function __construct( $avada_version, $avada_option_name ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 
 		if ( isset( $_GET['revert'] ) && '1' === $_GET['revert'] ) {
 			self::$revert = true;

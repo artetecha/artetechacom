@@ -314,7 +314,7 @@ class Avada_Template_Page_Options {
 				/* translators: The post name. */
 				'placeholder' => sprintf( esc_attr__( 'Any %s item', 'Avada' ), $post_type->labels->singular_name ),
 				/* translators: The post name. */
-				'description' => sprintf( esc_attr__( 'Choose to view dynamic content as %1$s. Select "Any %2$s Item" for random selection.', 'Avada' ), $post_type->labels->singular_name, $post_type->labels->singular_name ),
+				'description' => sprintf( esc_attr__( 'Choose to view dynamic data as %1$s. Select "Any %2$s Item" for random selection.', 'Avada' ), $post_type->labels->singular_name, $post_type->labels->singular_name ),
 				'type'        => $field_type,
 				'choices'     => $selection,
 				'ajax'        => $ajax,
@@ -341,8 +341,8 @@ class Avada_Template_Page_Options {
 		$this->sections['template']['fields']['dynamic_content_preview_type'] = [
 			'id'          => 'dynamic_content_preview_type',
 			'type'        => 'select',
-			'label'       => esc_attr__( 'View Dynamic Content As', 'Avada' ),
-			'description' => esc_html__( 'Make a selection to view Dynamic Content based on a specific post/page.', 'Avada' ),
+			'label'       => esc_attr__( 'View Dynamic Data As', 'Avada' ),
+			'description' => esc_html__( 'Make a selection to view Dynamic Data based on a specific post/page.', 'Avada' ),
 			'default'     => 'default',
 			'transport'   => 'postMessage',
 			'class'       => 'fusion-no-bottom-border',
@@ -353,7 +353,7 @@ class Avada_Template_Page_Options {
 			$preview_fields['preview_archives'] = [
 				'id'          => 'preview_archives',
 				'label'       => esc_attr__( 'Select Archive Type', 'Avada' ),
-				'description' => esc_attr__( 'Choose to view Dynamic Content as Archive Type.', 'Avada' ),
+				'description' => esc_attr__( 'Choose to view Dynamic Data as Archive Type.', 'Avada' ),
 				'type'        => 'select',
 				'default'     => 'post',
 				'choices'     => $archive_choices,

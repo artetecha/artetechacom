@@ -22,7 +22,6 @@ function avada_filter_image_sizes( $sizes ) {
 	return array();
 }
 
-
 /**
  * Parsing Widgets Function
  *
@@ -33,41 +32,43 @@ function avada_filter_image_sizes( $sizes ) {
 function fusion_import_widget_data( $widget_data ) {
 	$json_data = json_decode( $widget_data, true );
 
-	$sidebar_data = $json_data[0];
-	$widget_data  = $json_data[1];
+	if ( isset( $json_data[0] ) && is_array( $json_data[0] ) && isset( $json_data[1] ) && is_array( $json_data[1] ) ) {
+		$sidebar_data = $json_data[0];
+		$widget_data  = $json_data[1];
 
-	foreach ( $widget_data as $widget_data_title => $widget_data_value ) {
-		$widgets[ $widget_data_title ] = array();
-		foreach ( $widget_data_value as $widget_data_key => $widget_data_array ) {
-			if ( is_int( $widget_data_key ) ) {
-				$widgets[ $widget_data_title ][ $widget_data_key ] = 'on';
+		foreach ( $widget_data as $widget_data_title => $widget_data_value ) {
+			$widgets[ $widget_data_title ] = array();
+			foreach ( $widget_data_value as $widget_data_key => $widget_data_array ) {
+				if ( is_int( $widget_data_key ) ) {
+					$widgets[ $widget_data_title ][ $widget_data_key ] = 'on';
+				}
 			}
 		}
-	}
-	unset( $widgets[''] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedUnsetVariable
+		unset( $widgets[''] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedUnsetVariable
 
-	foreach ( $sidebar_data as $title => $sidebar ) {
-		$count = count( $sidebar );
-		for ( $i = 0; $i < $count; $i++ ) {
-			$widget               = array();
-			$widget['type']       = trim( substr( $sidebar[ $i ], 0, strrpos( $sidebar[ $i ], '-' ) ) );
-			$widget['type-index'] = trim( substr( $sidebar[ $i ], strrpos( $sidebar[ $i ], '-' ) + 1 ) );
-			if ( ! isset( $widgets[ $widget['type'] ][ $widget['type-index'] ] ) ) {
-				unset( $sidebar_data[ $title ][ $i ] );
+		foreach ( $sidebar_data as $title => $sidebar ) {
+			$count = count( $sidebar );
+			for ( $i = 0; $i < $count; $i++ ) {
+				$widget               = array();
+				$widget['type']       = trim( substr( $sidebar[ $i ], 0, strrpos( $sidebar[ $i ], '-' ) ) );
+				$widget['type-index'] = trim( substr( $sidebar[ $i ], strrpos( $sidebar[ $i ], '-' ) + 1 ) );
+				if ( ! isset( $widgets[ $widget['type'] ][ $widget['type-index'] ] ) ) {
+					unset( $sidebar_data[ $title ][ $i ] );
+				}
+			}
+			$sidebar_data[ $title ] = array_values( $sidebar_data[ $title ] );
+		}
+
+		foreach ( $widgets as $widget_title => $widget_value ) {
+			foreach ( $widget_value as $widget_key => $widget_value ) {
+				$widgets[ $widget_title ][ $widget_key ] = $widget_data[ $widget_title ][ $widget_key ];
 			}
 		}
-		$sidebar_data[ $title ] = array_values( $sidebar_data[ $title ] );
+
+		$sidebar_data = array( array_filter( $sidebar_data ), $widgets );
+
+		fusion_parse_import_data( $sidebar_data );
 	}
-
-	foreach ( $widgets as $widget_title => $widget_value ) {
-		foreach ( $widget_value as $widget_key => $widget_value ) {
-			$widgets[ $widget_title ][ $widget_key ] = $widget_data[ $widget_title ][ $widget_key ];
-		}
-	}
-
-	$sidebar_data = array( array_filter( $sidebar_data ), $widgets );
-
-	fusion_parse_import_data( $sidebar_data );
 }
 
 /**

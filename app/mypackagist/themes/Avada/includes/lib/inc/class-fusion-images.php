@@ -136,6 +136,14 @@ class Fusion_Images {
 		add_filter( 'wp_get_attachment_metadata', [ $this, 'map_old_image_size_names' ], 10, 2 );
 		add_filter( 'wp_get_attachment_image_src', [ $this, 'wp_get_attachment_image_fix_svg' ], 10, 4 );
 		add_filter( 'rank_math/sitemap/urlimages', [ $this, 'extract_img_src_for_rank_math' ], 10, 2 );
+
+		if ( 'webp' === $fusion_settings->get( 'upload_image_format' ) || 'avif' === $fusion_settings->get( 'upload_image_format' ) ) {
+			add_filter( 'wp_handle_upload_prefilter', [ $this, 'convert_palette_images_to_truecolor' ] );
+			add_filter( 'image_editor_output_format', [ __CLASS__, 'adjust_image_editor_output_format' ], 10, 3 );
+			add_filter( 'wp_generate_attachment_metadata', [ $this, 'convert_images_to_modern_format' ], 20, 2 );
+			add_filter( 'wp_get_attachment_image_src', [ $this, 'maybe_switch_image_mime_type' ], 10, 4 );
+			add_action( 'delete_attachment', [ $this, 'remove_additional_source_files' ] );
+		}
 	}
 
 	/**
@@ -249,7 +257,7 @@ class Fusion_Images {
 			foreach ( $sources as $width => $source ) {
 
 				// Make sure the original image isn't deleted.
-				preg_match( '/-\d+x\d+(?=\.(jpg|jpeg|png|gif|tiff|svg)$)/i', $source['url'], $matches );
+				preg_match( '/-\d+x\d+(?=\.(jpg|jpeg|png|gif|tiff|svg|webp|avif)$)/i', $source['url'], $matches );
 
 				if ( ! in_array( $width, self::$grid_accepted_widths ) && isset( $matches[0] ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 					unset( $sources[ $width ] );
@@ -601,7 +609,7 @@ class Fusion_Images {
 	public static function get_attachment_base_url( $attachment_url = '' ) {
 
 		$attachment_url      = set_url_scheme( $attachment_url );
-		$attachment_base_url = preg_replace( '/-\d+x\d+(?=\.(jpg|jpeg|png|gif|tiff|svg)$)/i', '', $attachment_url );
+		$attachment_base_url = preg_replace( '/-\d+x\d+(?=\.(jpg|jpeg|png|gif|tiff|svg|webp|avif)$)/i', '', $attachment_url );
 		$attachment_base_url = apply_filters( 'fusion_get_attachment_base_url', $attachment_base_url );
 
 		return $attachment_base_url;
@@ -616,7 +624,6 @@ class Fusion_Images {
 	 * @return string The attachment ID
 	 */
 	public static function get_attachment_id_from_url( $attachment_url = '' ) {
-		global $wpdb;
 		$attachment_id = false;
 
 		if ( '' === $attachment_url || ! is_string( $attachment_url ) ) {
@@ -711,7 +718,7 @@ class Fusion_Images {
 
 		if ( 'none' !== $size ) {
 			$attachment_src = wp_get_attachment_image_src( $attachment_id, $size );
-			
+
 			if ( ! $attachment_src ) {
 				$attachment_src = wp_get_attachment_image_src( $attachment_id, 'full' );
 			}
@@ -719,9 +726,20 @@ class Fusion_Images {
 			if ( $attachment_src ) {
 				$attachment_data['url'] = esc_url( $attachment_src[0] );
 
-				if ( $attachment_url && $attachment_data['url'] !== $attachment_url ) {
+				$use_fallback = false;
+				if ( $attachment_data['url'] !== $attachment_url ) {
+					$use_fallback       = true;
+					$image_from_id_ext  = is_string( $attachment_data['url'] ) ? strtolower( pathinfo( $attachment_data['url'], PATHINFO_EXTENSION ) ) : '';
+					$image_from_url_ext = is_string( $attachment_url ) ? strtolower( pathinfo( $attachment_url, PATHINFO_EXTENSION ) ) : '';
+
+					if ( in_array( $image_from_id_ext, [ 'webp', 'avif' ] ) && in_array( $image_from_url_ext, [ 'jpeg', 'jpg', 'png', 'gif' ] ) ) {
+						$use_fallback = false;
+					}
+				}
+
+				if ( $attachment_url && $use_fallback ) {
 					$attachment_data['url'] = $attachment_url;
-					preg_match( '/-\d+x\d+(?=\.(jpg|jpeg|png|gif|tiff|svg|webp)$)/i', $attachment_url, $matches );
+					preg_match( '/-\d+x\d+(?=\.(jpg|jpeg|png|gif|tiff|svg|webp|avif)$)/i', $attachment_url, $matches );
 					if ( $matches ) {
 						$dimensions = explode( 'x', $matches[0] );
 						if ( 2 <= count( $dimensions ) ) {
@@ -768,6 +786,7 @@ class Fusion_Images {
 	 */
 	public function get_attachment_data_by_helper( $attachment_id_size = 0, $attachment_url = '' ) {
 		$attachment_data = false;
+		$attachment_url  = esc_url_raw( $attachment_url );
 
 		// Image ID is set, so we can get the image data directly.
 		if ( $attachment_id_size ) {
@@ -1654,8 +1673,8 @@ class Fusion_Images {
 			if ( is_array( $size ) ) {
 				$image[1] = $size[0];
 				$image[2] = $size[1];
-			} elseif ( false !== ( $xml = fusion_file_get_contents( $image[0] ) ) ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.Found, Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
-				$xml = simplexml_load_string( $xml );
+			} elseif ( false !== ( $xml = fusion_file_get_contents( $image[0] ) ) && function_exists( 'simplexml_load_string' ) ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.Found, Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
+				$xml = simplexml_load_string( $xml, 'SimpleXMLElement', LIBXML_NOWARNING | LIBXML_NOERROR );
 
 				if ( ! is_bool( $xml ) ) {
 					$attr    = $xml->attributes();
@@ -1824,6 +1843,546 @@ class Fusion_Images {
 		}
 
 		return $data;
+	}
+
+   /**
+     * Set the images to new output formats.
+     *
+	 * @access public
+	 * @since 3.14.0
+	 * @param string[] $formats {
+	 *     An array of mime type mappings. Maps a source mime type to a new
+	 *     destination mime type. By default maps HEIC/HEIF input to JPEG output.
+	 *
+	 *     @type string ...$0 The new mime type.
+	 * }
+     * @return array
+     */
+    public static function adjust_image_editor_output_format( $formats ) {
+        $format = self::get_target_format();
+
+		// If target format is not supported, leave $formats untouched.
+        if ( ! $format ) {
+            return $formats;
+        }
+
+        $formats['image/jpeg'] = 'image/' . $format;
+        $formats['image/jpg']  = 'image/' . $format;
+        $formats['image/png']  = 'image/' . $format;
+        $formats['image/gif']  = 'image/' . $format;
+		$formats['image/webp'] = 'image/' . $format;
+
+        return $formats;
+    }
+
+    /**
+     * Updates the metadata with all needed details and initiates the conversion of the image sub-sizes.
+     *
+	 * @access public
+	 * @since 3.14.0
+     * @param array $metadata The image metadata.
+     * @param int   $attachment_id The image attachment ID.
+     * @return array The adjusted metadata.
+     */
+	public static function convert_images_to_modern_format( $metadata, $attachment_id ) {
+		$file = get_attached_file( $attachment_id );
+		if ( ! $file ) {
+			return $metadata;
+		}
+	
+		// If target format is not supported, leave $formats untouched.
+		$format = self::get_target_format();
+		if ( ! $format ) {
+			return $metadata;
+		}
+
+		$original_mime = get_post_mime_type( $attachment_id );
+		$mime          = 'image/' . $format;
+
+		// Only adjust images.
+		if ( ! in_array( $original_mime, [ 'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp' ] ) ) {
+			return $metadata;
+		}
+
+		if ( $original_mime === $mime ) {
+			return $metadata;
+		}
+		
+		$file_size            = file_exists( $file ) ? filesize( $file ) : 0;
+		$fusion_settings      = awb_get_fusion_settings();
+		$keep_original_images = 'enable' === $fusion_settings->get( 'keep_original_images' );
+
+		// If still the mime type of the original image is stored, update it.
+		wp_update_post( [
+			'ID'             => $attachment_id,
+			'post_mime_type' => $mime,
+		] );
+
+		// Make sure the custom "sources" index is set and an array.
+		$metadata['sources'] = ! isset( $metadata['sources'] ) || ! is_array( $metadata['sources'] ) ? [] : $metadata['sources'];
+
+		// Always store the modern format mime.
+		$metadata['sources'][ $mime ] = [
+			'file'     => wp_basename( $file ),
+			'filesize' => $file_size,
+		];
+
+		// The original_image index will be set, if the original upload image has been altered, which we do in the image_editor_output_format hook.
+		if ( isset( $metadata['original_image'] ) && is_string( $metadata['original_image'] ) && ! empty( $metadata['original_image'] ) ) {
+			$original_file = path_join( dirname( $file ), $metadata['original_image'] );
+			$original_size = file_exists( $original_file ) ? filesize( $original_file ) : null;
+
+			// Add the orginal image data to the custom "sources" array.
+			$metadata['sources'][ $original_mime ] = [
+				'file'     => wp_basename( $original_file ),
+				'filesize' => $original_size,
+			];
+		}
+
+		// Loop through the image sizes to populate the custom "sources attribute, to set the correct mime type and to create original images, if needed.
+		if ( ! empty( $metadata['sizes'] ) && is_array( $metadata['sizes'] ) ) {
+			$registered_subsizes = wp_get_registered_image_subsizes();
+			foreach ( $metadata['sizes'] as $size_name => $size_data ) {
+				if ( ! isset( $metadata['sizes'][ $size_name ]['sources'] ) ) {
+					$metadata['sizes'][ $size_name ]['sources'] = [];
+				}
+	
+				$size_file     = $size_data['file'];
+				$size_path     = path_join( dirname( $file ), $size_file );
+				$size_filesize = file_exists( $size_path ) ? filesize( $size_path ) : 0;
+	
+				// Add to custom "sources" attribute.
+				$metadata['sizes'][ $size_name ]['sources'][ $mime ] = [
+					'file'     => $size_file,
+					'filesize' => $size_filesize,
+				];
+	
+				// Set mime type to correct value.
+				if ( empty( $metadata['sizes'][ $size_name ]['mime-type'] ) || $original_mime !== $mime ) {
+					$metadata['sizes'][ $size_name ]['mime-type'] = $mime;
+				}
+
+				// Create original images, if set by user choice.
+				if ( $keep_original_images ) {
+					$sub_size_data              = [];
+					$sub_size_data['size_name'] = $size_name;
+					$sub_size_data['width']     = $registered_subsizes[ $size_name ]['width'] ?? $size_data['width'] ?? 0;
+					$sub_size_data['height']    = $registered_subsizes[ $size_name ]['height'] ?? $size_data['height'] ?? 0;
+					$sub_size_data['crop']      = $registered_subsizes[ $size_name ]['crop'] ?? false;
+
+					// Create correct file matching the current image size.
+					$saved = self::convert_image_to_modern_format( $attachment_id, $sub_size_data, $original_mime );
+
+					if ( is_array( $saved ) ) {
+						if ( ! isset( $metadata['sizes'][ $size_name ]['sources'] ) ) {
+							$metadata['sizes'][ $size_name ]['sources'] = [];
+						}
+		
+						// Add to the custom "sources" array.
+						$metadata['sizes'][ $size_name ]['sources'][ $original_mime ] = [
+							'file'     => $saved['file'],
+							'filesize' => $saved['filesize'],
+						];
+					}
+				}
+			}
+		}
+
+		return $metadata;
+	}
+
+	/**
+	 * Converts an image to its new format.
+	 *
+	 * @access public
+	 * @since 3.14.0
+	 * @param int $attachment_id Source file ID.
+	 * @param array  $size_data Array of vars needed for sizing / resizing: [ 'size_name' => string, 'width' => int, 'height' => int, 'crop' => bool ].
+	 * @param string $format Target mime.
+	 *
+	 * @return array|bool Path, file and filesize or false on failure.
+	 */
+	public static function convert_image_to_modern_format( $attachment_id, $size_data, $mime ) {
+		$file = wp_get_original_image_path( $attachment_id );
+		if ( ! $file ) {
+			return false;
+		}
+		
+		$editor = wp_get_image_editor( $file, [ 'mime_type' => $mime ] );
+
+		if ( is_wp_error( $editor ) || ! $editor ) {
+			return false;
+		}
+
+		// Check if image should be rotated.
+		$image_meta = wp_get_attachment_metadata( $attachment_id );
+		if ( isset( $image_meta['image_meta'] ) ) {
+			$editor->maybe_exif_rotate();
+		}
+
+		// Resize the image to the correct size.
+		$size_name = isset( $size_data['size_name'] ) ? $size_data['size_name'] : 'full';
+		$height    = isset( $size_data['height'] ) ? (int) $size_data['height'] : 0;
+		$width     = isset( $size_data['width'] ) ? (int) $size_data['width'] : 0;
+		$crop      = isset( $size_data['crop'] ) ? $size_data['crop'] : false;
+
+		if ( ! $width && ! $height ) {
+			return false;
+		}
+
+		$editor->set_quality( 100 );
+		$editor->resize( $width, $height, $crop );
+
+		// Generate the correct filename.
+		$suffix    = 'full' === $size_name ? '' : null;
+		$file_name = $editor->generate_filename( $suffix, null, null );
+
+		// Make sure the filtering is paused, as we'd always get a modern mime returned otherwise.
+		remove_filter( 'image_editor_output_format', [ __CLASS__, 'adjust_image_editor_output_format' ], 10, 3 );		
+		$saved     = $editor->save( $file_name, $mime );
+		add_filter( 'image_editor_output_format', [ __CLASS__, 'adjust_image_editor_output_format' ], 10, 3 );		
+
+		if ( is_wp_error( $saved ) || ! $saved ) {
+			return false;
+		}
+
+		return [ 'path' => $saved['path'], 'file' => $saved['file'], 'filesize' => $saved['filesize'] ];
+	}
+
+	/**
+	 * Adjusts wp_get_attachment_image_src() output to return either the modern
+	 * or original image file.
+	 *
+	 * @access public
+	 * @since 3.14.0
+	 * @param array|false  $image         {
+	 *     Array of image data, or boolean false if no image is available.
+	 *
+	 *     @type string $0 Image source URL.
+	 *     @type int    $1 Image width in pixels.
+	 *     @type int    $2 Image height in pixels.
+	 *     @type bool   $3 Whether the image is a resized image.
+	 * }
+	 * @param int          $attachment_id Image attachment ID.
+	 * @param string|int[] $size          Requested image size. Can be any registered image size name, or
+	 *                                    an array of width and height values in pixels (in that order).
+	 * @param bool         $icon          Whether the image should be treated as an icon.
+	 * @return array|false The adjusted image.
+	 */
+	public static function maybe_switch_image_mime_type( $image, $attachment_id, $size, $icon ) {
+		$fusion_settings      = awb_get_fusion_settings();
+		$keep_original_images = 'enable' === $fusion_settings->get( 'keep_original_images' );
+		$return_format        = apply_filters( 'awb_maybe_switch_image_mime_type_return_format', $fusion_settings->get( 'display_image_format' ) );
+
+		if ( ! apply_filters( 'awb_maybe_switch_image_mime_type', $keep_original_images, $return_format, $image, $attachment_id, $size, $icon ) ) {
+			return $image;
+		}
+
+		if ( empty( $image ) || empty( $image[0] ) || ! $return_format ) {
+			return $image;
+		}
+
+		// If the image already has the format we want, return it.
+		$ext = strtolower( pathinfo( $image[0], PATHINFO_EXTENSION ) );
+		if ( ( in_array( $ext, [ 'webp', 'avif' ], true ) && 'modern' === $return_format ) || ( in_array( $ext, [ 'jpeg', 'jpg', 'png', 'gif' ], true ) && 'original' === $return_format ) ) {
+			return $image;
+		}
+
+		$meta = wp_get_attachment_metadata( $attachment_id );
+
+		// If there is no custom "sources" attribute, we don't have additional image sources.
+		if ( empty( $meta['sources'] ) ) {
+			return $image;
+		}
+
+		// Determine which mime type to use.
+		$preferred_mime = null;
+		if ( 'original' === $return_format ) {
+			// Original.
+			foreach ( $meta['sources'] as $mime => $src_data ) {
+				if ( in_array( $mime, [ 'image/jpeg', 'image/jpg', 'image/png', 'image/gif' ], true ) ) {
+					$preferred_mime = $mime;
+					break;
+				}
+			}
+		} else {
+			// Modern.
+			foreach ( $meta['sources'] as $mime => $src_data ) {
+				if ( in_array( $mime, [ 'image/webp', 'image/avif' ], true ) ) {
+					$preferred_mime = $mime;
+					break;
+				}
+			}
+		}
+
+		if ( ! $preferred_mime ) {
+			return $image;
+		}
+
+		// If the $size param is an array, we'll just return the image as is.
+		$size_key = is_array( $size ) ? null : $size;
+		$file_rel = null;
+
+		// Determine which file to use (respecting subsize if available)
+		if ( 'full' === $size_key && ! empty( $meta['sources'][ $preferred_mime ]['file'] ) ) {
+			$file_rel = $meta['sources'][ $preferred_mime ]['file'];
+		} elseif ( $size_key && ! empty( $meta['sizes'][ $size_key ]['sources'][ $preferred_mime ]['file'] ) ) {
+			$file_rel = $meta['sizes'][ $size_key ]['sources'][ $preferred_mime ]['file'];
+		}
+
+		if ( ! $file_rel ) {
+			return $image;
+		}
+
+		// Convert relative path to URL.
+		$url = path_join( dirname( $image[0] ), $file_rel );
+
+		// Replace only the URL in the returned array, preserve width/height/icon.
+		$image[0] = $url;
+
+		return $image;
+	}	
+
+	/**
+	 * Fires when an attachment gets deleted and cleans up the original image sources.
+	 *
+	 * @access public
+	 * @since 3.14.0
+	 * @see wp_delete_attachment()
+	 *
+	 * @param int $attachment_id The ID of the attachment for which the additional sources need to be removed.
+	 * @return void
+	 */
+	public static function remove_additional_source_files( $attachment_id ) {
+		$file = get_attached_file( $attachment_id );
+
+		if ( ! $file ) {
+			return;
+		}
+	
+		$metadata   = wp_get_attachment_metadata( $attachment_id );
+		$sizes      = isset( $metadata['sizes'] ) && is_array( $metadata['sizes'] ) ? $metadata['sizes'] : [];
+		$upload_dir = wp_get_upload_dir();
+
+		if ( ! isset( $upload_dir['basedir'] ) ) {
+			return;
+		}
+	
+		$abs_dir_path = path_join( $upload_dir['basedir'], dirname( $file ) );
+	
+		// Loop through the image sizes to remove the aditional images set in the custom "sources" attribute.
+		foreach ( $sizes as $size ) {
+			if ( ! isset( $size['sources'] ) || ! is_array( $size['sources'] ) ) {
+				continue;
+			}
+	
+			$size_mime = isset( $size['mime-type'] ) && is_string( $size['mime-type'] ) ? $size['mime-type'] : '';
+	
+			foreach ( $size['sources'] as $mime => $file_attr ) {
+
+				// The mime set in mime-type is the one of the uploaded image, thus WP will cover it.
+				if ( $mime === $size_mime ) {
+					continue;
+				}
+	
+				if ( ! isset( $file_attr['file'] ) ) {
+					continue;
+				}
+
+				$abs_file_path = path_join( $abs_dir_path, $file_attr['file'] );
+
+				// Remove the additional source file.
+				if ( file_exists( $abs_file_path ) ) {
+					wp_delete_file_from_directory( $abs_file_path, $abs_dir_path );
+				}
+			}
+		}
+	}
+
+    /**
+     * Get user option and check fallbacks.
+     *
+	 * @access public
+	 * @since 3.14.0
+     * @return string|false
+     */
+    public static function get_target_format() {
+		$fusion_settings = awb_get_fusion_settings();
+		$format          = $fusion_settings->get( 'upload_image_format' );
+
+        if ( 'avif' === $format && self::supports_avif() ) {
+            return 'avif';
+        }
+
+        if ( self::supports_webp() ) {
+            return 'webp';
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if AVIF supported.
+	 * 
+	 * @access public
+	 * @since 3.14.0
+     * @return bool
+     */
+    protected static function supports_avif() {
+        if ( ! function_exists( 'wp_image_editor_supports' ) ) {
+            return false;
+        }
+        return wp_image_editor_supports( [ 'mime_type' => 'image/avif' ] );
+    }
+
+    /**
+     * Check if WebP supported.
+     *
+	 * @access public
+	 * @since 3.14.0	 
+     * @return bool
+     */
+    protected static function supports_webp() {
+        if ( ! function_exists( 'wp_image_editor_supports' ) ) {
+            return false;
+        }
+        return wp_image_editor_supports( [ 'mime_type' => 'image/webp' ] );
+    }
+
+	/**
+	 * Converts palette images to truecolor images.
+	 * GD is not able to convert palette images to webP or AVIF, resulting in errors. 
+	 * This function converts such images to truecolor on the fly during upload.
+	 *
+	 * @access public
+	 * @since 3.14.0
+	 * @param array $file {
+	 *     Reference to a single element from `$_FILES`.
+	 *
+	 *     @type string $name     The original name of the file on the client machine.
+	 *     @type string $type     The mime type of the file, if the browser provided this information.
+	 *     @type string $tmp_name The temporary filename of the file in which the uploaded file was stored on the server.
+	 *     @type int    $size     The size, in bytes, of the uploaded file.
+	 *     @type int    $error    The error code associated with this file upload.
+	 * }
+	 * @return array The modified file data.
+	 */
+	public function convert_palette_images_to_truecolor( $file ) {
+		$file = ! is_array( $file ) ? [] : $file;
+	
+		if ( ! isset( $file['tmp_name'], $file['name'] ) ) {
+			return $file;
+		}
+	
+		// Detect mime type.
+		$filetype = '';
+		if ( isset( $file['type'] ) && is_string( $file['type'] ) ) {
+			$filetype = strtolower( $file['type'] );
+		} else {
+			$check = wp_check_filetype_and_ext( $file['tmp_name'], $file['name'] );
+			$filetype = $check['type'] ?? '';
+		}
+	
+		// Handle PNGs.
+		if ( 'image/png' === $filetype ) {
+			$editor = wp_get_image_editor( $file['tmp_name'] );
+			if ( is_wp_error( $editor ) || ! $editor instanceof WP_Image_Editor_GD ) {
+				return $file;
+			}
+	
+			$image = imagecreatefrompng( $file['tmp_name'] );
+			if ( false === $image ) {
+				return $file;
+			}
+	
+			// Skip if already truecolor.
+			if ( imageistruecolor( $image ) ) {
+				imagedestroy( $image );
+				return $file;
+			}
+	
+			// Preserve transparency.
+			imagealphablending( $image, false );
+			imagesavealpha( $image, true );
+	
+			// Convert palette to truecolor.
+			if ( imagepalettetotruecolor( $image ) ) {
+				imagepng( $image, $file['tmp_name'] );
+			}
+			imagedestroy( $image );
+	
+			return $file;
+		}
+	
+		// Handle GIFs.
+		if ( 'image/gif' === $filetype ) {
+	
+			// Detect if GIF is animated, and leave untouched in that case.
+			if ( file_exists( $file['tmp_name'] ) ) {
+				$contents = file_get_contents( $file['tmp_name'], false, null, 0, 1024 * 100 ); // Read only first ~100KB for speed
+				if ( preg_match('#(\x00\x21\xF9\x04.{4}\x00\x2C).*?(\x00\x21\xF9\x04)#s', $contents) ) {
+					return $file;
+				}
+			}
+	
+			// For static GIF convert palette to truecolor.
+			$image = imagecreatefromgif( $file['tmp_name'] );
+			if ( false === $image ) {
+				return $file;
+			}
+
+			// Preserve transparency.
+			$transparent_index = imagecolortransparent( $image );
+			$transparent_color = null;
+			if ( $transparent_index >= 0 ) {
+				$transparent_color = imagecolorsforindex( $image, $transparent_index );
+			}
+
+			if ( ! imageistruecolor( $image ) ) {
+				imagepalettetotruecolor( $image );
+			}
+
+			// If original had transparency, re-apply it.
+			if ( $transparent_color ) {
+				$new_transparent = imagecolorallocate(
+					$image,
+					$transparent_color['red'],
+					$transparent_color['green'],
+					$transparent_color['blue']
+				);
+				imagecolortransparent( $image, $new_transparent );
+			}
+
+			imagegif( $image, $file['tmp_name'] );
+			imagedestroy( $image );
+
+			return $file;
+		}
+	
+		return $file;
+	}
+
+    /**
+     * Returns the image MIME type from a given image URL.
+	 * 
+	 * @access public
+	 * @since 3.14.2
+     * @return string
+     */	
+	public function get_mime_type_from_url( $image_url ) {
+		$ext      = strtolower( pathinfo( parse_url( $image_url, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
+		$mime_map = [
+			'jpg'  => 'image/jpeg',
+			'jpeg' => 'image/jpeg',
+			'png'  => 'image/png',
+			'svg'  => 'image/svg+xml',
+			'webp' => 'image/webp',
+			'avif' => 'image/avif',
+			'ico'  => 'image/x-icon',
+		];
+
+		return $mime_map[ $ext ] ?? 'image/jpeg';
+
 	}
 }
 

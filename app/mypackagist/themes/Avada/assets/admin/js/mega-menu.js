@@ -202,6 +202,7 @@
 					.removeClass( 'fusion-special-link-woo-cart' )
 					.removeClass( 'fusion-special-link-woo-account' )
 					.removeClass( 'fusion-special-link-sliding-bar-toggle' )
+					.removeClass( 'fusion-special-link-off-canvas-toggle' )
 					.removeClass( 'fusion-special-link-search' )
 					.removeClass( 'fusion-special-link-logout' );
 
@@ -225,6 +226,10 @@
 
 					case 'fusion-sliding-bar-toggle':
 						parentLiItem.addClass( 'fusion-special-link-sliding-bar-toggle' );
+						break;
+
+					case 'awb-off-canvas-menu-trigger':
+						parentLiItem.addClass( 'fusion-special-link-off-canvas-toggle' );
 						break;
 
 					default:

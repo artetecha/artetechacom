@@ -342,6 +342,8 @@ class Fusion_WooCommerce {
 	 * @return string
 	 */
 	public function calc_product_discount( $product, $discount_type = 'percent' ) {
+		$decimals = get_option( 'woocommerce_price_num_decimals' );
+
 		if ( $product->is_type( 'variable' ) ) {
 			$temp_discount = 0;
 			$discount      = 0;
@@ -354,7 +356,7 @@ class Fusion_WooCommerce {
 					if ( 'percent' === $discount_type ) {
 						$temp_discount = round( 100 - ( $prices['sale_price'][ $key ] / $prices['regular_price'][ $key ] * 100 ) );
 					} else {
-						$temp_discount = $prices['regular_price'][ $key ] - $prices['sale_price'][ $key ];
+						$temp_discount = wc_format_decimal( $prices['regular_price'][ $key ] - $prices['sale_price'][ $key ], $decimals );
 					}
 
 					if ( $temp_discount > $discount ) {
@@ -369,7 +371,7 @@ class Fusion_WooCommerce {
 			if ( 'percent' === $discount_type ) {
 				$discount = 0.0 !== $regular_price ? round( ( 1 - $sale_price / $regular_price ) * 100 ) : 0;
 			} else {
-				$discount = $regular_price - $sale_price;
+				$discount = wc_format_decimal( $regular_price - $sale_price, $decimals );
 			}
 		}
 
