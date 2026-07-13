@@ -14,9 +14,10 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 
 const latest = (await getWritingList(locale)).slice(0, 3);
-const testimonials = await getCollection('testimonials');
-const featured = testimonials[0];
-const quote = featured ? (locale === 'it' && featured.data.quote.it) || featured.data.quote.en : null;
+// Deterministic pick of three (id order), varied companies; all four live on /work/.
+const testimonials = (await getCollection('testimonials'))
+  .sort((a, b) => a.id.localeCompare(b.id))
+  .slice(0, 3);
 
 const names = [
   'Upsun',
@@ -91,19 +92,27 @@ const names = [
   }
 
   {
-    featured && quote && (
-      <section class="section" aria-labelledby="quote-title">
-        <div class="container-text">
-          <h2 id="quote-title" class="visually-hidden">
-            {t.work.testimonialsTitle}
-          </h2>
-          <figure class="pull-quote reveal">
-            <blockquote>{quote}</blockquote>
-            <figcaption>
-              <strong>{featured.data.author}</strong> — {featured.data.role}
-              {featured.data.company && `, ${featured.data.company}`}
-            </figcaption>
-          </figure>
+    testimonials.length > 0 && (
+      <section class="section" aria-labelledby="quotes-title">
+        <div class="container">
+          <div class="row-title">
+            <h2 id="quotes-title">{t.work.testimonialsTitle}</h2>
+            <a href={localizePath(locale, '/work/')}>{t.home.quotesAll} →</a>
+          </div>
+          <div class="grid-3 quotes">
+            {testimonials.map((item) => (
+              <figure class="card quote reveal">
+                <blockquote>{(locale === 'it' && item.data.quote.it) || item.data.quote.en}</blockquote>
+                <figcaption>
+                  <strong>{item.data.author}</strong>
+                  <span>
+                    {item.data.role}
+                    {item.data.company && ` · ${item.data.company}`}
+                  </span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </section>
     )
@@ -281,39 +290,40 @@ const names = [
     flex-wrap: wrap;
   }
 
-  .pull-quote {
-    margin: 0;
-    text-align: center;
+  .quotes {
+    margin-block-start: var(--space-4);
   }
 
-  .pull-quote blockquote {
+  .quote {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .quote blockquote {
     border: none;
     padding: 0;
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
-    line-height: 1.35;
+    flex: 1;
     color: var(--text);
-    text-wrap: balance;
   }
 
-  .pull-quote blockquote::before {
+  .quote blockquote::before {
     content: '“';
     display: block;
-    font-size: 3.5rem;
+    font-family: var(--font-display);
+    font-size: 2.2rem;
     line-height: 1;
     color: var(--accent);
   }
 
-  .pull-quote figcaption {
+  .quote figcaption {
     margin-block-start: var(--space-3);
-    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--text-sm);
   }
 
-  .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
+  .quote figcaption span {
+    color: var(--text-muted);
   }
 </style>

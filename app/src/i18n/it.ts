@@ -77,6 +77,7 @@ export const it = {
     trustTitle: 'Hanno lavorato con me',
     latestTitle: 'Ultimi articoli',
     latestAll: 'Tutti gli articoli',
+    quotesAll: 'Di più nella pagina lavori',
   },
   contact: {
     title: 'Contatti',

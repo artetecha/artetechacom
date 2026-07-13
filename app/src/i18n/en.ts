@@ -81,6 +81,7 @@ export const en = {
     trustTitle: 'Trusted along the way by',
     latestTitle: 'Latest writing',
     latestAll: 'All writing',
+    quotesAll: 'More on the work page',
   },
   contact: {
     title: 'Contact',
