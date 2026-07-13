@@ -1,0 +1,66 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE } from '../../data/site';
+import { useTranslations, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<Base title={t.contact.title} description={t.contact.intro} locale={locale}>
+  <div class="container-text">
+    <header class="page-head">
+      <h1>{t.contact.title}</h1>
+      <p class="lede">{t.contact.intro}</p>
+    </header>
+
+    <div class="channels">
+      <a class="card channel" href={`mailto:${SITE.email}`}>
+        <span class="label">{t.contact.emailLabel}</span>
+        <span class="value">{SITE.email}</span>
+      </a>
+      <a class="card channel" href={SITE.linkedin} rel="me noopener">
+        <span class="label">LinkedIn</span>
+        <span class="value">/in/vincenzorusso</span>
+      </a>
+      <a class="card channel" href={SITE.github} rel="me noopener">
+        <span class="label">GitHub</span>
+        <span class="value">@artetecha</span>
+      </a>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: var(--space-6) var(--space-5);
+  }
+
+  .channels {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .channel {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .label {
+    font-family: var(--font-display);
+    font-weight: 650;
+  }
+
+  .value {
+    color: var(--text-muted);
+    font-family: ui-monospace, monospace;
+    font-size: var(--text-sm);
+  }
+</style>

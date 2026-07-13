@@ -1,0 +1,154 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getProjects } from '../../lib/content';
+import { useTranslations, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+const projects = await getProjects(locale);
+const testimonials = (await getCollection('testimonials')).sort(
+  (a, b) => a.data.weight - b.data.weight,
+);
+---
+
+<Base title={t.work.title} description={t.work.intro} locale={locale}>
+  <div class="container">
+    <header class="page-head">
+      <h1>{t.work.title}</h1>
+      <p class="lede">{t.work.intro}</p>
+    </header>
+
+    <div class="projects">
+      {
+        projects.map((project) => (
+          <article class:list={['card', 'project', { featured: project.data.featured }, 'reveal']}>
+            <div class="head">
+              <h2>{project.data.title}</h2>
+              <p class="meta">
+                <strong>{project.data.client}</strong> · {project.data.role} · {project.data.period}
+              </p>
+            </div>
+            <p class="summary">{project.data.summary}</p>
+            {project.data.stack.length > 0 && (
+              <ul class="stack" aria-label={t.work.stack}>
+                {project.data.stack.map((tech) => (
+                  <li class="tag">{tech}</li>
+                ))}
+              </ul>
+            )}
+          </article>
+        ))
+      }
+    </div>
+
+    <section class="testimonials" aria-labelledby="testimonials-title">
+      <h2 id="testimonials-title">{t.work.testimonialsTitle}</h2>
+      <div class="quotes">
+        {
+          testimonials.map((item) => (
+            <figure class="card quote reveal">
+              <blockquote>{(locale === 'it' && item.data.quote.it) || item.data.quote.en}</blockquote>
+              <figcaption>
+                <strong>{item.data.author}</strong>
+                <span>
+                  {item.data.role}
+                  {item.data.company && ` · ${item.data.company}`}
+                </span>
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: var(--space-6) var(--space-5);
+    max-width: var(--container-text);
+  }
+
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(22rem, 100%), 1fr));
+    gap: var(--space-4);
+  }
+
+  .project.featured {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .project .head h2 {
+    font-size: var(--text-lg);
+    margin-block-end: var(--space-1);
+  }
+
+  .meta {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .summary {
+    margin-block-end: var(--space-3);
+  }
+
+  .stack {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .testimonials {
+    margin-block-start: var(--space-7);
+  }
+
+  .quotes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+    gap: var(--space-4);
+  }
+
+  .quote {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .quote blockquote {
+    border: none;
+    padding: 0;
+    flex: 1;
+    color: var(--text);
+  }
+
+  .quote blockquote::before {
+    content: '“';
+    display: block;
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .quote figcaption {
+    margin-block-start: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--text-sm);
+  }
+
+  .quote figcaption span {
+    color: var(--text-muted);
+  }
+</style>

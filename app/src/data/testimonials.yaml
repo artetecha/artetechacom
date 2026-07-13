@@ -1,0 +1,221 @@
+# LinkedIn recommendations (verbatim quotes; `weight` drives display order,
+# the home page features the top three). Recommendations set to "Off" on
+# LinkedIn are deliberately not included here.
+- id: robert-douglass
+  author: Robert Douglass
+  role: Drupal pioneer
+  company: formerly Platform.sh
+  weight: 1
+  quote:
+    en: >-
+      I've known Vinnie for a long time and in multiple roles. First, he was
+      an early key customer of Platform.sh and was my technical counterpart
+      as we sold and onboarded his team. From that I learned that he had
+      superior technical understanding of what we were doing, and also the
+      people skills to navigate enterprise procurement and change management.
+    it: >-
+      Conosco Vinnie da molto tempo e in ruoli diversi. All'inizio è stato
+      uno dei primi clienti chiave di Platform.sh e il mio interlocutore
+      tecnico mentre vendevamo e facevamo onboarding del suo team. Da lì ho
+      capito che aveva una comprensione tecnica superiore di ciò che
+      facevamo, oltre alle doti umane per orientarsi tra procurement
+      enterprise e gestione del cambiamento.
+
+- id: andrea-wagner
+  author: Andrea Wagner
+  role: Front-end Engineer
+  company: British Council
+  weight: 2
+  quote:
+    en: >-
+      As a front-end engineer, I had the opportunity to work alongside
+      Vincenzo for 5 years at the British Council. I found Vincenzo to be a
+      talented architect who led global digital projects from architecture
+      to development and implementation. Vincenzo led the development team
+      that delivered 110 multilingual country-based websites and in addition
+      13 white-labels campaign websites. Vincenzo's communication and
+      leadership helped me to adjust quickly to the development workflow
+      implemented by him, making the development team experience efficient,
+      a marked change from other projects I have been involved in.
+    it: >-
+      Come front-end engineer ho avuto l'opportunità di lavorare accanto a
+      Vincenzo per 5 anni al British Council. Ho trovato in lui un architetto
+      di talento, che ha guidato progetti digitali globali dall'architettura
+      allo sviluppo e all'implementazione. Vincenzo ha guidato il team che ha
+      consegnato 110 siti nazionali multilingue, più 13 siti campagna
+      white-label. La sua comunicazione e la sua leadership mi hanno aiutata
+      ad ambientarmi rapidamente nel flusso di sviluppo da lui impostato,
+      rendendo l'esperienza del team efficiente — un netto cambiamento
+      rispetto ad altri progetti in cui sono stata coinvolta.
+
+- id: anna-coppola
+  author: Anna Coppola
+  role: Senior UX Architect and Manager
+  company: The Economist
+  weight: 3
+  quote:
+    en: >-
+      Vincenzo is an excellent professional that takes the time to understand
+      the needs of the business and balances that with the expectations of
+      the end users. He is constantly researching new technologies and makes
+      constant recommendations on how to best utilize emerging ideas and
+      tools. I greatly appreciate his ability to share his knowledge and
+      extensive experience with non technical team members and his ability
+      at keeping the User Experience in sight while focusing on the details
+      for his job. Vincenzo is a pleasure to work with and make the workplace
+      a nice environment, I have been very lucky to work with Vincenzo and I
+      highly recommend him.
+    it: >-
+      Vincenzo è un professionista eccellente che si prende il tempo di
+      capire le esigenze del business bilanciandole con le aspettative degli
+      utenti finali. Studia costantemente nuove tecnologie e suggerisce come
+      sfruttare al meglio idee e strumenti emergenti. Apprezzo molto la sua
+      capacità di condividere conoscenza ed esperienza con i colleghi non
+      tecnici e di tenere d'occhio la User Experience anche mentre cura i
+      dettagli del suo lavoro. Lavorare con Vincenzo è un piacere e rende
+      l'ambiente di lavoro migliore; sono stata molto fortunata a lavorare
+      con lui e lo raccomando caldamente.
+
+- id: mark-schaschke
+  author: Mark Schaschke
+  role: Delivery Manager
+  company: ibuildings
+  weight: 4
+  quote:
+    en: >-
+      Vincenzo is one of those rare people who can focus on the details and
+      the conceptual with equal facility. He seeks to understand technical
+      problems completely and has an amazing ability to become an expert at
+      something very quickly. Regardless of the complexities, he is always
+      capable of explaining things in a way that makes sense to the audience,
+      whether that audience is his team, the project manager, or the
+      customer. He is a confident leader, and is well respected and liked by
+      everyone he works with. It would be great to work with Vincenzo again,
+      and I would recommend him to anyone seeking a technical leader or
+      senior software engineer.
+    it: >-
+      Vincenzo è una di quelle rare persone capaci di concentrarsi con uguale
+      facilità sui dettagli e sui concetti. Cerca di comprendere i problemi
+      tecnici fino in fondo e ha una capacità sorprendente di diventare
+      rapidamente esperto di qualcosa. Qualunque sia la complessità, sa
+      sempre spiegare le cose in modo comprensibile per chi ascolta: il suo
+      team, il project manager o il cliente. È un leader sicuro, rispettato
+      e benvoluto da tutti quelli con cui lavora. Sarebbe bello lavorare di
+      nuovo con lui, e lo raccomanderei a chiunque cerchi un technical leader
+      o un senior software engineer.
+
+- id: sarosh-aga
+  author: Sarosh Aga
+  role: Applied AI
+  company: Automattic (WordPress VIP)
+  weight: 5
+  quote:
+    en: >-
+      A strong leader and powerful addition to any team! I've had the
+      pleasure of working with Vincenzo on multiple projects during his time
+      at Automattic - WordPress VIP. His thought process is innovative and
+      the guidance that he offers to his fellow team members is invaluable.
+    it: >-
+      Un leader forte e un'aggiunta potente per qualsiasi team! Ho avuto il
+      piacere di lavorare con Vincenzo su più progetti durante il suo periodo
+      in Automattic - WordPress VIP. Il suo modo di ragionare è innovativo e
+      la guida che offre ai colleghi è preziosa.
+
+- id: gabriel-sambarino
+  author: Gabriel Sambarino
+  role: Senior IT Consultant
+  weight: 6
+  quote:
+    en: >-
+      Vincenzo's strongest skills are his deep and broad experience with API
+      architectures, and overall a solid way to bring many implementation
+      aspects into a higher, architectural perspective. He thrives as
+      Project Lead. His thoroughness, his thought processes, his experience
+      and insights can be something to rely on.
+    it: >-
+      I punti di forza di Vincenzo sono la sua esperienza profonda e ampia
+      con le architetture API e, in generale, un modo solido di ricondurre
+      molti aspetti implementativi a una prospettiva architetturale più
+      alta. Dà il meglio come Project Lead. La sua scrupolosità, i suoi
+      processi di pensiero, la sua esperienza e le sue intuizioni sono
+      qualcosa su cui contare.
+
+- id: jon-shilton
+  author: Jon Shilton
+  role: Software Engineer
+  company: comparethemarket
+  weight: 7
+  quote:
+    en: >-
+      I very much enjoyed working with Vincenzo when he was the Application
+      Architect associated with my team. He has a hands-on approach to
+      solving issues and championing initiatives to help the team move
+      forward. He is an excellent communicator, and appreciates the balance
+      between pragmatism and perfection when it comes to managing priorities.
+    it: >-
+      Ho apprezzato moltissimo lavorare con Vincenzo quando era l'Application
+      Architect associato al mio team. Ha un approccio hands-on nella
+      risoluzione dei problemi e nel promuovere iniziative che facciano
+      avanzare il team. È un comunicatore eccellente e sa apprezzare
+      l'equilibrio tra pragmatismo e perfezione nella gestione delle
+      priorità.
+
+- id: richard-parkins
+  author: Richard Parkins
+  role: Technical Leadership
+  company: comparethemarket
+  weight: 8
+  quote:
+    en: >-
+      I worked with Vincenzo for around a year at CTM. A fantastic all round
+      lead / architect who was a great sound board for specific areas we
+      were developing around immunisation and our service catalogue. Has
+      great experience in leading a team and focusing on solving customer
+      requirements with technical solutions, within time and budget.
+    it: >-
+      Ho lavorato con Vincenzo per circa un anno a CTM. Un lead/architect
+      completo e fantastico, un'ottima cassa di risonanza per aree specifiche
+      che stavamo sviluppando attorno all'immunisation e al nostro catalogo
+      servizi. Ha grande esperienza nel guidare un team e nel risolvere i
+      requisiti dei clienti con soluzioni tecniche, nei tempi e nel budget.
+
+- id: aris-karidis
+  author: Aris Karidis
+  role: Web Development Manager
+  company: Ladbrokes
+  weight: 9
+  quote:
+    en: >-
+      Vincenzo is an excellent developer, with expert knowledge of PHP and
+      with very good understanding of programming & design concepts. He sees
+      the bigger picture and can think in a conceptual way, beyond the
+      immediate scope of a project. He was part of my team at Ladbrokes for
+      several months and he is one of the very few contractors I worked with
+      that I would hire with no second thought.
+    it: >-
+      Vincenzo è uno sviluppatore eccellente, con una conoscenza esperta di
+      PHP e un'ottima padronanza dei concetti di programmazione e design.
+      Vede il quadro d'insieme e sa ragionare in modo concettuale, oltre
+      l'ambito immediato di un progetto. È stato nel mio team a Ladbrokes
+      per diversi mesi ed è uno dei pochissimi contractor con cui ho
+      lavorato che assumerei senza pensarci due volte.
+
+- id: elizabeth-duguid
+  author: Elizabeth Duguid
+  role: Senior Delivery Lead
+  weight: 10
+  quote:
+    en: >-
+      Vincenzo is a great developer: on all the projects I have worked along
+      him, he has delivered his work on time and to the highest standard. He
+      is easy to work with and has proven himself not only easy to
+      understand what the requirements are but also the timelines and the
+      expectancy of the business, which makes him a very valuable member of
+      the team. I will certainly work with Vincenzo again.
+    it: >-
+      Vincenzo è un ottimo sviluppatore: in tutti i progetti in cui ho
+      lavorato al suo fianco ha consegnato il suo lavoro in tempo e al
+      massimo livello. È facile lavorarci insieme e ha dimostrato di capire
+      non solo i requisiti, ma anche le tempistiche e le aspettative del
+      business, il che lo rende un membro preziosissimo del team. Lavorerò
+      sicuramente ancora con lui.

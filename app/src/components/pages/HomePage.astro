@@ -1,0 +1,404 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PostCard from '../PostCard.astro';
+import { SITE } from '../../data/site';
+import { getWritingList } from '../../lib/content';
+import { useTranslations, localizePath, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+const latest = (await getWritingList(locale)).slice(0, 3);
+// The three lowest-weight testimonials; the full set lives on /work/.
+const testimonials = (await getCollection('testimonials'))
+  .sort((a, b) => a.data.weight - b.data.weight)
+  .slice(0, 3);
+
+const names = [
+  'Upsun',
+  'The Economist',
+  'ITV',
+  'British Council',
+  'comparethemarket',
+  'WordPress VIP',
+];
+---
+
+<Base title={SITE.name} locale={locale}>
+  <section class="hero">
+    <div class="blob-field" aria-hidden="true">
+      <span class="blob b1"></span>
+      <span class="blob b2"></span>
+      <span class="blob b3"></span>
+    </div>
+    <div class="container hero-inner">
+      <p class="eyebrow">Artetecha · {t.meta.siteTagline}</p>
+      <h1>{t.home.heroTitle}</h1>
+      <p class="lede">{t.home.heroSubtitle}</p>
+      <div class="cta">
+        <a class="btn btn-primary" href={localizePath(locale, '/work/')}>{t.home.heroCtaWork}</a>
+        <a class="btn btn-ghost" href={localizePath(locale, '/about/')}>{t.home.heroCtaAbout}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="now-title">
+    <div class="container">
+      <h2 id="now-title">{t.home.nowTitle}</h2>
+      <div class="grid-3">
+        {
+          t.home.nowItems.map((item, i) => (
+            <article class={`card now-card reveal accent-${i}`}>
+              <span class="dot" aria-hidden="true" />
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="trust" aria-label={t.home.trustTitle}>
+    <div class="container">
+      <p class="trust-label">{t.home.trustTitle}</p>
+      <ul class="names">
+        {names.map((name) => <li>{name}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="oss-title">
+    <div class="container">
+      <div class="oss card reveal">
+        <div class="oss-text">
+          <p class="eyebrow">{t.home.oss.title}</p>
+          <h2 id="oss-title">{t.home.oss.name}</h2>
+          <p class="oss-blurb">{t.home.oss.blurb}</p>
+          <ul class="oss-badges" aria-hidden="true">
+            {t.home.oss.badges.map((badge) => <li class="tag">{badge}</li>)}
+          </ul>
+          <div class="oss-cta">
+            <a class="btn btn-primary" href="https://upsun.artetecha.com/" rel="noopener">
+              {t.home.oss.ctaSite}
+            </a>
+            <a class="btn btn-ghost" href="https://github.com/artetecha/upsun-wp" rel="noopener">
+              {t.home.oss.ctaCode}
+            </a>
+          </div>
+        </div>
+        <pre class="oss-term" aria-hidden="true"><code>$ composer require artetecha/upsun-wp</code></pre>
+      </div>
+    </div>
+  </section>
+
+  {
+    latest.length > 0 && (
+      <section class="section" aria-labelledby="latest-title">
+        <div class="container">
+          <div class="row-title">
+            <h2 id="latest-title">{t.home.latestTitle}</h2>
+            <a href={localizePath(locale, '/writing/')}>{t.home.latestAll} →</a>
+          </div>
+          <div class="grid-3">
+            {latest.map((item) => (
+              <PostCard item={item} locale={locale} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    testimonials.length > 0 && (
+      <section class="section" aria-labelledby="quotes-title">
+        <div class="container">
+          <div class="row-title">
+            <h2 id="quotes-title">{t.work.testimonialsTitle}</h2>
+            <a href={localizePath(locale, '/work/')}>{t.home.quotesAll} →</a>
+          </div>
+          <div class="grid-3 quotes">
+            {testimonials.map((item) => (
+              <figure class="card quote reveal">
+                <blockquote>{(locale === 'it' && item.data.quote.it) || item.data.quote.en}</blockquote>
+                <figcaption>
+                  <strong>{item.data.author}</strong>
+                  <span>
+                    {item.data.role}
+                    {item.data.company && ` · ${item.data.company}`}
+                  </span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: clip;
+    background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-inner {
+    position: relative;
+    padding-block: var(--space-7);
+    max-width: 54rem;
+  }
+
+  h1 {
+    font-size: var(--text-hero);
+    background: linear-gradient(100deg, var(--primary-strong), var(--primary) 55%, var(--accent-text));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    padding-block-end: 0.08em;
+  }
+
+  .cta {
+    display: flex;
+    gap: var(--space-3);
+    margin-block-start: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  /* floating logo blobs */
+  .blob-field {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: var(--radius-blob);
+    opacity: 0.5;
+    filter: blur(1px);
+  }
+
+  .b1 {
+    width: 22rem;
+    height: 22rem;
+    background: var(--slate-400);
+    opacity: 0.16;
+    inset-inline-end: -6rem;
+    inset-block-start: -7rem;
+    rotate: 12deg;
+  }
+
+  .b2 {
+    width: 13rem;
+    height: 13rem;
+    background: var(--lime-500);
+    opacity: 0.28;
+    inset-inline-end: 9rem;
+    inset-block-end: -4rem;
+    rotate: -10deg;
+  }
+
+  .b3 {
+    width: 5.5rem;
+    height: 5.5rem;
+    background: var(--amber-500);
+    opacity: 0.38;
+    inset-inline-end: 6rem;
+    inset-block-start: 5rem;
+    rotate: 24deg;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .blob {
+      animation: drift 16s ease-in-out infinite alternate;
+    }
+
+    .b2 {
+      animation-duration: 21s;
+      animation-delay: -6s;
+    }
+
+    .b3 {
+      animation-duration: 12s;
+      animation-delay: -3s;
+    }
+
+    @keyframes drift {
+      from {
+        translate: 0 0;
+      }
+      to {
+        translate: -2.5rem 2rem;
+      }
+    }
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--space-4);
+  }
+
+  .now-card {
+    position: relative;
+  }
+
+  .dot {
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-blob);
+    margin-block-end: var(--space-3);
+  }
+
+  .accent-0 .dot {
+    background: var(--steel-500);
+    rotate: 12deg;
+  }
+
+  .accent-1 .dot {
+    background: var(--lime-500);
+    rotate: -8deg;
+  }
+
+  .accent-2 .dot {
+    background: var(--amber-500);
+    rotate: 20deg;
+  }
+
+  .trust {
+    border-block: 1px solid var(--border);
+    background: var(--bg-subtle);
+    padding-block: var(--space-4);
+  }
+
+  .trust-label {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    margin-block-end: var(--space-2);
+  }
+
+  .names {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .names li {
+    font-family: var(--font-display);
+    font-weight: 650;
+    font-size: var(--text-lg);
+    color: var(--text-muted);
+    opacity: 0.85;
+  }
+
+  .row-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .oss {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-5);
+    border-inline-start: 4px solid var(--accent);
+    flex-wrap: wrap;
+  }
+
+  .oss:hover {
+    transform: none;
+  }
+
+  .oss-text {
+    flex: 1 1 24rem;
+  }
+
+  .oss-text h2 {
+    margin-block-end: var(--space-2);
+  }
+
+  .oss-blurb {
+    color: var(--text-muted);
+  }
+
+  .oss-badges {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-4);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .oss-cta {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .oss-term {
+    flex: 0 1 auto;
+    background: var(--steel-900);
+    color: var(--lime-400);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+
+  .quotes {
+    margin-block-start: var(--space-4);
+  }
+
+  .quote {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .quote blockquote {
+    border: none;
+    padding: 0;
+    flex: 1;
+    color: var(--text);
+  }
+
+  .quote blockquote::before {
+    content: '“';
+    display: block;
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .quote figcaption {
+    margin-block-start: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--text-sm);
+  }
+
+  .quote figcaption span {
+    color: var(--text-muted);
+  }
+</style>

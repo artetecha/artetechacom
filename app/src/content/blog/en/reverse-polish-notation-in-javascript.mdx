@@ -1,0 +1,103 @@
+---
+title: '(Reverse) Polish Notation in JavaScript'
+description: 'Solving Polish and Reverse Polish Notation expressions in JavaScript, from a classic stack-based approach to a more elegant version using an operator map.'
+pubDate: 2023-02-13
+tags: ['javascript', 'algorithms']
+---
+
+There was a time when I _despised_ JavaScript. True story. But things have changed much since. What I like about modern JS is its versatility and ease of use. It has a relatively simple syntax, making it accessible to developers with varying levels of experience.
+
+Consider a common problem used during programming teaching courses: the Polish Notation (and Reverse Polish Notation, too). Polish notation (PN), also known as normal Polish notation (NPN), Łukasiewicz notation, Warsaw notation, Polish prefix notation or simply prefix notation, is a mathematical notation in which operators precede their operands, in contrast to the more common infix notation, in which operators are placed between operands, as well as reverse Polish notation (RPN), in which operators follow their operands. PN and RPN do not need any parentheses as long as each operator has a fixed number of operands. The description "Polish" refers to the nationality of logician Jan Łukasiewicz, who invented Polish notation in 1924.
+
+| Traditional notation | Polish Notation | Reverse Polish Notation |
+| --- | --- | --- |
+| 3 + 4 | + 3 4 | 3 4 + |
+| 3 - (4 \* 5) | - 3 \* 4 5 | 3 4 5 \* - |
+| (3 + 4) \* 5 | \* + 3 4 5 | 3 4 + 5 \* |
+| (3 - 4) / (5 + 2) | / - 3 4 + 5 2 | 3 4 - 5 2 + / |
+
+_Comparing standard notation to PN and RPN._
+
+Without exploiting JS peculiarities, you could write some general code as follows to calculate an expression in PN format:
+
+```javascript
+exports.calculate = function(expression) {
+    const tokens = expression.split(' ');
+    const stack = [];
+
+    for (let i = tokens.length - 1; i >= 0; i--) {
+      if (['+', '-', '*', '/'].includes(tokens[i])) {
+        const operand1 = stack.pop();
+        const operand2 = stack.pop();
+
+        let result;
+        switch (tokens[i]) {
+          case '+':
+            result = operand1 + operand2;
+            break;
+          case '-':
+            result = operand1 - operand2;
+            break;
+          case '*':
+            result = operand1 * operand2;
+            break;
+          case '/':
+            result = operand1 / operand2;
+            break;
+        }
+        stack.push(result);
+      } else {
+        stack.push(parseFloat(tokens[i]));
+      }
+    }
+    return stack[0];
+}
+```
+
+You could write similar code in any modern language that provides built-in functions to operate on an array in a stack fashion (in other languages, you'll have to implement those functions yourselves).
+
+But in JS you can do much better than just that. To avoid this post being too long, I am going to jump straight to a version of the code able to deal with both PN and RPN.
+
+```javascript
+exports.calculate = function(expression, notation = 'pn') {
+    if (!['pn', 'rpn'].includes(notation)) return null;
+
+    const tokens = expression.split(' ');
+    if (notation === 'pn') tokens.reverse(); // PN: expression to be scanned in reversed order.
+    const stack = [];
+    const operators = {
+        '+': (x, y) => x + y,
+        '-': (x, y) => x - y,
+        '*': (x, y) => x * y,
+        '/': (x, y) => x / y
+    }
+
+    for (const token of tokens) {
+        if (['+', '-', '*', '/'].includes(token)) {
+            const operands = [stack.pop(), stack.pop()];
+            if (notation === 'rpn') operands.reverse(); // RPN: invert operand order once out of the stack.
+            stack.push(operators[token](operands[0], operands[1]));
+        } else {
+            stack.push(parseFloat(token));
+        }
+    }
+
+    return stack[0];
+}
+```
+
+Main changes:
+
+1. I don't need a switch case to choose which arithmetic operation I need to execute. I can create a map (called `operators` above) that _maps_ an operator symbol to the related function. Then use that map to execute the right operation based on the token being parsed.
+
+2. For PN parsing, the original expression must be scanned backwards. That's what the first version of the code does. In the new version, in case of PN, I simply reverse the array. Is this ok? Yes, it is, because the array reversal is performed in linear time (`O(n)`), so the overall time complexity of the algorithm does not change.
+
+3. We use a more legible and convenient version of the `for` loop.
+
+Like I said, the latest version of the code can also solve RPN. The difference in the algorithm is quite simple with the two notations:
+
+- with RPN the expression is scanned in direct order, with PN in reverse order
+
+- with PN, the first operand is the first one popped out of the stack, and the second operand is the second one popped out of the stack. With RPN, they need to be swapped.
+
+The result is a more elegant and compact piece of code, though not necessarily more legible.

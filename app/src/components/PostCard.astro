@@ -1,0 +1,61 @@
+---
+import { slugOf, type WritingItem } from '../lib/content';
+import { useTranslations, localizePath, formatDate, type Locale } from '../i18n/utils';
+
+interface Props {
+  item: WritingItem;
+  locale: Locale;
+}
+
+const { item, locale } = Astro.props;
+const { post, foreign } = item;
+const t = useTranslations(locale);
+const slug = slugOf(post);
+// English-only posts always link to the English URL.
+const href = foreign ? `/writing/${slug}/` : localizePath(locale, `/writing/${slug}/`);
+---
+
+<a class="card post-card" href={href}>
+  <p class="date">
+    <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate, locale)}</time>
+    {foreign && <span class="tag" title={t.writing.englishOnlyTitle}>{t.writing.englishOnly}</span>}
+  </p>
+  <h3>{post.data.title}</h3>
+  <p class="desc">{post.data.description}</p>
+  <span class="more">{t.writing.readMore} →</span>
+</a>
+
+<style>
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    height: 100%;
+  }
+
+  .date {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  h3 {
+    margin: 0;
+  }
+
+  .desc {
+    color: var(--text-muted);
+    margin: 0;
+    flex: 1;
+  }
+
+  .more {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--link);
+  }
+</style>

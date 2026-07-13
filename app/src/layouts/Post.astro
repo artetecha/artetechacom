@@ -1,0 +1,143 @@
+---
+import Base from './Base.astro';
+import { useTranslations, formatDate, type Locale } from '../i18n/utils';
+
+interface Props {
+  title: string;
+  description?: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  tags?: readonly string[];
+  locale?: Locale;
+  alternate?: string | null;
+  backHref: string;
+  backLabel: string;
+  /** Set for migrated posts: shows the archive notice banner. */
+  archiveOriginalDate?: Date;
+}
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  tags = [],
+  locale = 'en',
+  alternate = undefined,
+  backHref,
+  backLabel,
+  archiveOriginalDate,
+} = Astro.props;
+
+const t = useTranslations(locale);
+---
+
+<Base title={title} description={description} locale={locale} alternate={alternate}>
+  <article class="container-text">
+    <header class="post-head">
+      <p class="back"><a href={backHref}>← {backLabel}</a></p>
+      <h1>{title}</h1>
+      <p class="meta">
+        <time datetime={pubDate.toISOString()}>{formatDate(pubDate, locale)}</time>
+        {
+          updatedDate && (
+            <span>
+              · {t.writing.updated} <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate, locale)}</time>
+            </span>
+          )
+        }
+      </p>
+      {
+        tags.length > 0 && (
+          <ul class="tags">
+            {tags.map((tag) => (
+              <li class="tag">{tag}</li>
+            ))}
+          </ul>
+        )
+      }
+    </header>
+
+    {
+      archiveOriginalDate && (
+        <aside class="archive-notice">
+          {t.archive.notice.replace('{date}', formatDate(archiveOriginalDate, locale))}
+        </aside>
+      )
+    }
+
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
+</Base>
+
+<style>
+  .post-head {
+    padding-block: var(--space-6) var(--space-4);
+  }
+
+  .back {
+    font-size: var(--text-sm);
+    margin-block-end: var(--space-4);
+  }
+
+  .back a {
+    text-decoration: none;
+  }
+
+  .meta {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .tags {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-2) 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .archive-notice {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-inline-start: 4px solid var(--accent-warm);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin-block-end: var(--space-5);
+  }
+
+  .prose {
+    padding-block-end: var(--space-6);
+  }
+
+  .prose :global(h2) {
+    margin-block-start: var(--space-5);
+  }
+
+  .prose :global(h3) {
+    margin-block-start: var(--space-4);
+  }
+
+  .prose :global(img) {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+
+  .prose :global(table) {
+    border-collapse: collapse;
+    display: block;
+    overflow-x: auto;
+    margin-block-end: var(--space-4);
+  }
+
+  .prose :global(td),
+  .prose :global(th) {
+    border: 1px solid var(--border);
+    padding: var(--space-2) var(--space-3);
+  }
+</style>

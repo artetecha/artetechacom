@@ -1,0 +1,36 @@
+---
+import { render } from 'astro:content';
+import Post from '../../layouts/Post.astro';
+import { getPosts, getTranslation, slugOf } from '../../lib/content';
+import { useTranslations } from '../../i18n/utils';
+
+export async function getStaticPaths() {
+  const posts = await getPosts('en');
+  return posts.map((post) => ({
+    params: { slug: slugOf(post) },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const t = useTranslations('en');
+
+const slug = slugOf(post);
+const translation = await getTranslation('it', slug);
+const alternate = translation ? `/it/writing/${slug}/` : null;
+---
+
+<Post
+  title={post.data.title}
+  description={post.data.description}
+  pubDate={post.data.pubDate}
+  updatedDate={post.data.updatedDate}
+  tags={post.data.tags}
+  locale="en"
+  alternate={alternate}
+  backHref="/writing/"
+  backLabel={t.writing.backToWriting}
+>
+  <Content />
+</Post>
