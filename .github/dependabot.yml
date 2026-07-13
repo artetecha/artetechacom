@@ -10,3 +10,8 @@ updates:
       patterns:
         - "astro"
         - "@astrojs/*"
+  ignore:
+    # @astrojs/check pins typescript to ^5 || ^6; majors beyond that break
+    # the build (ERESOLVE). Revisit when Astro's tooling supports newer TS.
+    - dependency-name: "typescript"
+      update-types: ["version-update:semver-major"]
