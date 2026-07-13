@@ -1,0 +1,136 @@
+---
+import { Image } from 'astro:assets';
+import logoLight from '../assets/logo-retina.png';
+import logoDark from '../assets/logo-dark.png';
+import ThemeToggle from './ThemeToggle.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import { useTranslations, localizePath, type Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+  alternate: string | null;
+}
+
+const { locale, alternate } = Astro.props;
+const t = useTranslations(locale);
+
+const links = [
+  { href: localizePath(locale, '/about/'), label: t.nav.about },
+  { href: localizePath(locale, '/work/'), label: t.nav.work },
+  { href: localizePath(locale, '/writing/'), label: t.nav.writing },
+  { href: localizePath(locale, '/contact/'), label: t.nav.contact },
+];
+
+const current = Astro.url.pathname;
+---
+
+<header>
+  <div class="container bar">
+    <a class="brand" href={localizePath(locale, '/')} aria-label="Artetecha — home">
+      <Image src={logoLight} alt="Artetecha" width={163} height={44} class="logo logo-light" loading="eager" />
+      <Image src={logoDark} alt="" width={163} height={44} class="logo logo-dark" loading="eager" aria-hidden="true" />
+    </a>
+    <nav aria-label={t.a11y.mainNav}>
+      {
+        links.map(({ href, label }) => (
+          <a href={href} aria-current={current === href ? 'page' : undefined}>
+            {label}
+          </a>
+        ))
+      }
+    </nav>
+    <div class="tools">
+      <LanguageSwitcher locale={locale} alternate={alternate} />
+      <ThemeToggle locale={locale} />
+    </div>
+  </div>
+</header>
+
+<style>
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in oklch, var(--bg) 82%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-block: var(--space-2);
+    min-height: 4rem;
+  }
+
+  .brand {
+    view-transition-name: brand-logo;
+    flex-shrink: 0;
+    display: grid;
+  }
+
+  .brand :global(img) {
+    grid-area: 1 / 1;
+    width: 163px;
+    height: auto;
+  }
+
+  .logo-dark {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .logo-light {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .logo-dark {
+    display: block;
+  }
+
+  nav {
+    display: flex;
+    gap: var(--space-3);
+    margin-inline-start: auto;
+    flex-wrap: wrap;
+  }
+
+  nav a {
+    font-family: var(--font-display);
+    font-weight: 550;
+    font-size: var(--text-sm);
+    text-decoration: none;
+    color: var(--text-muted);
+    padding: 0.35em 0.2em;
+    border-block-end: 2px solid transparent;
+  }
+
+  nav a:hover {
+    color: var(--text);
+  }
+
+  nav a[aria-current='page'] {
+    color: var(--text);
+    border-block-end-color: var(--accent);
+  }
+
+  .tools {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  @media (max-width: 640px) {
+    .bar {
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    nav {
+      order: 3;
+      flex-basis: 100%;
+      margin-inline-start: 0;
+      padding-block-end: var(--space-2);
+    }
+  }
+</style>

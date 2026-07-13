@@ -1,0 +1,41 @@
+---
+import { useTranslations, otherLocale, localizePath, type Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+  /** URL of this page in the other locale; null → other locale's home. */
+  alternate: string | null;
+}
+
+const { locale, alternate } = Astro.props;
+const t = useTranslations(locale);
+const target = otherLocale(locale);
+const href = alternate ?? localizePath(target, '/');
+---
+
+<a class="lang" href={href} hreflang={target} lang={target} title={t.a11y.switchLang}>
+  {target.toUpperCase()}
+</a>
+
+<style>
+  .lang {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 999px;
+    padding: 0.45em 0.9em;
+    transition:
+      color 120ms ease,
+      border-color 120ms ease;
+  }
+
+  .lang:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+</style>

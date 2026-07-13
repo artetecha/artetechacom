@@ -1,0 +1,54 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../PostCard.astro';
+import { getWritingList } from '../../lib/content';
+import { useTranslations, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const items = await getWritingList(locale);
+---
+
+<Base title={t.writing.title} description={t.writing.intro} locale={locale}>
+  <div class="container">
+    <header class="page-head">
+      <h1>{t.writing.title}</h1>
+      <p class="lede">{t.writing.intro}</p>
+      <p><a href="/writing/archive/">{t.writing.archiveLink} →</a></p>
+    </header>
+
+    {
+      items.length === 0 ? (
+        <p class="empty">{t.writing.empty}</p>
+      ) : (
+        <div class="grid">
+          {items.map((item) => (
+            <PostCard item={item} locale={locale} />
+          ))}
+        </div>
+      )
+    }
+  </div>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: var(--space-6) var(--space-5);
+    max-width: var(--container-text);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+    gap: var(--space-4);
+  }
+
+  .empty {
+    color: var(--text-muted);
+    padding-block: var(--space-5);
+  }
+</style>

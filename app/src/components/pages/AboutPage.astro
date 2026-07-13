@@ -1,0 +1,214 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE } from '../../data/site';
+import { useTranslations, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+const copy = {
+  en: {
+    title: 'About',
+    lede: 'Twenty-five years of restlessness, from Naples to London and back to Italy.',
+    chapters: [
+      {
+        era: '2000s · Naples',
+        title: 'Curiosity with a compiler',
+        body: 'I started building for the web in 2000 while studying Computer Science at the University of Naples Federico II, and spent my research years teaching machines to cluster galaxies and correct spelling — machine learning before it was cool. The web won: by 2006 I was shipping CMS-driven sites and had fallen into Drupal, deeply.',
+      },
+      {
+        era: '2010s · London',
+        title: 'The enterprise years',
+        body: 'London gave me the big rooms: migrating The Economist off ColdFusion, rebuilding the ITV Player, and five years at the British Council turning 150+ country sites into one platform — where I argued for engineering best practices until they stuck. In 2012 I founded Artetecha Ltd, my solo consultancy, and spent seven years advising enterprises and public institutions on architecture, agile delivery, and modern dev workflows. I was doing 12-factor, JAMStack, and GraphQL APIs before most slide decks were.',
+      },
+      {
+        era: '2019–2021',
+        title: 'Architecture at scale',
+        body: 'As Application Architect at comparethemarket I helped steer one of the UK’s largest microservices estates, then joined WordPress VIP as Enterprise Platform Engineer for the transition to Kubernetes — closing the loop on a career that started with a blog engine.',
+      },
+      {
+        era: 'Now · Italy',
+        title: 'Upsun, and home',
+        body: 'Since 2021 I’ve been at Upsun (formerly Platform.sh), where I’m a Strategic Solutions Engineer for the channel and partner ecosystem: designing cloud architectures with agencies, launching OEM products, writing competitive strategy, and leading AI-first transformations of how solutions engineering works. I moved back to Italy, where Artetecha continues as my professional practice — Partita IVA and all.',
+      },
+    ],
+    asideTitle: 'Beyond the terminal',
+    aside:
+      'I’m bivocational: alongside the tech practice I’m completing an MA in Theology at the University of Chester, serve as Director of Web Operations at King’s Evangelical Divinity School, and direct Gratia Gratis, a bilingual Christian ministry. That work lives at gratia.gratis and pergrazia.com.',
+    factsTitle: 'In short',
+    facts: [
+      'Solutions architect & software engineer, 25+ years',
+      'Based in Italy · working with the world',
+      'English, Italian (and Neapolitan) native; Spanish survivable',
+      'Certified Scrum Product Owner; OpenShift & Kubernetes',
+    ],
+  },
+  it: {
+    title: 'Chi sono',
+    lede: 'Venticinque anni di irrequietezza, da Napoli a Londra e ritorno.',
+    chapters: [
+      {
+        era: 'Anni 2000 · Napoli',
+        title: 'Curiosità e un compilatore',
+        body: 'Ho iniziato a costruire per il web nel 2000, studiando Informatica alla Federico II di Napoli, e ho passato gli anni della ricerca a insegnare alle macchine a raggruppare galassie e correggere errori di battitura — machine learning prima che fosse di moda. Ha vinto il web: nel 2006 rilasciavo siti basati su CMS ed ero già caduto, in profondità, dentro Drupal.',
+      },
+      {
+        era: 'Anni 2010 · Londra',
+        title: 'Gli anni enterprise',
+        body: 'Londra mi ha dato le stanze grandi: la migrazione dell’Economist via da ColdFusion, la ricostruzione dell’ITV Player e cinque anni al British Council a trasformare oltre 150 siti nazionali in un’unica piattaforma — difendendo le buone pratiche ingegneristiche finché non hanno attecchito. Nel 2012 ho fondato Artetecha Ltd, la mia società di consulenza individuale, e per sette anni ho affiancato imprese e istituzioni pubbliche su architettura, delivery agile e flussi di sviluppo moderni. Facevo 12-factor, JAMStack e API GraphQL quando ancora non riempivano le slide.',
+      },
+      {
+        era: '2019–2021',
+        title: 'Architettura su larga scala',
+        body: 'Come Application Architect a comparethemarket ho contribuito a guidare uno dei più grandi ecosistemi di microservizi del Regno Unito; poi in WordPress VIP, come Enterprise Platform Engineer, ho lavorato alla transizione a Kubernetes — chiudendo il cerchio di una carriera iniziata con un motore di blog.',
+      },
+      {
+        era: 'Oggi · Italia',
+        title: 'Upsun, e casa',
+        body: 'Dal 2021 sono in Upsun (già Platform.sh), dove sono Strategic Solutions Engineer per l’ecosistema di partner e agenzie: progetto architetture cloud con le agenzie, lancio prodotti OEM, scrivo strategia competitiva e guido la trasformazione AI-first del solutions engineering. Sono tornato in Italia, dove Artetecha continua come il mio studio professionale — Partita IVA inclusa.',
+      },
+    ],
+    asideTitle: 'Oltre il terminale',
+    aside:
+      'Sono bivocazionale: accanto allo studio tecnologico sto completando un MA in Teologia alla University of Chester, sono Director of Web Operations alla King’s Evangelical Divinity School e dirigo Gratia Gratis, un ministero cristiano bilingue. Quel lavoro vive su gratia.gratis e pergrazia.com.',
+    factsTitle: 'In breve',
+    facts: [
+      'Solutions architect e software engineer, 25+ anni di esperienza',
+      'Base in Italia · lavoro con il mondo',
+      'Inglese, italiano (e napoletano) madrelingua; spagnolo di sopravvivenza',
+      'Certified Scrum Product Owner; OpenShift e Kubernetes',
+    ],
+  },
+}[locale];
+---
+
+<Base title={copy.title} description={copy.lede} locale={locale}>
+  <div class="container-text">
+    <header class="page-head">
+      <p class="eyebrow">{SITE.owner}</p>
+      <h1>{copy.title}</h1>
+      <p class="lede">{copy.lede}</p>
+    </header>
+
+    <ol class="timeline">
+      {
+        copy.chapters.map((chapter) => (
+          <li class="reveal">
+            <p class="era">{chapter.era}</p>
+            <h2>{chapter.title}</h2>
+            <p>{chapter.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <aside class="card aside">
+      <h2>{copy.asideTitle}</h2>
+      <p>
+        {copy.aside.split(/gratia\.gratis|pergrazia\.com/)[0]}
+        <a href="https://gratia.gratis" rel="noopener">gratia.gratis</a>
+        {locale === 'en' ? ' and ' : ' e '}
+        <a href="https://pergrazia.com" rel="noopener">pergrazia.com</a>.
+      </p>
+    </aside>
+
+    <section class="facts">
+      <h2>{copy.factsTitle}</h2>
+      <ul>
+        {copy.facts.map((fact) => <li>{fact}</li>)}
+      </ul>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: var(--space-6) var(--space-5);
+  }
+
+  .timeline {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-5);
+    position: relative;
+    border-inline-start: 2px solid var(--border);
+    padding-inline-start: var(--space-4);
+  }
+
+  .timeline li {
+    position: relative;
+  }
+
+  .timeline li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(-1 * var(--space-4) - 9px);
+    inset-block-start: 0.4rem;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--radius-blob);
+    background: var(--accent);
+    rotate: 12deg;
+  }
+
+  .timeline li:nth-child(odd)::before {
+    background: var(--primary);
+    rotate: -8deg;
+  }
+
+  .timeline li:last-child::before {
+    background: var(--accent-warm);
+  }
+
+  .era {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-block-end: var(--space-1);
+  }
+
+  .timeline h2 {
+    font-size: var(--text-lg);
+  }
+
+  .aside {
+    margin-block: var(--space-6) var(--space-5);
+    border-inline-start: 4px solid var(--accent);
+  }
+
+  .aside h2 {
+    font-size: var(--text-lg);
+  }
+
+  .facts ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .facts li {
+    padding-inline-start: 1.5em;
+    position: relative;
+  }
+
+  .facts li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0.5em;
+    width: 0.7em;
+    height: 0.7em;
+    border-radius: var(--radius-blob);
+    background: var(--accent-warm);
+  }
+</style>

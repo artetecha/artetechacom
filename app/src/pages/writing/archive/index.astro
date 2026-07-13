@@ -1,0 +1,63 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { getArchivePosts } from '../../../lib/content';
+import { useTranslations, formatDate } from '../../../i18n/utils';
+
+const t = useTranslations('en');
+const posts = await getArchivePosts();
+---
+
+<Base title={t.archive.title} description={t.archive.intro} locale="en" alternate={null}>
+  <div class="container-text">
+    <header class="page-head">
+      <p class="back"><a href="/writing/">← {t.writing.backToWriting}</a></p>
+      <h1>{t.archive.title}</h1>
+      <p class="lede">{t.archive.intro}</p>
+    </header>
+
+    <ol class="list">
+      {
+        posts.map((post) => (
+          <li>
+            <a href={`/writing/archive/${post.id}/`}>{post.data.title}</a>
+            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate, 'en')}</time>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: var(--space-6) var(--space-5);
+  }
+
+  .back {
+    font-size: var(--text-sm);
+    margin-block-end: var(--space-4);
+  }
+
+  .list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-6);
+    display: grid;
+  }
+
+  .list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .list time {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+</style>

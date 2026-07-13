@@ -1,0 +1,133 @@
+/* ==========================================================================
+   Artetecha design tokens
+   Raw scales are derived from the four logo hues:
+     steel blue #1c6398 · slate grey #70787f · lime #b1d14f · amber #f0a800
+   Semantic tokens flip between light and dark via [data-theme].
+   ========================================================================== */
+
+:root {
+  /* --- raw palette scales (OKLCH) --- */
+  --steel-100: oklch(93% 0.02 243);
+  --steel-300: oklch(75% 0.07 243);
+  --steel-400: oklch(65% 0.1 243);
+  --steel-500: oklch(55% 0.11 243);
+  --steel-600: oklch(47% 0.1 243); /* ~#1c6398 */
+  --steel-700: oklch(38% 0.08 243);
+  --steel-900: oklch(22% 0.04 243);
+
+  --slate-100: oklch(95% 0.003 240);
+  --slate-200: oklch(90% 0.005 240);
+  --slate-300: oklch(80% 0.008 240);
+  --slate-400: oklch(68% 0.01 240);
+  --slate-500: oklch(57% 0.012 240); /* ~#70787f */
+  --slate-600: oklch(46% 0.012 240);
+  --slate-700: oklch(37% 0.012 240);
+  --slate-800: oklch(28% 0.015 240);
+
+  --lime-300: oklch(88% 0.13 118);
+  --lime-400: oklch(84% 0.15 118);
+  --lime-500: oklch(81% 0.16 118); /* ~#b1d14f */
+  --lime-600: oklch(68% 0.14 120);
+  --lime-700: oklch(52% 0.11 122);
+
+  --amber-300: oklch(85% 0.13 78);
+  --amber-400: oklch(80% 0.15 76);
+  --amber-500: oklch(76% 0.16 75); /* ~#f0a800 */
+  --amber-600: oklch(62% 0.13 68);
+
+  /* --- semantic: light theme --- */
+  --bg: oklch(98.5% 0.004 243);
+  --bg-subtle: oklch(96% 0.007 243);
+  --surface: oklch(100% 0 0);
+  --text: oklch(25% 0.025 243);
+  --text-muted: var(--slate-600);
+  --border: oklch(89% 0.01 243);
+  --border-strong: var(--slate-300);
+
+  --primary: var(--steel-600);
+  --primary-strong: var(--steel-700);
+  --primary-contrast: oklch(100% 0 0);
+  --link: var(--steel-600);
+  --link-hover: var(--steel-500);
+
+  --accent: var(--lime-500); /* graphic use */
+  --accent-text: var(--lime-700); /* AA text on --bg */
+  --accent-warm: var(--amber-500); /* graphic use */
+  --accent-warm-text: var(--amber-600); /* AA text on --bg */
+
+  --ring: var(--steel-400);
+  --shadow-color: 240 20% 20%;
+
+  /* hero gradient stops */
+  --hero-a: var(--steel-100);
+  --hero-b: oklch(96% 0.04 118);
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: oklch(16% 0.016 243);
+  --bg-subtle: oklch(19% 0.018 243);
+  --surface: oklch(21.5% 0.02 243);
+  --text: oklch(92% 0.012 243);
+  --text-muted: oklch(72% 0.018 240);
+  --border: oklch(30% 0.022 243);
+  --border-strong: oklch(40% 0.025 243);
+
+  --primary: var(--steel-400);
+  --primary-strong: var(--steel-300);
+  --primary-contrast: oklch(14% 0.02 243);
+  --link: oklch(78% 0.08 243);
+  --link-hover: oklch(85% 0.06 243);
+
+  --accent: var(--lime-500);
+  --accent-text: var(--lime-400);
+  --accent-warm: var(--amber-400);
+  --accent-warm-text: var(--amber-300);
+
+  --ring: var(--steel-300);
+  --shadow-color: 240 40% 2%;
+
+  --hero-a: oklch(22% 0.045 243);
+  --hero-b: oklch(20% 0.035 122);
+
+  color-scheme: dark;
+}
+
+/* --- type & spacing scale --- */
+:root {
+  --font-display: 'Space Grotesk Variable', system-ui, sans-serif;
+  --font-body: 'Inter Variable', system-ui, sans-serif;
+
+  --text-xs: 0.8rem;
+  --text-sm: 0.9rem;
+  --text-base: 1.0625rem;
+  --text-lg: clamp(1.15rem, 1rem + 0.5vw, 1.35rem);
+  --text-xl: clamp(1.4rem, 1.2rem + 0.9vw, 1.8rem);
+  --text-2xl: clamp(1.8rem, 1.4rem + 1.6vw, 2.6rem);
+  --text-hero: clamp(2.6rem, 1.8rem + 4vw, 5rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2.5rem;
+  --space-6: 4rem;
+  --space-7: 6.5rem;
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 26px; /* echoes the logo blobs */
+  --radius-blob: 32% 68% 62% 38% / 41% 44% 56% 59%;
+
+  --container: 72rem;
+  --container-text: 44rem;
+
+  --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.08);
+  --shadow-md:
+    0 2px 6px hsl(var(--shadow-color) / 0.08),
+    0 12px 32px -12px hsl(var(--shadow-color) / 0.18);
+  --shadow-lg:
+    0 4px 10px hsl(var(--shadow-color) / 0.1),
+    0 24px 60px -20px hsl(var(--shadow-color) / 0.28);
+}

@@ -1,0 +1,109 @@
+---
+import { SITE } from '../data/site';
+import { useTranslations, type Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <div class="container inner">
+    <div class="blobs" aria-hidden="true">
+      <span class="blob b-grey"></span>
+      <span class="blob b-lime"></span>
+      <span class="blob b-amber"></span>
+    </div>
+    <p class="legal">
+      <strong>{SITE.name}</strong> — {SITE.owner} · {t.footer.piva}
+      {SITE.piva}
+      <br />
+      © {year} · {t.footer.rights} <span class="since">{t.footer.since}</span>
+    </p>
+    <nav class="social" aria-label="Social">
+      <a href={`mailto:${SITE.email}`}>Email</a>
+      <a href={SITE.linkedin} rel="me noopener">LinkedIn</a>
+      <a href={SITE.github} rel="me noopener">GitHub</a>
+      <a href="/rss.xml">RSS</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px solid var(--border);
+    background: var(--bg-subtle);
+    margin-block-start: var(--space-7);
+  }
+
+  .inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-block: var(--space-5);
+    flex-wrap: wrap;
+  }
+
+  .blobs {
+    display: flex;
+    align-items: center;
+  }
+
+  .blob {
+    display: inline-block;
+    border-radius: var(--radius-blob);
+  }
+
+  .b-grey {
+    width: 34px;
+    height: 34px;
+    background: var(--slate-500);
+    rotate: 12deg;
+  }
+
+  .b-lime {
+    width: 24px;
+    height: 24px;
+    background: var(--lime-500);
+    margin-inline-start: -10px;
+    rotate: -8deg;
+  }
+
+  .b-amber {
+    width: 13px;
+    height: 13px;
+    background: var(--amber-500);
+    margin-inline-start: -6px;
+    rotate: 20deg;
+  }
+
+  .legal {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .since {
+    font-style: italic;
+  }
+
+  .social {
+    display: flex;
+    gap: var(--space-3);
+    margin-inline-start: auto;
+    flex-wrap: wrap;
+  }
+
+  .social a {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .social a:hover {
+    color: var(--text);
+  }
+</style>
