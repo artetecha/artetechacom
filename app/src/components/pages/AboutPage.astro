@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
+import portrait from '../../assets/portrait.jpg';
 import { SITE } from '../../data/site';
 import { useTranslations, type Locale } from '../../i18n/utils';
 
@@ -89,9 +91,12 @@ const copy = {
 <Base title={copy.title} description={copy.lede} locale={locale}>
   <div class="container-text">
     <header class="page-head">
-      <p class="eyebrow">{SITE.owner}</p>
-      <h1>{copy.title}</h1>
-      <p class="lede">{copy.lede}</p>
+      <div class="head-text">
+        <p class="eyebrow">{SITE.owner}</p>
+        <h1>{copy.title}</h1>
+        <p class="lede">{copy.lede}</p>
+      </div>
+      <Image class="portrait" src={portrait} alt={SITE.owner} width={280} height={280} loading="eager" />
     </header>
 
     <ol class="timeline">
@@ -128,6 +133,30 @@ const copy = {
 <style>
   .page-head {
     padding-block: var(--space-6) var(--space-5);
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  .head-text {
+    flex: 1;
+  }
+
+  .page-head :global(.portrait) {
+    width: clamp(7rem, 18vw, 10rem);
+    height: auto;
+    border-radius: var(--radius-blob);
+    rotate: 2deg;
+    border: 3px solid var(--surface);
+    box-shadow: var(--shadow-md);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 560px) {
+    .page-head {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+    }
   }
 
   .timeline {

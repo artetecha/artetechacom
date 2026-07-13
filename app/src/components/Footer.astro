@@ -19,8 +19,7 @@ const year = new Date().getFullYear();
       <span class="blob b-amber"></span>
     </div>
     <p class="legal">
-      <strong>{SITE.name}</strong> — {SITE.owner} · {t.footer.piva}
-      {SITE.piva}
+      <strong>{SITE.name}</strong> — {SITE.owner} · {`${t.footer.piva} ${SITE.piva}`}
       <br />
       © {year} · {t.footer.rights} <span class="since">{t.footer.since}</span>
     </p>
