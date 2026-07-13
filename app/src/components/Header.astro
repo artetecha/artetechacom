@@ -1,7 +1,5 @@
 ---
-import { Image } from 'astro:assets';
-import logoLight from '../assets/logo-retina.png';
-import logoDark from '../assets/logo-dark.png';
+import Logo from './Logo.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import { useTranslations, localizePath, type Locale } from '../i18n/utils';
@@ -27,8 +25,7 @@ const current = Astro.url.pathname;
 <header>
   <div class="container bar">
     <a class="brand" href={localizePath(locale, '/')} aria-label="Artetecha — home">
-      <Image src={logoLight} alt="Artetecha" width={163} height={44} class="logo logo-light" loading="eager" />
-      <Image src={logoDark} alt="" width={163} height={44} class="logo logo-dark" loading="eager" aria-hidden="true" />
+      <Logo width={177} />
     </a>
     <nav aria-label={t.a11y.mainNav}>
       {
@@ -67,25 +64,8 @@ const current = Astro.url.pathname;
   .brand {
     view-transition-name: brand-logo;
     flex-shrink: 0;
-    display: grid;
-  }
-
-  .brand :global(img) {
-    grid-area: 1 / 1;
-    width: 163px;
-    height: auto;
-  }
-
-  .logo-dark {
-    display: none;
-  }
-
-  :global([data-theme='dark']) .logo-light {
-    display: none;
-  }
-
-  :global([data-theme='dark']) .logo-dark {
-    display: block;
+    display: flex;
+    align-items: center;
   }
 
   nav {

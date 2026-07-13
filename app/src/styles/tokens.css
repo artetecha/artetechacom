@@ -62,6 +62,8 @@
   --hero-a: var(--steel-100);
   --hero-b: oklch(96% 0.04 118);
 
+  --logo-script: var(--steel-600);
+
   color-scheme: light;
 }
 
@@ -90,6 +92,8 @@
 
   --hero-a: oklch(22% 0.045 243);
   --hero-b: oklch(20% 0.035 122);
+
+  --logo-script: oklch(72% 0.09 243);
 
   color-scheme: dark;
 }
