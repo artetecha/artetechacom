@@ -12,7 +12,9 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 
 const projects = await getProjects(locale);
-const testimonials = await getCollection('testimonials');
+const testimonials = (await getCollection('testimonials')).sort(
+  (a, b) => a.data.weight - b.data.weight,
+);
 ---
 
 <Base title={t.work.title} description={t.work.intro} locale={locale}>

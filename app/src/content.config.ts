@@ -49,6 +49,8 @@ const testimonials = defineCollection({
     author: z.string(),
     role: z.string(),
     company: z.string().optional(),
+    /** Display order; the home page features the three lowest weights. */
+    weight: z.number().default(99),
     quote: z.object({
       en: z.string(),
       it: z.string().optional(),

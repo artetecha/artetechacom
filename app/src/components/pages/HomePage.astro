@@ -14,9 +14,9 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 
 const latest = (await getWritingList(locale)).slice(0, 3);
-// Deterministic pick of three (id order), varied companies; all four live on /work/.
+// The three lowest-weight testimonials; the full set lives on /work/.
 const testimonials = (await getCollection('testimonials'))
-  .sort((a, b) => a.id.localeCompare(b.id))
+  .sort((a, b) => a.data.weight - b.data.weight)
   .slice(0, 3);
 
 const names = [
