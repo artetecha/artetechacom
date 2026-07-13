@@ -82,6 +82,15 @@ export const en = {
     latestTitle: 'Latest writing',
     latestAll: 'All writing',
     quotesAll: 'More on the work page',
+    oss: {
+      title: 'Open source',
+      name: 'Upsun mu-plugin for WordPress',
+      blurb:
+        'A single must-use plugin that makes WordPress a platform-native citizen on Upsun: environment awareness, router-cache friendliness, safe preview clones, Site Health checks that understand the platform, and a wp upsun CLI. Off-platform it fully no-ops — and yes, the practice that retired its own WordPress site still ships WordPress tooling.',
+      badges: ['MIT', 'PHP 8.1+', 'WordPress 6.0+', 'Composer-first'],
+      ctaSite: 'Explore the project',
+      ctaCode: 'View on GitHub',
+    },
   },
   contact: {
     title: 'Contact',

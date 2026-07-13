@@ -73,6 +73,30 @@ const names = [
     </div>
   </section>
 
+  <section class="section" aria-labelledby="oss-title">
+    <div class="container">
+      <div class="oss card reveal">
+        <div class="oss-text">
+          <p class="eyebrow">{t.home.oss.title}</p>
+          <h2 id="oss-title">{t.home.oss.name}</h2>
+          <p class="oss-blurb">{t.home.oss.blurb}</p>
+          <ul class="oss-badges" aria-hidden="true">
+            {t.home.oss.badges.map((badge) => <li class="tag">{badge}</li>)}
+          </ul>
+          <div class="oss-cta">
+            <a class="btn btn-primary" href="https://upsun.artetecha.com/" rel="noopener">
+              {t.home.oss.ctaSite}
+            </a>
+            <a class="btn btn-ghost" href="https://github.com/artetecha/upsun-wp" rel="noopener">
+              {t.home.oss.ctaCode}
+            </a>
+          </div>
+        </div>
+        <pre class="oss-term" aria-hidden="true"><code>$ composer require artetecha/upsun-wp</code></pre>
+      </div>
+    </div>
+  </section>
+
   {
     latest.length > 0 && (
       <section class="section" aria-labelledby="latest-title">
@@ -288,6 +312,57 @@ const names = [
     justify-content: space-between;
     gap: var(--space-3);
     flex-wrap: wrap;
+  }
+
+  .oss {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-5);
+    border-inline-start: 4px solid var(--accent);
+    flex-wrap: wrap;
+  }
+
+  .oss:hover {
+    transform: none;
+  }
+
+  .oss-text {
+    flex: 1 1 24rem;
+  }
+
+  .oss-text h2 {
+    margin-block-end: var(--space-2);
+  }
+
+  .oss-blurb {
+    color: var(--text-muted);
+  }
+
+  .oss-badges {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-4);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .oss-cta {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .oss-term {
+    flex: 0 1 auto;
+    background: var(--steel-900);
+    color: var(--lime-400);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
+    font-size: var(--text-sm);
+    margin: 0;
   }
 
   .quotes {
