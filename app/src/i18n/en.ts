@@ -58,7 +58,7 @@ export const en = {
     role: 'Role',
   },
   home: {
-    heroTitle: 'Art meets technique.',
+    heroTitle: 'Art meets technology.',
     heroSubtitle:
       'Artetecha is the tech practice of Vincenzo Russo — solutions architect, software engineer, and restless simplifier of complex platforms.',
     heroCtaWork: 'See the work',
