@@ -1,0 +1,118 @@
+---
+title: 'The build with no database'
+description: 'The most satisfying diff of the migration was the platform config: three backing services down to none. Here is the whole file that runs this site, annotated — and why "no database" is the point, not a limitation.'
+pubDate: 2026-07-18
+tags: ['upsun', 'astro', 'devops']
+draft: true
+---
+
+When I [moved this site to Astro](/writing/wordpress-to-astro-in-a-day/),
+the change that felt best wasn't in the content or the design. It was in
+`.upsun/config.yaml` — the file that tells the platform what this site *is*.
+It went from describing a small distributed system to describing a folder of
+files. This post is that file, annotated.
+
+## What it used to say
+
+The WordPress version declared three backing services and an application
+that needed all of them:
+
+```yaml
+services:
+  appdb:  { type: mariadb:11.4 }
+  redis:  { type: redis:7.2 }
+  es:     { type: elasticsearch:7.10 }
+```
+
+A database for content. Redis for the object cache, because the database
+couldn't keep up on its own. Elasticsearch because search across that
+content needed a real index. And a deploy hook that flushed Redis and ran a
+sequence of WP-CLI incantations on every deploy to keep the whole thing
+coherent. None of it was wrong — that's genuinely what enterprise-shaped
+WordPress needs. It was just an enormous amount of machinery for a personal
+site whose content is a few dozen Markdown files.
+
+## What it says now
+
+Here is the entire application config, minus nothing:
+
+```yaml
+applications:
+  app:
+    source: { root: "app" }
+    type: "nodejs:22"
+    build:
+      flavor: none
+    hooks:
+      build: |
+        set -e
+        npm ci
+        npm run build
+    web:
+      locations:
+        "/":
+          root: "dist"
+          index: ["index.html"]
+          passthru: "/404.html"
+          expires: 10m
+          scripts: false
+        "/_astro":
+          root: "dist/_astro"
+          expires: 1y
+```
+
+There is no `services:` block at all. That's the whole story.
+
+A few lines earn their place:
+
+- **`type: nodejs:22`** is a build-time runtime, not a request-time one. Node
+  runs `astro build` when I push; it never runs to serve a request. At serve
+  time there is no process — just the router handing back files.
+- **`build.flavor: none`** tells the platform not to guess at a build; the
+  `build` hook owns it. `npm ci` for a reproducible install from the
+  lockfile, then `npm run build`, which is `astro check && astro build` — the
+  type-check runs *before* the build, so a broken type fails the deploy
+  instead of shipping.
+- **`passthru: "/404.html"`** hands unknown paths to Astro's static 404 page.
+- **The two `expires`** are the whole caching strategy. HTML gets a short
+  ten minutes, because it can change when I republish. Everything under
+  `/_astro` — the hashed CSS, JS, and images — gets a year, because those
+  filenames are content-hashed: if the content changes, the filename changes,
+  so the old one can be cached forever without ever going stale.
+
+## Why "no database" is the feature
+
+Strip the services away and something clarifying happens to the operations
+story. There is no database to back up, migrate, or get breached. No cache to
+flush, because the artefact is already the final HTML. No search cluster to
+keep in sync, because search over a few dozen files doesn't need one. The
+attack surface is a static file server.
+
+The workflow collapses to primitives I already trust:
+
+- **Deploy** is `git push`. The build hook runs, and if it's green the new
+  files go live.
+- **Rollback** is `git revert`. There's no schema to migrate backwards, no
+  data to reconcile — the previous commit built a previous set of files, and
+  you just build them again.
+- **Staging** is any branch. The platform builds each one into a full
+  environment with its own URL — no database to clone, so a preview
+  environment is just… the same build, pointed at a branch.
+
+The build itself takes about half a second to produce every page on the
+site. There is no cold start, because there is nothing to start.
+
+## The honest caveat
+
+"No server" doesn't mean no constraints — it means the constraints move. A
+contact form now needs an external endpoint, because there's no PHP to
+receive a POST. Anything genuinely dynamic — per-user content, a comment
+system — would need a service you'd add back deliberately, or a third party.
+For a single-author professional site, that trade is a bargain: I gave up
+capabilities I wasn't using to delete an entire category of things that can
+break at 3am.
+
+The best infrastructure diff is the one that removes infrastructure. This
+site's config now fits on a screen, describes no moving parts, and hasn't
+needed a single out-of-hours thought since it shipped. That's the whole
+pitch.

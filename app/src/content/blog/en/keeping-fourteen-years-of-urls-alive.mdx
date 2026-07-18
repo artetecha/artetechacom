@@ -1,0 +1,146 @@
+---
+title: 'Keeping fourteen years of URLs alive'
+description: 'Replacing the CMS is the easy part. Not breaking every link the old site ever published is the part that takes care — one regular expression, an ordered redirect table, and a way to prove it works.'
+pubDate: 2026-07-17
+tags: ['seo', 'upsun', 'astro']
+draft: true
+---
+
+When I [rebuilt this site on Astro](/writing/wordpress-to-astro-in-a-day/),
+the content moved and the URLs changed. That's the moment most migrations
+quietly break the web: a post that lived at one address for a decade now
+returns a 404, and every link to it — from search results, other people's
+blogrolls, a bookmark someone made in 2015 — dies with it.
+
+Tim Berners-Lee wrote "Cool URIs don't change" in 1998, and he was right
+then and now. So before I deleted anything, I worked out the contract: every
+URL the old WordPress site ever served would continue to resolve, either to
+its new home or to somewhere sensible. This post is how that contract is
+enforced — and, just as importantly, how I proved it holds.
+
+## The shape of the old URLs
+
+WordPress here used dated permalinks. Every post lived at:
+
+```
+/some-post-slug/YYYY/MM/DD/
+```
+
+Fourteen years of them. Some I kept — the ten best went into a [dated
+archive](/writing/archive/) — and some I dropped, because a 2013 snippet
+about a Drupal `hook_views_query` alteration is not something anyone needs
+served as current advice. Both groups still had to resolve; they just
+resolve to different places.
+
+Then there were the section pages: `/company/`, `/projects/`, `/blog/`,
+`/feed/`, category and author archives. All indexed, all linked, all about
+to disappear.
+
+## Redirects belong at the edge
+
+A static site has no application at request time — there's no PHP process to
+inspect the URL and issue a redirect. That turns out to be a feature, not a
+problem. On Upsun, redirects are declared in the router, in
+`.upsun/config.yaml`, and handled at the edge before any request reaches the
+app. They're just configuration:
+
+```yaml
+routes:
+  "https://www.{default}/":
+    redirects:
+      expires: 1y
+      paths:
+        '^/company/?$':
+          to: "https://www.{default}/about/"
+          regexp: true
+        '^/feed/?$':
+          to: "https://www.{default}/rss.xml"
+          regexp: true
+```
+
+The section pages are one-liners like these. The interesting one is the
+posts, because there are too many to list by hand.
+
+## One regex for the kept posts
+
+Every kept post follows the same shape, so one rule maps all of them:
+
+```yaml
+'^/([a-z0-9-]+)/[0-9]{4}/[0-9]{2}/[0-9]{2}/?$':
+    to: "https://www.{default}/writing/archive/$1/"
+    regexp: true
+```
+
+The capture group grabs the slug; the date is matched and discarded; `$1`
+drops the slug into its new archive path. `/coping-with-technical-debt/2012/04/03/`
+becomes `/writing/archive/coping-with-technical-debt/`, and so do the other
+nine, without an entry each.
+
+The reason this rule is safe — that it can't accidentally swallow a *new*
+URL — is the date. Every new route on the site is made of word segments:
+`/writing/`, `/work/`, `/about/`. None of them can match
+`.../YYYY/MM/DD/`, because none of them have four-then-two-then-two digits in
+them. The old URL shape is, by construction, disjoint from the new one.
+
+## Order matters: dropped posts first
+
+The dropped posts are a problem, because they match that generic rule too —
+and it would send them to `/writing/archive/their-slug/`, which doesn't
+exist. So they need an earlier, more specific rule that catches them first
+and sends them to the archive index instead:
+
+```yaml
+'^/(curl-http-request|qualtrics-module|drush-multi-site-and-sites-php|…)/[0-9]{4}/[0-9]{2}/[0-9]{2}/?$':
+    to: "https://www.{default}/writing/archive/"
+    regexp: true
+```
+
+Redirect rules are evaluated in order, so this alternation sits *above* the
+catch-all. A dropped post matches here and stops; a kept post falls through
+to the generic rule below. Specific before generic — the oldest lesson in
+routing, and the easiest to forget until something 404s.
+
+## Make them permanent
+
+By default these redirects are temporary — a 302. That's wrong for a
+migration: a 302 tells search engines "this move might not last, keep the
+old URL indexed." What I wanted was a 301, which says "this is permanent,
+transfer the authority." One line per rule:
+
+```yaml
+        '^/company/?$':
+          to: "https://www.{default}/about/"
+          regexp: true
+          code: 301
+```
+
+Fourteen years of accumulated link equity flows to the new URLs instead of
+evaporating.
+
+## Proving it
+
+A redirect table you haven't tested is a guess. The thing that made
+verification mechanical was a decision I'd made in the archive content
+itself: every migrated post carries the URL it used to live at, in its front
+matter.
+
+```yaml
+originalUrl: "/coping-with-technical-debt/2012/04/03/"
+```
+
+That field is an audit trail. With it, checking the whole contract is a loop
+over every old URL, asserting each one returns a `301` to the right place:
+
+```bash
+curl -sI "https://www.artetecha.com/coping-with-technical-debt/2012/04/03/"
+# HTTP/2 301
+# location: https://www.artetecha.com/writing/archive/coping-with-technical-debt/
+```
+
+Run that across every `originalUrl`, plus the section pages and the dropped
+slugs, and either everything is a `301` to a live `200` — or you've found the
+rule you got wrong before your readers did.
+
+The CMS was the part everyone notices. The redirect table is the part that
+decides whether the last decade of this site's presence on the web survives
+the change. It's fifty lines of YAML. It was worth every one.
