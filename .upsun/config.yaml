@@ -20,8 +20,11 @@ applications:
                     root: "dist"
                     index:
                         - "index.html"
-                    # Serve the custom 404 page for unknown paths.
-                    passthru: "/404.html"
+                    # No passthru: unknown paths return a real 404 status
+                    # (a passthru to /404.html would serve it with 200 — a
+                    # soft 404 that search engines index and the edge caches).
+                    # Every real route is its own index.html, so passthru is
+                    # not needed for routing on this multi-page static site.
                     expires: 10m
                     scripts: false
                     allow: true
