@@ -20,11 +20,14 @@ applications:
                     root: "dist"
                     index:
                         - "index.html"
-                    # No passthru: unknown paths return a real 404 status
-                    # (a passthru to /404.html would serve it with 200 — a
-                    # soft 404 that search engines index and the edge caches).
-                    # Every real route is its own index.html, so passthru is
-                    # not needed for routing on this multi-page static site.
+                    # Serve the custom 404 page for unknown paths.
+                    # NOTE: this serves /404.html with a 200 status (soft 404).
+                    # Returning a real 404 status on this static app is not
+                    # possible declaratively — with no passthru, a missing file
+                    # has no upstream and the router returns 502. A genuine 404
+                    # would require a running handler process (web.commands),
+                    # which this deliberately process-free site avoids.
+                    passthru: "/404.html"
                     expires: 10m
                     scripts: false
                     allow: true
