@@ -15,25 +15,27 @@ applications:
                 npm run build
 
         web:
+            # nginx serves every real static file directly; the tiny start
+            # process below only ever receives genuine misses (passthru: true),
+            # which it answers with the branded 404 page and a real 404 status.
+            upstream:
+                socket_family: tcp
+            commands:
+                start: "node server.mjs"
             locations:
                 "/":
                     root: "dist"
                     index:
                         - "index.html"
-                    # Serve the custom 404 page for unknown paths.
-                    # NOTE: this serves /404.html with a 200 status (soft 404).
-                    # Returning a real 404 status on this static app is not
-                    # possible declaratively — with no passthru, a missing file
-                    # has no upstream and the router returns 502. A genuine 404
-                    # would require a running handler process (web.commands),
-                    # which this deliberately process-free site avoids.
-                    passthru: "/404.html"
+                    # Forward misses to the 404 handler (real 404 status).
+                    passthru: true
                     expires: 10m
                     scripts: false
                     allow: true
                 "/_astro":
                     # Content-hashed build assets: cache forever.
                     root: "dist/_astro"
+                    passthru: true
                     expires: 1y
                     scripts: false
                     allow: true

@@ -48,15 +48,20 @@ applications:
         npm ci
         npm run build
     web:
+      upstream:
+        socket_family: tcp
+      commands:
+        start: "node server.mjs"
       locations:
         "/":
           root: "dist"
           index: ["index.html"]
-          passthru: "/404.html"
+          passthru: true
           expires: 10m
           scripts: false
         "/_astro":
           root: "dist/_astro"
+          passthru: true
           expires: 1y
 ```
 
@@ -64,15 +69,21 @@ There is no `services:` block at all. That's the whole story.
 
 A few lines earn their place:
 
-- **`type: nodejs:22`** is a build-time runtime, not a request-time one. Node
-  runs `astro build` when I push; it never runs to serve a request. At serve
-  time there is no process — just the router handing back files.
+- **`type: nodejs:22`** is mostly a build-time runtime. Node runs
+  `astro build` when I push; at serve time it runs just one tiny thing (more
+  on that below), while every real page is a static file the router hands
+  back directly.
 - **`build.flavor: none`** tells the platform not to guess at a build; the
   `build` hook owns it. `npm ci` for a reproducible install from the
   lockfile, then `npm run build`, which is `astro check && astro build` — the
   type-check runs *before* the build, so a broken type fails the deploy
   instead of shipping.
-- **`passthru: "/404.html"`** hands unknown paths to Astro's static 404 page.
+- **`commands.start` + `passthru: true`** point at a ~15-line Node script,
+  `server.mjs`, with exactly one job: return the branded 404 page with a real
+  404 status. nginx serves every file that exists; only genuine misses reach
+  the script. It's the one process this otherwise-static site can't shed —
+  because static hosting can't set a status code on a file it hands back, so
+  a naïve `passthru: /404.html` would serve the not-found page with a *200*.
 - **The two `expires`** are the whole caching strategy. HTML gets a short
   ten minutes, because it can change when I republish. Everything under
   `/_astro` — the hashed CSS, JS, and images — gets a year, because those
@@ -99,17 +110,21 @@ The workflow collapses to primitives I already trust:
   environment is just… the same build, pointed at a branch.
 
 The build itself takes about half a second to produce every page on the
-site. There is no cold start, because there is nothing to start.
+site. Every page is prebuilt, so there's nothing to render on the fly — the
+only thing that ever "runs" is the little 404 fallback, and only when
+someone asks for a page that isn't there.
 
 ## The honest caveat
 
-"No server" doesn't mean no constraints — it means the constraints move. A
-contact form now needs an external endpoint, because there's no PHP to
-receive a POST. Anything genuinely dynamic — per-user content, a comment
-system — would need a service you'd add back deliberately, or a third party.
-For a single-author professional site, that trade is a bargain: I gave up
-capabilities I wasn't using to delete an entire category of things that can
-break at 3am.
+"Almost no server" doesn't mean no constraints — it means the constraints
+move. The 404 handler is the honest asterisk: this platform can't set a 404
+status on a purely static file, so a genuine not-found response costs one
+tiny always-on process. And a contact form now needs an external endpoint,
+because there's no PHP to receive a POST. Anything genuinely dynamic —
+per-user content, a comment system — would need a service you'd add back
+deliberately, or a third party. For a single-author professional site, that
+trade is a bargain: I gave up capabilities I wasn't using to delete an
+entire category of things that can break at 3am.
 
 The best infrastructure diff is the one that removes infrastructure. This
 site's config now fits on a screen, describes no moving parts, and hasn't
