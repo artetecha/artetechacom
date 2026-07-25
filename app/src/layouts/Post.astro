@@ -1,4 +1,5 @@
 ---
+import type { ImageMetadata } from 'astro';
 import Base from './Base.astro';
 import { useTranslations, formatDate, type Locale } from '../i18n/utils';
 
@@ -12,6 +13,9 @@ interface Props {
   alternate?: string | null;
   backHref: string;
   backLabel: string;
+  /** Optional lead image shown between the header and the body. */
+  hero?: ImageMetadata;
+  heroAlt?: string;
   /** Set for migrated posts: shows the archive notice banner. */
   archiveOriginalDate?: Date;
 }
@@ -26,6 +30,8 @@ const {
   alternate = undefined,
   backHref,
   backLabel,
+  hero,
+  heroAlt = '',
   archiveOriginalDate,
 } = Astro.props;
 
@@ -57,6 +63,14 @@ const t = useTranslations(locale);
         )
       }
     </header>
+
+    {
+      hero && (
+        <figure class="hero">
+          <img src={hero.src} width={hero.width} height={hero.height} alt={heroAlt} loading="eager" decoding="async" />
+        </figure>
+      )
+    }
 
     {
       archiveOriginalDate && (
@@ -98,6 +112,18 @@ const t = useTranslations(locale);
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1);
+  }
+
+  .hero {
+    margin: 0 0 var(--space-5);
+  }
+
+  .hero img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
   }
 
   .archive-notice {
