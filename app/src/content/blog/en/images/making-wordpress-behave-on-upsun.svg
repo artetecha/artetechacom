@@ -1,0 +1,105 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" role="img"
+     xmlns="http://www.w3.org/2000/svg"
+     font-family="'Segoe UI', system-ui, -apple-system, Roboto, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dbe7f1"/>
+      <stop offset="1" stop-color="#eef7db"/>
+    </linearGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="42"/>
+    </filter>
+    <filter id="card" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#14304a" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <!-- branded backdrop: steel-to-lime wash with soft grey/lime/amber blobs -->
+  <rect width="1200" height="600" fill="url(#bg)"/>
+  <ellipse cx="1015" cy="105" rx="255" ry="195" fill="#b1d14f" opacity="0.22" filter="url(#soft)"/>
+  <ellipse cx="140"  cy="515" rx="245" ry="185" fill="#f0a800" opacity="0.15" filter="url(#soft)"/>
+  <ellipse cx="235"  cy="80"  rx="215" ry="150" fill="#2f7fb8" opacity="0.12" filter="url(#soft)"/>
+
+  <!-- git graph: production trunk, a branch, and the preview clone node -->
+  <g stroke-linecap="round">
+    <line x1="160" y1="150" x2="160" y2="420" stroke="#1c6398" stroke-width="7"/>
+    <path d="M160,258 C160,322 250,352 322,352" fill="none" stroke="#86ab34" stroke-width="7"/>
+    <line x1="336" y1="352" x2="452" y2="368" stroke="#86ab34" stroke-width="6"/>
+  </g>
+  <circle cx="160" cy="258" r="16" fill="#ffffff" stroke="#1c6398" stroke-width="7"/>
+  <circle cx="160" cy="398" r="10" fill="#1c6398"/>
+  <circle cx="332" cy="352" r="15" fill="#b1d14f" stroke="#5f7d24" stroke-width="6"/>
+
+  <g fill="#1c6398" font-weight="700" letter-spacing="1.5">
+    <text x="188" y="243" font-size="19">PRODUCTION</text>
+  </g>
+  <text x="188" y="266" font-size="15" fill="#70787f">main · live data &amp; secrets</text>
+  <g fill="#5f7d24" font-weight="700" letter-spacing="1.5">
+    <text x="118" y="452" font-size="19">PREVIEW CLONE</text>
+  </g>
+  <text x="118" y="475" font-size="15" fill="#70787f">per-branch · byte-for-byte copy</text>
+
+  <!-- production environment (behind) -->
+  <rect x="512" y="118" width="556" height="300" rx="18"
+        fill="#ffffff" opacity="0.60" stroke="#86b4d8" stroke-width="2"/>
+
+  <!-- preview environment (front), where SafePreviews acts -->
+  <g filter="url(#card)">
+    <rect x="452" y="190" width="600" height="322" rx="22" fill="#ffffff" stroke="#cfe0ee" stroke-width="2"/>
+  </g>
+  <!-- window chrome -->
+  <circle cx="486" cy="224" r="7" fill="#f0a800"/>
+  <circle cx="510" cy="224" r="7" fill="#a6adb4"/>
+  <circle cx="534" cy="224" r="7" fill="#b1d14f"/>
+  <rect x="838" y="210" width="132" height="28" rx="14" fill="#eef2f7" stroke="#cfe0ee" stroke-width="1.5"/>
+  <text x="904" y="229" font-size="14" fill="#1c6398" font-weight="600" text-anchor="middle" letter-spacing="0.5">preview</text>
+  <line x1="452" y1="252" x2="1052" y2="252" stroke="#e7edf3" stroke-width="2"/>
+
+  <!-- three live integrations, each neutralised by SafePreviews -->
+  <g>
+    <!-- row 1: outbound email -> intercepted -->
+    <rect x="484" y="278" width="46" height="46" rx="11" fill="#fdf1d6" stroke="#f0a800" stroke-width="2"/>
+    <rect x="495" y="291" width="24" height="18" rx="3" fill="none" stroke="#cf8a00" stroke-width="2.4"/>
+    <path d="M495,293 l12,9 l12,-9" fill="none" stroke="#cf8a00" stroke-width="2.4" stroke-linejoin="round"/>
+    <text x="548" y="299" font-size="20" fill="#37424e" font-weight="600">Outbound email</text>
+    <text x="548" y="319" font-size="14" fill="#70787f">live SMTP relay</text>
+    <g transform="translate(870,283)">
+      <rect x="0" y="0" width="160" height="36" rx="18" fill="#eaf3d2" stroke="#86ab34" stroke-width="2"/>
+      <path d="M18,18 l9,9 l17,-19" fill="none" stroke="#5f7d24" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="54" y="24" font-size="16" fill="#41611c" font-weight="700">Intercepted</text>
+    </g>
+  </g>
+  <g>
+    <!-- row 2: payments -> test mode -->
+    <rect x="484" y="346" width="46" height="46" rx="11" fill="#fdf1d6" stroke="#f0a800" stroke-width="2"/>
+    <rect x="494" y="358" width="26" height="20" rx="3" fill="none" stroke="#cf8a00" stroke-width="2.4"/>
+    <line x1="494" y1="365" x2="520" y2="365" stroke="#cf8a00" stroke-width="2.4"/>
+    <text x="548" y="367" font-size="20" fill="#37424e" font-weight="600">Card payments</text>
+    <text x="548" y="387" font-size="14" fill="#70787f">live Stripe keys</text>
+    <g transform="translate(870,351)">
+      <rect x="0" y="0" width="160" height="36" rx="18" fill="#eaf3d2" stroke="#86ab34" stroke-width="2"/>
+      <path d="M18,18 l9,9 l17,-19" fill="none" stroke="#5f7d24" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="54" y="24" font-size="16" fill="#41611c" font-weight="700">Test mode</text>
+    </g>
+  </g>
+  <g>
+    <!-- row 3: webhooks -> paused -->
+    <rect x="484" y="414" width="46" height="46" rx="11" fill="#fdf1d6" stroke="#f0a800" stroke-width="2"/>
+    <path d="M513,424 l-9,14 l7,0 l-4,12 l12,-16 l-7,0 z" fill="#cf8a00"/>
+    <text x="548" y="435" font-size="20" fill="#37424e" font-weight="600">Webhooks</text>
+    <text x="548" y="455" font-size="14" fill="#70787f">live delivery URLs</text>
+    <g transform="translate(870,419)">
+      <rect x="0" y="0" width="160" height="36" rx="18" fill="#eaf3d2" stroke="#86ab34" stroke-width="2"/>
+      <path d="M18,18 l9,9 l17,-19" fill="none" stroke="#5f7d24" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="54" y="24" font-size="16" fill="#41611c" font-weight="700">Paused</text>
+    </g>
+  </g>
+
+  <!-- SafePreviews shield over the clone -->
+  <g filter="url(#card)">
+    <path d="M1044,150 L1092,169 L1092,208 C1092,240 1069,259 1044,270 C1019,259 996,240 996,208 L996,169 Z"
+          fill="#b1d14f" stroke="#1c6398" stroke-width="5"/>
+    <path d="M1022,206 l15,15 l30,-34" fill="none" stroke="#ffffff" stroke-width="8"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
