@@ -13,6 +13,8 @@ const blog = defineCollection({
       tags: z.array(z.string()).default([]),
       hero: image().optional(),
       heroAlt: z.string().optional(),
+      /** Raster social-card image (e.g. 1200x630 PNG). Crawlers reject SVG, so heroes need a raster counterpart here. */
+      ogImage: image().optional(),
       draft: z.boolean().default(false),
     }),
 });

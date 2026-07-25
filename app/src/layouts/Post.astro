@@ -16,6 +16,8 @@ interface Props {
   /** Optional lead image shown between the header and the body. */
   hero?: ImageMetadata;
   heroAlt?: string;
+  /** Optional raster social-card image (1200x630) for OG/Twitter previews. */
+  ogImage?: ImageMetadata;
   /** Set for migrated posts: shows the archive notice banner. */
   archiveOriginalDate?: Date;
 }
@@ -32,13 +34,23 @@ const {
   backLabel,
   hero,
   heroAlt = '',
+  ogImage,
   archiveOriginalDate,
 } = Astro.props;
 
 const t = useTranslations(locale);
 ---
 
-<Base title={title} description={description} locale={locale} alternate={alternate}>
+<Base
+  title={title}
+  description={description}
+  locale={locale}
+  alternate={alternate}
+  ogType="article"
+  ogImage={ogImage?.src}
+  ogImageWidth={ogImage?.width}
+  ogImageHeight={ogImage?.height}
+>
   <article class="container-text">
     <header class="post-head">
       <p class="back"><a href={backHref}>← {backLabel}</a></p>
