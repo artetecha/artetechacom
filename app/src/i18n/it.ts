@@ -54,7 +54,7 @@ export const it = {
     role: 'Ruolo',
   },
   home: {
-    heroTitle: 'L’arte incontra la tecnica.',
+    heroTitle: 'L’arte incontra la tecnologia.',
     heroSubtitle:
       'Artetecha è lo studio tecnologico di Vincenzo Russo — solutions architect, software engineer e instancabile semplificatore di piattaforme complesse.',
     heroCtaWork: 'Guarda i lavori',
