@@ -13,8 +13,10 @@ const { locale, alternate } = Astro.props;
 const t = useTranslations(locale);
 
 const links = [
+  { href: localizePath(locale, '/'), label: t.nav.home },
   { href: localizePath(locale, '/about/'), label: t.nav.about },
   { href: localizePath(locale, '/work/'), label: t.nav.work },
+  { href: localizePath(locale, '/review/'), label: t.nav.review },
   { href: localizePath(locale, '/writing/'), label: t.nav.writing },
   { href: localizePath(locale, '/contact/'), label: t.nav.contact },
 ];

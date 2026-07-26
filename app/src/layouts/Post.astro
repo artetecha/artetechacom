@@ -20,6 +20,8 @@ interface Props {
   ogImage?: ImageMetadata;
   /** Set for migrated posts: shows the archive notice banner. */
   archiveOriginalDate?: Date;
+  /** True when a human has translated/reviewed this Italian post. */
+  translationReviewed?: boolean;
 }
 
 const {
@@ -36,6 +38,7 @@ const {
   heroAlt = '',
   ogImage,
   archiveOriginalDate,
+  translationReviewed = false,
 } = Astro.props;
 
 const t = useTranslations(locale);
@@ -46,6 +49,8 @@ const t = useTranslations(locale);
   description={description}
   locale={locale}
   alternate={alternate}
+  translationReviewed={translationReviewed}
+  autoTranslatable={true}
   ogType="article"
   ogImage={ogImage?.src}
   ogImageWidth={ogImage?.width}

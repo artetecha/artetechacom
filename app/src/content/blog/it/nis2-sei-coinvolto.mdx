@@ -1,0 +1,114 @@
+---
+title: 'NIS2: sei coinvolto (anche se pensi di no)'
+description: 'La direttiva NIS2 è legge in Italia dal 2024. Anche se la tua azienda non è nell’elenco dell’ACN, ci rientri quasi certamente dalla porta di servizio: la supply chain. Una guida pratica per PMI e agenzie che costruiscono software.'
+pubDate: 2026-07-20
+tags: ['nis2', 'sicurezza', 'compliance']
+---
+
+La maggior parte delle conversazioni sulla NIS2 si spegne alla prima domanda:
+«Sì, ma io ci rientro?». La risposta istintiva — «siamo una PMI, non
+gestiamo infrastrutture critiche, non ci riguarda» — è quasi sempre
+sbagliata. Non perché la tua azienda finisca d’ufficio nell’elenco dei
+soggetti vigilati, ma perché la NIS2 ti raggiunge da un’altra direzione,
+quella a cui nessuno guarda: i tuoi clienti.
+
+Partiamo dai fatti, perché le scadenze sono reali e gli attacchi anche: il
+ransomware verso organizzazioni italiane è cresciuto di circa il 65%
+anno su anno, e la direttiva non è più un’ipotesi futura.
+
+## Dove siamo, in breve
+
+La NIS2 (Direttiva UE 2022/2555) è stata recepita in Italia con il **D.Lgs.
+138/2024**, in vigore dal 16 ottobre 2024. L’autorità competente è l’**ACN**,
+l’Agenzia per la Cybersicurezza Nazionale, che tiene l’elenco dei soggetti,
+riceve le notifiche di incidente e pubblica il cronoprogramma degli obblighi.
+
+I soggetti si dividono in **essenziali** e **importanti**, individuati per
+combinazione di settore e dimensione. I settori sono molti più che in
+passato: energia, trasporti, sanità, acqua, infrastrutture e fornitori
+digitali (cloud, data center, marketplace), pubblica amministrazione,
+gestione dei rifiuti, produzione alimentare, chimica, e una fetta ampia di
+**manifattura** — dispositivi medici, elettronica, macchinari, autoveicoli.
+In linea di massima si parte dalle medie imprese (dai 50 addetti, oppure
+oltre 10 milioni di fatturato), con alcune categorie incluse a prescindere
+dalla dimensione.
+
+Se ti riconosci in quell’elenco, la verifica diretta è d’obbligo: la
+registrazione sulla piattaforma ACN avviene in una finestra annuale (tra
+inizio e fine del primo trimestre), e da lì partono gli obblighi secondo le
+determinazioni dell’Agenzia.
+
+## Il punto che sorprende: la supply chain
+
+Ecco la parte che le PMI e le agenzie non si aspettano. La NIS2 impone ai
+soggetti essenziali e importanti di **gestire il rischio dei propri
+fornitori** — in particolare i fornitori di servizi ICT: chi sviluppa il
+loro software, chi lo ospita, chi lo mantiene.
+
+Nella pratica, questo significa che i tuoi clienti soggetti alla NIS2
+girano quegli obblighi a valle, per contratto. Comincerai a vedere, nei
+capitolati e nei rinnovi, richieste che prima non c’erano: gestione delle
+vulnerabilità, tempi di notifica degli incidenti, tracciabilità dei deploy,
+politiche di accesso, garanzie sulla catena di build. Non perché tu sia un
+soggetto NIS2, ma perché **lo è il tuo cliente**, e la sua conformità
+adesso dipende anche dalla tua.
+
+È così che la direttiva raggiunge migliaia di aziende che non compaiono in
+nessun elenco: un’agenzia che costruisce e-commerce per un produttore
+manifatturiero, una software house che mantiene il gestionale di un’azienda
+sanitaria, un freelance che tiene in piedi l’hosting di un fornitore
+energetico. Nessuno di loro è «coinvolto» sulla carta. Tutti lo saranno nei
+contratti.
+
+## Cosa impone, in pratica
+
+Al netto del linguaggio giuridico, gli obblighi si riducono a poche famiglie
+concrete:
+
+- **Misure di gestione del rischio.** Analisi del rischio, sicurezza degli
+  approvvigionamenti, gestione delle vulnerabilità, continuità operativa,
+  crittografia, controllo degli accessi. Roba che un’architettura fatta bene
+  ha già, in gran parte.
+- **Notifica degli incidenti.** Tempistiche stringenti: pre-allerta entro
+  24 ore, notifica entro 72 ore, relazione finale entro un mese. Serve
+  saperli riconoscere e avere il canale pronto *prima*.
+- **Responsabilità degli organi di gestione.** Gli amministratori rispondono
+  della compliance e devono formarsi. Non è più «un problema dell’IT».
+- **Sicurezza della catena di fornitura.** Ed è qui che, come fornitore, entri
+  tu.
+
+Le sanzioni sono pensate per farsi sentire: fino a 10 milioni di euro o il 2%
+del fatturato mondiale per i soggetti essenziali, e responsabilità in capo ai
+dirigenti. Ma la leva che muoverà davvero il mercato, prima ancora delle
+multe, è più semplice: **i contratti**. Un fornitore che non sa rispondere
+alle domande di sicurezza semplicemente non rinnova.
+
+## Cosa fare adesso
+
+Senza panico e senza consulenze faraoniche, in ordine:
+
+1. **Stabilisci da che parte ci entri.** Sei un soggetto diretto (verifica
+   settore e dimensione, e la piattaforma ACN) o ci arrivi via supply chain
+   perché servi qualcuno che lo è? Nella maggior parte dei casi, per chi
+   costruisce software, è la seconda.
+2. **Fai l’inventario.** Cosa gestisci, per chi, dove gira, chi ha accesso.
+   Non puoi mettere in sicurezza ciò che non hai mappato.
+3. **Guarda i fondamentali di delivery.** Deploy tracciabili, ambienti
+   separati, rollback, gestione delle dipendenze, log. La conformità della
+   supply chain, per un fornitore ICT, è in buona parte igiene di ingegneria
+   che dovresti avere comunque.
+4. **Prepara la risposta agli incidenti** prima di averne bisogno: chi fa
+   cosa, entro quando, con quale canale verso il cliente.
+
+La sicurezza e la compliance non sono un modulo da bolare in fondo al
+progetto: sono una delle **sei lenti** con cui guardo un sistema nella
+[*Well-Architected Review*](/it/review/) — proprio perché, sempre più spesso,
+è la lente che decide se un contratto si rinnova. Se vuoi una mappa rapida
+dei fondamentali, c’è la [checklist gratuita](/it/review/checklist/).
+
+---
+
+*Questa è una guida pratica, non consulenza legale. Le soglie, le scadenze e
+gli obblighi specifici dipendono dalle determinazioni ufficiali dell’ACN e
+dalla tua situazione concreta: verifica sempre sulle fonti ufficiali o con un
+consulente qualificato prima di prendere decisioni.*

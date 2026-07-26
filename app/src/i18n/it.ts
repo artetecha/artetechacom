@@ -5,6 +5,7 @@ export const it = {
     home: 'Home',
     about: 'Chi sono',
     work: 'Lavori',
+    review: 'Consulenza',
     writing: 'Blog',
     contact: 'Contatti',
   },
@@ -78,8 +79,14 @@ export const it = {
     latestTitle: 'Ultimi articoli',
     latestAll: 'Tutti gli articoli',
     quotesAll: 'Di più nella pagina lavori',
+    reviewCta: {
+      eyebrow: 'Consulenza',
+      title: 'Ti serve un secondo parere senior?',
+      body: 'La <em>Well-Architected Review</em> è una lettura indipendente e a perimetro fisso su dove un progetto si romperà — architettura, scala, sicurezza ed esposizione NIS2/GDPR — per il tuo team o per i clienti della tua agenzia.',
+      cta: 'Guarda la review',
+    },
     oss: {
-      title: 'Open source',
+      sectionTitle: 'Progetti open source recenti',
       name: 'Upsun mu-plugin per WordPress',
       blurb:
         'Un unico must-use plugin che rende WordPress un cittadino nativo della piattaforma su Upsun: consapevolezza dell’ambiente, cache del router, cloni di preview sicuri, controlli Site Health che capiscono la piattaforma e una CLI wp upsun. Fuori piattaforma non fa assolutamente nulla — e sì, lo studio che ha mandato in pensione il proprio sito WordPress pubblica ancora strumenti per WordPress.',

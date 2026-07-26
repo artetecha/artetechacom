@@ -13,9 +13,21 @@ const target = otherLocale(locale);
 const href = alternate ?? localizePath(target, '/');
 ---
 
-<a class="lang" href={href} hreflang={target} lang={target} title={t.a11y.switchLang}>
+<a class="lang" href={href} hreflang={target} lang={target} title={t.a11y.switchLang} data-set-lang={target}>
   {target.toUpperCase()}
 </a>
+<script is:inline>
+  // Remember an explicit language choice so the auto-detector won't override it.
+  (() => {
+    const el = document.querySelector('a.lang[data-set-lang]');
+    if (!el) return;
+    el.addEventListener('click', () => {
+      try {
+        localStorage.setItem('lang', el.getAttribute('data-set-lang'));
+      } catch {}
+    });
+  })();
+</script>
 
 <style>
   .lang {

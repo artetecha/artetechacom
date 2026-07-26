@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import AutoTranslated from '../components/AutoTranslated.astro';
 import { SITE } from '../data/site';
 import { useTranslations, type Locale } from '../i18n/utils';
 
@@ -19,6 +20,10 @@ interface Props {
   ogImageWidth?: number;
   ogImageHeight?: number;
   ogType?: string;
+  /** Set true when an Italian page has been human-translated/reviewed (suppresses the auto-translation notice). */
+  translationReviewed?: boolean;
+  /** Only auto-translatable content (blog posts) opts into the auto-translation notice. */
+  autoTranslatable?: boolean;
 }
 
 const {
@@ -30,6 +35,8 @@ const {
   ogImageWidth,
   ogImageHeight,
   ogType = 'website',
+  translationReviewed = false,
+  autoTranslatable = false,
 } = Astro.props;
 
 const ogImageUrl = new URL(ogImage, SITE.origin);
@@ -46,6 +53,12 @@ const alternateHref =
     : (alternate ?? (locale === 'en' ? `/it${Astro.url.pathname}` : Astro.url.pathname.replace(/^\/it(\/|$)/, '/')));
 const enHref = locale === 'en' ? canonical.pathname : alternateHref;
 const itHref = locale === 'it' ? canonical.pathname : alternateHref;
+
+// Show the auto-translation notice only on auto-translatable content (blog
+// posts) that is Italian, has an English original, and hasn't been
+// human-reviewed. No English counterpart (e.g. a post authored in Italian)
+// → no notice, since it wasn't translated.
+const showAutoTranslated = autoTranslatable && locale === 'it' && !translationReviewed && !!enHref;
 ---
 
 <!doctype html>
@@ -84,11 +97,45 @@ const itHref = locale === 'it' ? canonical.pathname : alternateHref;
         document.documentElement.dataset.theme = theme;
       })();
     </script>
+    <script is:inline define:vars={{ locale }}>
+      // On the home page only, send first-time visitors to their preferred
+      // language. A manual choice (stored by the language switcher) always
+      // wins; deep links are never redirected. Runs before paint.
+      (() => {
+        const p = location.pathname;
+        if (p !== '/' && p !== '/it' && p !== '/it/') return;
+        let pref;
+        try {
+          pref = localStorage.getItem('lang');
+        } catch {}
+        if (pref !== 'en' && pref !== 'it') {
+          const langs =
+            navigator.languages && navigator.languages.length
+              ? navigator.languages
+              : [navigator.language || 'en'];
+          pref = 'en';
+          for (const l of langs) {
+            const s = String(l).toLowerCase();
+            if (s.indexOf('it') === 0) {
+              pref = 'it';
+              break;
+            }
+            if (s.indexOf('en') === 0) {
+              pref = 'en';
+              break;
+            }
+          }
+        }
+        if (pref === locale) return;
+        location.replace(pref === 'it' ? '/it/' : '/');
+      })();
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">{t.a11y.skipToContent}</a>
     <Header locale={locale} alternate={alternateHref} />
     <main id="main">
+      {showAutoTranslated && enHref && <AutoTranslated originalUrl={enHref} />}
       <slot />
     </main>
     <Footer locale={locale} />
