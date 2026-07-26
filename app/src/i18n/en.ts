@@ -10,6 +10,7 @@ export const en = {
     home: 'Home',
     about: 'About',
     work: 'Work',
+    review: 'Review',
     writing: 'Writing',
     contact: 'Contact',
   },
@@ -82,6 +83,12 @@ export const en = {
     latestTitle: 'Latest writing',
     latestAll: 'All writing',
     quotesAll: 'More on the work page',
+    reviewCta: {
+      eyebrow: 'Advisory',
+      title: 'Need a senior second opinion?',
+      body: 'The Well-Architected Review is a fixed-scope, independent read on where a build will break — architecture, scale, security, and NIS2/GDPR exposure — for your team or your agency’s clients.',
+      cta: 'See the review',
+    },
     oss: {
       title: 'Open source',
       name: 'Upsun mu-plugin for WordPress',
