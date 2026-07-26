@@ -90,7 +90,7 @@ export const en = {
       cta: 'See the review',
     },
     oss: {
-      title: 'Open source',
+      sectionTitle: 'Latest open-source projects',
       name: 'Upsun mu-plugin for WordPress',
       blurb:
         'A single must-use plugin that makes WordPress a platform-native citizen on Upsun: environment awareness, router-cache friendliness, safe preview clones, Site Health checks that understand the platform, and a wp upsun CLI. Off-platform it fully no-ops — and yes, the practice that retired its own WordPress site still ships WordPress tooling.',

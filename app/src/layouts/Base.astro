@@ -84,6 +84,39 @@ const itHref = locale === 'it' ? canonical.pathname : alternateHref;
         document.documentElement.dataset.theme = theme;
       })();
     </script>
+    <script is:inline define:vars={{ locale }}>
+      // On the home page only, send first-time visitors to their preferred
+      // language. A manual choice (stored by the language switcher) always
+      // wins; deep links are never redirected. Runs before paint.
+      (() => {
+        const p = location.pathname;
+        if (p !== '/' && p !== '/it' && p !== '/it/') return;
+        let pref;
+        try {
+          pref = localStorage.getItem('lang');
+        } catch {}
+        if (pref !== 'en' && pref !== 'it') {
+          const langs =
+            navigator.languages && navigator.languages.length
+              ? navigator.languages
+              : [navigator.language || 'en'];
+          pref = 'en';
+          for (const l of langs) {
+            const s = String(l).toLowerCase();
+            if (s.indexOf('it') === 0) {
+              pref = 'it';
+              break;
+            }
+            if (s.indexOf('en') === 0) {
+              pref = 'en';
+              break;
+            }
+          }
+        }
+        if (pref === locale) return;
+        location.replace(pref === 'it' ? '/it/' : '/');
+      })();
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">{t.a11y.skipToContent}</a>

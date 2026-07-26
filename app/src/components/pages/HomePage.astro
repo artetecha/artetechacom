@@ -70,7 +70,7 @@ const names = [
         <div class="review-cta-text">
           <p class="eyebrow">{t.home.reviewCta.eyebrow}</p>
           <h2 id="review-cta-title">{t.home.reviewCta.title}</h2>
-          <p>{t.home.reviewCta.body}</p>
+          <p set:html={t.home.reviewCta.body}></p>
         </div>
         <a class="btn btn-primary" href={localizePath(locale, '/review/')}>{t.home.reviewCta.cta}</a>
       </div>
@@ -88,10 +88,12 @@ const names = [
 
   <section class="section" aria-labelledby="oss-title">
     <div class="container">
+      <div class="row-title">
+        <h2 id="oss-title">{t.home.oss.sectionTitle}</h2>
+      </div>
       <div class="oss card reveal">
         <div class="oss-text">
-          <p class="eyebrow">{t.home.oss.title}</p>
-          <h2 id="oss-title">{t.home.oss.name}</h2>
+          <h3>{t.home.oss.name}</h3>
           <p class="oss-blurb">{t.home.oss.blurb}</p>
           <ul class="oss-badges" aria-hidden="true">
             {t.home.oss.badges.map((badge) => <li class="tag">{badge}</li>)}
@@ -344,7 +346,8 @@ const names = [
     flex: 1 1 24rem;
   }
 
-  .oss-text h2 {
+  .oss-text h3 {
+    font-size: var(--text-lg);
     margin-block-end: var(--space-2);
   }
 

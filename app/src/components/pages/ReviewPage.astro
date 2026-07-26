@@ -116,13 +116,15 @@ const copy = {
 
 const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent(copy.mailSubject)}`;
 const checklistHref = localizePath(locale, '/review/checklist/');
+// English brand term italicised within Italian text (foreign-term convention).
+const titleHtml = locale === 'it' ? 'La <em>Well-Architected Review</em>' : copy.title;
 ---
 
 <Base title={copy.title} description={copy.lede} locale={locale}>
   <div class="container">
     <header class="hero container-text">
       <p class="eyebrow">{copy.eyebrow}</p>
-      <h1>{copy.title}</h1>
+      <h1 set:html={titleHtml}></h1>
       <p class="lede">{copy.lede}</p>
       <div class="cta">
         <a class="btn btn-primary" href={mailto}>{copy.ctaPrimary}</a>
