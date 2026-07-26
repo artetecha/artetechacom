@@ -1,0 +1,59 @@
+---
+// Reader-facing notice shown on Italian pages that were auto-translated from
+// an English original and not yet human-reviewed. Rendered by Base.astro; the
+// text is Italian because it only ever appears on Italian pages.
+interface Props {
+  /** URL of the English original to link to. */
+  originalUrl: string;
+}
+
+const { originalUrl } = Astro.props;
+---
+
+<aside class="auto-translated" role="note" aria-label="Nota sulla traduzione">
+  <div class="container inner">
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"></path>
+    </svg>
+    <p>
+      Tradotto automaticamente dall’inglese. <a href={originalUrl}>Leggi l’originale</a>.
+    </p>
+  </div>
+</aside>
+
+<style>
+  .auto-translated {
+    background: var(--bg-subtle);
+    border-block-end: 1px solid var(--border);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+  }
+
+  .auto-translated svg {
+    flex-shrink: 0;
+    color: var(--accent-warm-text);
+  }
+
+  .auto-translated p {
+    margin: 0;
+  }
+
+  .auto-translated a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    font-weight: 600;
+  }
+
+  .auto-translated a:hover {
+    color: var(--text);
+  }
+</style>

@@ -16,6 +16,12 @@ const blog = defineCollection({
       /** Raster social-card image (e.g. 1200x630 PNG). Crawlers reject SVG, so heroes need a raster counterpart here. */
       ogImage: image().optional(),
       draft: z.boolean().default(false),
+      /**
+       * Set true on an Italian post once a human has translated or reviewed it.
+       * When false (default), Italian posts that have an English original show
+       * an "auto-translated" notice to the reader.
+       */
+      translationReviewed: z.boolean().default(false),
     }),
 });
 

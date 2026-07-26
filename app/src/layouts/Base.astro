@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import AutoTranslated from '../components/AutoTranslated.astro';
 import { SITE } from '../data/site';
 import { useTranslations, type Locale } from '../i18n/utils';
 
@@ -19,6 +20,8 @@ interface Props {
   ogImageWidth?: number;
   ogImageHeight?: number;
   ogType?: string;
+  /** Set true when an Italian page has been human-translated/reviewed (suppresses the auto-translation notice). */
+  translationReviewed?: boolean;
 }
 
 const {
@@ -30,6 +33,7 @@ const {
   ogImageWidth,
   ogImageHeight,
   ogType = 'website',
+  translationReviewed = false,
 } = Astro.props;
 
 const ogImageUrl = new URL(ogImage, SITE.origin);
@@ -46,6 +50,11 @@ const alternateHref =
     : (alternate ?? (locale === 'en' ? `/it${Astro.url.pathname}` : Astro.url.pathname.replace(/^\/it(\/|$)/, '/')));
 const enHref = locale === 'en' ? canonical.pathname : alternateHref;
 const itHref = locale === 'it' ? canonical.pathname : alternateHref;
+
+// Show the auto-translation notice on Italian pages that have an English
+// original and haven't been human-reviewed. No English counterpart (e.g. a
+// post authored in Italian) → no notice, since it wasn't translated.
+const showAutoTranslated = locale === 'it' && !translationReviewed && !!enHref;
 ---
 
 <!doctype html>
@@ -122,6 +131,7 @@ const itHref = locale === 'it' ? canonical.pathname : alternateHref;
     <a class="skip-link" href="#main">{t.a11y.skipToContent}</a>
     <Header locale={locale} alternate={alternateHref} />
     <main id="main">
+      {showAutoTranslated && enHref && <AutoTranslated originalUrl={enHref} />}
       <slot />
     </main>
     <Footer locale={locale} />
