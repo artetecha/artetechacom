@@ -1,0 +1,152 @@
+---
+title: 'Far comportare bene WordPress su Upsun'
+description: 'Ho scritto un plugin open-source must-use che insegna a WordPress di girare su una piattaforma immutabile con cloni istantanei della produzione — così un ambiente di preview smette di poter inviare email a clienti veri o addebitare carte reali. Ecco cosa fa e perché.'
+pubDate: 2026-07-23
+tags: ['wordpress', 'upsun', 'open-source', 'devops', 'php']
+hero: ../en/images/making-wordpress-behave-on-upsun.svg
+heroAlt: 'Un ambiente di preview ramificato dalla produzione come clone byte per byte, con lo scudo SafePreviews di upsun-wp che ne neutralizza le integrazioni live: email in uscita intercettate, pagamenti con carta forzati in modalità test e webhook messi in pausa.'
+ogImage: ../en/images/making-wordpress-behave-on-upsun-og.png
+---
+
+Ecco uno scenario che dovrebbe preoccupare chiunque faccia girare WordPress su
+una piattaforma moderna. Cloni la produzione su un branch di preview per
+testare una modifica. Quel clone è byte per byte: stesso database, stesse
+opzioni, stessi segreti. Il che significa le stesse chiavi Stripe *live*, gli
+stessi URL dei webhook, le stesse credenziali SMTP. Piazzi un ordine di prova
+per verificare la tua modifica. Stripe addebita una carta reale. WooCommerce
+lancia un webhook reale verso il tuo sistema di evasione ordini. Un cliente
+riceve un'email di spedizione per un ordine che esiste solo su un branch che
+cancellerai tra un'ora.
+
+Niente di tutto questo è un bug di WordPress. È WordPress che fa esattamente
+ciò per cui è stato costruito — presumere di essere l'unica copia mutabile di
+sé stesso — su una piattaforma il cui intero valore sta nel fatto che *non lo
+è*. Ho colmato il divario con un plugin open-source:
+[**upsun-wp**](https://upsun.artetecha.com/), un plugin must-use che insegna a
+WordPress dove vive.
+
+## La diagnosi
+
+WordPress tradizionale presume di avere un unico server su cui può scrivere
+ogni volta che vuole. [Upsun](https://upsun.com) — dove lavoro — ti dà
+l'opposto: build immutabili, un filesystem in sola lettura e ambienti di
+preview che sono cloni esatti della produzione, creati per ogni branch.
+Ognuno di questi è una funzionalità. Ognuno di essi rompe anche un assunto
+radicato in profondità in WordPress e nel suo ecosistema di plugin.
+
+Così WordPress fa la cosa sbagliata in piccolo e in grande. Si offre di
+aggiornare automaticamente i plugin su un filesystem su cui non può scrivere.
+Il suo strumento Site Health segnala errori dall'aspetto spaventoso per cose
+che sulla piattaforma sono in realtà corrette. Non ha idea di essere un clone
+di preview, quindi tratta le credenziali di pagamento live come live. Il
+compito del plugin è consegnare a WordPress il contesto che gli manca, e poi
+togliersi di mezzo.
+
+## SafePreviews
+
+Questo è il fiore all'occhiello, e la ragione per cui l'intera cosa esiste.
+SafePreviews neutralizza le integrazioni pericolose nel momento in cui un
+ambiente di preview parte — **senza modificare il database**, così il clone
+resta una copia fedele della produzione per tutto ciò che conta:
+
+- **La posta viene intercettata.** Le chiamate a `wp_mail` vengono catturate
+  prima che lascino la macchina. Il default è solo-log; in alternativa puoi
+  consentirla o reindirizzarla.
+- **I pagamenti sono forzati in modalità test.** Stripe viene commutato in
+  modalità test al momento della lettura dell'opzione, così le chiavi live
+  clonate semplicemente non vengono mai usate.
+- **I webhook sono messi in pausa.** Le consegne dei webhook di WooCommerce
+  non partono da una preview, così nulla a valle reagisce a un ambiente usa e
+  getta.
+
+Poiché nulla di tutto ciò tocca il database, non c'è alcuna migrazione da
+eseguire e niente da annullare — la protezione è una decisione a runtime
+basata sul tipo di ambiente. Per i casi in cui *vuoi* che siano i dati stessi
+a essere ripuliti — anonimizzare le email degli utenti, disattivare un plugin,
+cancellare un'opzione sensibile — c'è un `wp upsun sanitize` opzionale e
+idempotente che colleghi all'hook di deploy. Marca l'ambiente in modo da
+scattare una volta per ogni clone fresco e non ripetersi mai.
+
+## Il resto del plugin
+
+SafePreviews si prende la scena, ma è uno di tredici moduli, ciascuno
+attivabile in modo indipendente e ciascuno un no-op fuori dalla piattaforma:
+
+| Modulo | Cosa fa |
+|---|---|
+| environment-indicator | Badge colorato nella admin-bar, widget della dashboard e banner di login così sai sempre su quale ambiente ti trovi |
+| page-cache | Emette header `Cache-Control` che permettono al router di Upsun di mettere in cache le risposte anonime |
+| site-health | Riscrive i controlli di Site Health perché comprendano la piattaforma — object cache, cron, scrivibilità dei mount, disco, salute dei servizi |
+| updates-policy | Disabilita gli auto-update in-app (il filesystem è in sola lettura) e sostituisce i toggle con una nota onesta |
+| preview-protection | Invia `noindex`/`nofollow` fuori dalla produzione così i cloni di preview restano fuori dai motori di ricerca |
+| smtp | Instrada PHPMailer verso il relay della piattaforma a meno che un plugin mailer non gestisca già SMTP |
+| cron-heartbeat | Pianifica un evento ricorrente che dimostra che il cron gira davvero, e segnala eventuali blocchi |
+| mount-usage | Visibilità dello spazio disco per mount, con avviso all'80% ed errore al 95% |
+| writable-paths | Confronta ciò su cui i plugin hanno bisogno di scrivere con i mount dichiarati, e suggerisce YAML pronto da incollare |
+| security-headers | Header di risposta di base, con HSTS gestito in funzione della presenza di Cloudflare davanti |
+| cloudflare | Rileva Cloudflare, aggiunge un health check e il purge della edge-cache — senza riscrivere `REMOTE_ADDR`, che è già corretto |
+| dashboard | Una pagina di amministrazione "Upsun" di primo livello che raccoglie ambiente, servizi, salute e configurazione della cache in un unico posto |
+
+C'è anche una cassetta degli attrezzi `wp upsun` per l'hook di deploy e il
+terminale — `doctor` esegue i controlli di salute con un exit code reale così
+la CI può fallire su di essi, `cache-check <url>` ti dice *perché* una pagina
+non viene messa in cache, `migrate` applica migrazioni di deploy ordinate e
+tracciate nel database, e `vendor` impacchetta un plugin premium come
+package Composer a percorso locale così il codice licenziato vive nel repo
+senza la sua chiave di licenza.
+
+## I principi a cui mi sono attenuto
+
+Due regole hanno plasmato ogni decisione, e vale la pena enunciarle perché
+sono ciò che impedisce a un plugin come questo di diventare esso stesso un
+problema.
+
+**Legge la piattaforma; non riscrive mai la tua configurazione.** Il plugin
+ricava tutto ciò che sa direttamente dalle variabili d'ambiente di Upsun. Non
+definisce una sola costante di WordPress — `wp-config.php` resta l'unica
+autorità sulle credenziali del database e sui salt. Niente da riconciliare,
+niente su cui litigare.
+
+**È completamente inerte fuori dalla piattaforma.** Sul tuo laptop, in CI,
+ovunque non sia Upsun, il plugin parte e non fa nulla. I comandi CLI stampano
+"Not running on Upsun" ed escono in modo pulito. Non c'è alcun caso speciale
+da ricordare, perché "non sulla piattaforma" è semplicemente il percorso
+silenzioso.
+
+E resta *generico*. Questo è un plugin per qualsiasi progetto WordPress su
+Upsun, non per il mio. Il comportamento specifico del sito appartiene al
+progetto che lo consuma, ed è per questo che ogni integrazione integrata —
+WooCommerce, Stripe, Wordfence, UpdraftPlus, WP Rocket — è collegata
+attraverso gli stessi filtri pubblici che useresti tu stesso. Se le
+integrazioni fornite possono essere costruite sull'API pubblica, allora
+possono esserlo anche le tue. Ci sono una sessantina di filtri; se avessi
+dovuto scavalcarli per far funzionare quelli inclusi, l'API starebbe mentendo.
+
+## L'onesto avvertimento
+
+Un plugin che fa "comportare bene WordPress su una piattaforma" resta pur
+sempre un plugin, e non può abrogare la fisica. SafePreviews protegge le
+integrazioni che conosce e quelle che gli insegni tramite
+`upsun_preview_sanitizers`; un'integrazione su misura che dialoga con una
+terza parte a modo suo sta a te aggiungerla alla lista — l'hook c'è, ma non
+indovinerà. Fare il vendoring dei plugin premium tiene il loro codice nel
+repo, non le loro licenze in regola; li aggiorni comunque in modo deliberato.
+E il filesystem in sola lettura è un vincolo reale, non uno che il plugin
+rimuove — rende il vincolo *leggibile* (ecco cosa vuole scrivere, ecco il
+mount che ti manca) invece di farlo sparire.
+
+Quel compromesso, però, è tutto il punto. Il plugin non finge che WordPress
+sia qualcosa che non è. Dice a WordPress la verità su dove sta girando —
+immutabile, clonato, in sola lettura — e lo lascia agire di conseguenza. Una
+preview che puoi clonare senza trattenere il fiato vale più di un'altra cosa
+che si comporta alla perfezione fino alla sera in cui invia un'email a un
+cliente.
+
+È [rilasciato con licenza MIT e disponibile su
+GitHub](https://github.com/artetecha/upsun-wp), con uno [starter pronto al
+deploy](https://github.com/artetecha/wordpress-upsun-starter) se vuoi il tutto
+già precablato. WordPress resta un ottimo strumento dove il suo modello calza
+— [questo sito lo ha lasciato indietro](/it/writing/wordpress-to-astro-in-a-day/)
+per ragioni che non avevano nulla a che vedere con WordPress che fa male ciò
+che sa fare. Quando il suo modello *calza* davvero, merita di sapere su quale
+piattaforma sta poggiando.

@@ -1,0 +1,113 @@
+---
+title: 'Da WordPress ad Astro in un giorno'
+description: 'Come questo sito è passato da uno stack WordPress con tre servizi di supporto a una build statica in Astro — migrazione dei contenuti, redirect e dark mode inclusi — nell’arco di una sola giornata di lavoro.'
+pubDate: 2026-07-13
+tags: ['astro', 'wordpress', 'upsun', 'ai']
+---
+
+Stamattina artetecha.com era un sito WordPress. E nemmeno piccolo: il core
+di WordPress gestito con Composer, il tema Avada con i suoi companion di
+Fusion Builder committati nel repository, un database MariaDB, una object
+cache Redis, un cluster Elasticsearch per la ricerca e un plugin di
+page-cache Cloudflare a tenere insieme la stanza. Stasera è una cartella di
+file HTML. Questa è la storia della giornata che sta nel mezzo.
+
+## La diagnosi
+
+Il vecchio sito era stata la vetrina della mia consulenza londinese, che ho
+chiuso quando sono tornato in Italia. Il sito è sopravvissuto all’attività
+per anni, e la sua storia git ti dice esattamente come li ha passati: bump
+di dipendenza, bump di dipendenza, bump di dipendenza. Dependabot era
+l’unico autore che si presentava ancora al lavoro.
+
+Ecco il tapis roulant di WordPress in poche parole. Nessuno scriveva
+contenuti — la macchina esisteva unicamente per tenersi patchata. Per un
+sito aziendale con dei redattori, WordPress si guadagna il pane. Per un sito
+professionale personale, dove l’unico autore vive comunque nel proprio IDE,
+un database è una passività che paghi ogni mese e a cui chiedi scusa ogni
+trimestre.
+
+## La decisione
+
+Due decisioni, a dire il vero. Primo, cosa *è* il sito: non più la facciata
+di un’agenzia, ma una pratica personale sotto il vecchio brand — Artetecha è
+ora semplicemente la pratica tecnica di Vincenzo Russo. Secondo, su cosa
+gira: [Astro](https://astro.build), contenuti in Markdown nel repository,
+niente CMS, niente database, niente da patchare un martedì sera.
+
+I requisiti che hanno superato l’esame:
+
+* **Bilingue dal primo giorno.** Inglese senza prefisso, italiano sotto
+  `/it/`, con coppie `hreflang` oneste solo dove esiste una traduzione vera
+  — nessun fallback di contenuto duplicato generato a macchina.
+* **La palette viene dal logo.** Gli stessi blob grigio/lime/ambra e lo
+  script blu acciaio che stanno su questo dominio dal 2012, espansi in scale
+  di token OKLCH che alimentano sia un tema chiaro sia uno scuro.
+* **Zero JavaScript di default.** L’unico script del sito è un theme toggle
+  in vanilla JS, abbastanza piccolo da leggersi in un respiro. Le
+  transizioni di pagina e le scroll reveal sono solo CSS.
+* **La storia sopravvive.** I post migliori dal 2009 al 2019 confluiscono in
+  un [archivio](/writing/archive/) chiaramente datato, e ogni vecchio URL di
+  WordPress continua a risolvere.
+
+## La migrazione
+
+Il lavoro sui contenuti era la parte che mi aspettavo mi mangiasse la
+giornata, e non è stato così, perché non l’ho fatto da solo: ho lavorato in
+coppia sull’intero rebuild con un agente di coding AI (Claude Code), che si
+è occupato della fatica mentre io prendevo le decisioni. Dieci post
+d’archivio sono stati recuperati dal sito live e convertiti in Markdown —
+compreso il recupero dei sample di codice dai fallback `<noscript>` di embed
+di gist GitHub morti da tempo, una cosa che è parsa archeologia digitale. I
+link che si erano decomposti in quindici anni sono stati ripuntati alla
+Wayback Machine. Quattro post tecnici sono arrivati dal mio blog personale,
+che non ha più davvero ragione di esistere.
+
+Il contratto sugli URL era il pezzo che mi stava più a cuore. Qui i
+permalink di WordPress erano del tipo `/slug/YYYY/MM/DD/`, e il router della
+piattaforma ora li mappa con una sola regex:
+
+```yaml
+'^/([a-z0-9-]+)/[0-9]{4}/[0-9]{2}/[0-9]{2}/?$':
+    to: "https://www.{default}/writing/archive/$1/"
+    regexp: true
+```
+
+I post che non sono entrati nell’archivio fanno redirect all’indice
+dell’archivio; `/feed/` serve ancora l’RSS; le vecchie pagine di sezione
+mappano ai loro successori. Ognuno di questi redirect è stato verificato
+contro la produzione prima che questo post fosse scritto.
+
+## La sottrazione
+
+Il diff più soddisfacente della giornata è stato la config della
+piattaforma. Il vecchio `.upsun/config.yaml` dichiarava tre servizi e un
+deploy hook che svuotava Redis ed eseguiva rituali WP-CLI. Il nuovo non
+dichiara **nessun servizio**: una build Node che esegue `astro build`, e un
+blocco `web` che serve `dist/` come file statici con caching a lunga durata
+sugli asset con hash. Il deploy è `git push`. Il rollback è `git revert`. Lo
+staging è qualunque branch.
+
+Qualche numero, per la cronaca:
+
+| | Prima | Dopo |
+|---|---|---|
+| Servizi di supporto | MariaDB, Redis, Elasticsearch | nessuno |
+| Runtime | PHP 8.4 + WordPress + 10 plugin | file statici |
+| JS lato client | jQuery + bundle Avada/Fusion | un theme toggle |
+| Build completa | n/d (stato mutabile) | ~0,5s per 28 pagine |
+| Workflow dei contenuti | wp-admin | `git push` |
+
+## L’ironia, riconosciuta
+
+Sì: lavoro in [Upsun](https://upsun.com), questo sito gira su Upsun, e ho
+passato anni della mia carriera immerso in WordPress — l’archivio qui sopra
+ne è la prova. Ho persino appena rilasciato un [plugin WordPress
+open-source](https://upsun.artetecha.com/) che fa comportare WordPress come
+si deve su questa stessa piattaforma. WordPress resta un ottimo strumento
+dove il suo modello calza. Su *questo* sito ha smesso di calzare anni fa, e
+la cosa più gentile che puoi fare per uno strumento che non calza più è
+smettere di tenertelo stretto.
+
+Quattordici anni di URL intatti, tre servizi mandati in pensione, una sola
+giornata di lavoro. Il tapis roulant è spento.

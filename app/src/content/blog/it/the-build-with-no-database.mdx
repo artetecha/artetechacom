@@ -1,0 +1,138 @@
+---
+title: 'La build senza database'
+description: 'Il diff più soddisfacente della migrazione è stato quello della configurazione di piattaforma: da tre servizi di supporto a nessuno. Ecco l''intero file che manda avanti questo sito, annotato — e perché il "niente database" è il punto, non un limite.'
+pubDate: 2026-07-18
+tags: ['upsun', 'astro', 'devops']
+---
+
+Quando ho [spostato questo sito su Astro](/it/writing/wordpress-to-astro-in-a-day/),
+il cambiamento che mi ha dato più soddisfazione non riguardava i contenuti o il
+design. Era in `.upsun/config.yaml` — il file che dice alla piattaforma cosa
+*è* questo sito. È passato dal descrivere un piccolo sistema distribuito al
+descrivere una cartella di file. Questo post è quel file, annotato.
+
+## Cosa diceva prima
+
+La versione WordPress dichiarava tre servizi di supporto e un'applicazione
+che aveva bisogno di tutti e tre:
+
+```yaml
+services:
+  appdb:  { type: mariadb:11.4 }
+  redis:  { type: redis:7.2 }
+  es:     { type: elasticsearch:7.10 }
+```
+
+Un database per i contenuti. Redis per la cache degli oggetti, perché il
+database da solo non ce la faceva. Elasticsearch perché la ricerca su quei
+contenuti aveva bisogno di un vero indice. E un deploy hook che svuotava Redis
+ed eseguiva a ogni deploy una sequenza di formule magiche WP-CLI per mantenere
+coerente il tutto. Niente di sbagliato — è davvero ciò di cui ha bisogno un
+WordPress in versione enterprise. Era solo una quantità enorme di
+macchinari per un sito personale i cui contenuti sono qualche decina di file
+Markdown.
+
+## Cosa dice adesso
+
+Ecco l'intera configurazione dell'applicazione, senza tagliare nulla:
+
+```yaml
+applications:
+  app:
+    source: { root: "app" }
+    type: "nodejs:22"
+    build:
+      flavor: none
+    hooks:
+      build: |
+        set -e
+        npm ci
+        npm run build
+    web:
+      upstream:
+        socket_family: tcp
+      commands:
+        start: "node server.mjs"
+      locations:
+        "/":
+          root: "dist"
+          index: ["index.html"]
+          passthru: true
+          expires: 10m
+          scripts: false
+        "/_astro":
+          root: "dist/_astro"
+          passthru: true
+          expires: 1y
+```
+
+Non c'è nessun blocco `services:`. È tutta qui la storia.
+
+Alcune righe si guadagnano il loro posto:
+
+- **`type: nodejs:22`** è per lo più un runtime di build. Node esegue
+  `astro build` quando faccio push; in fase di serving esegue una sola
+  piccolissima cosa (più sotto), mentre ogni pagina vera è un file statico che
+  il router restituisce direttamente.
+- **`build.flavor: none`** dice alla piattaforma di non tentare di indovinare
+  una build; se ne occupa il `build` hook. `npm ci` per un'installazione
+  riproducibile a partire dal lockfile, poi `npm run build`, che è
+  `astro check && astro build` — il type-check gira *prima* della build, così
+  un tipo rotto fa fallire il deploy invece di andare in produzione.
+- **`commands.start` + `passthru: true`** puntano a uno script Node di circa
+  15 righe, `server.mjs`, con esattamente un compito: restituire la pagina 404
+  personalizzata con un vero status 404. nginx serve ogni file che esiste; solo
+  i mancati riscontri autentici arrivano allo script. È l'unico processo di cui
+  questo sito, per il resto statico, non riesce a liberarsi — perché l'hosting
+  statico non può impostare uno status code su un file che restituisce, quindi
+  un ingenuo `passthru: /404.html` servirebbe la pagina di not-found con un
+  *200*.
+- **I due `expires`** sono l'intera strategia di caching. L'HTML riceve dieci
+  minuti scarsi, perché può cambiare quando ripubblico. Tutto ciò che sta sotto
+  `/_astro` — CSS, JS e immagini con hash — riceve un anno, perché quei nomi di
+  file hanno un hash del contenuto: se il contenuto cambia, cambia il nome del
+  file, così quello vecchio può restare in cache per sempre senza mai diventare
+  stantìo.
+
+## Perché il "niente database" è la funzionalità
+
+Togli di mezzo i servizi e succede qualcosa di chiarificatore alla parte
+operativa. Non c'è nessun database da fare backup, migrare o farsi violare.
+Nessuna cache da svuotare, perché l'artefatto è già l'HTML finale. Nessun
+cluster di ricerca da tenere sincronizzato, perché la ricerca su qualche decina
+di file non ne ha bisogno. La superficie di attacco è un file server statico.
+
+Il workflow si riduce a primitive di cui mi fido già:
+
+- **Il deploy** è `git push`. Gira il build hook e, se è verde, i nuovi file
+  vanno in produzione.
+- **Il rollback** è `git revert`. Non c'è nessuno schema da migrare
+  all'indietro, nessun dato da riconciliare — il commit precedente ha
+  costruito un insieme precedente di file, e non fai altro che ricostruirli.
+- **Lo staging** è qualsiasi branch. La piattaforma ne costruisce ognuno in un
+  ambiente completo con il proprio URL — nessun database da clonare, quindi un
+  ambiente di preview è semplicemente… la stessa build, puntata su un branch.
+
+La build in sé impiega circa mezzo secondo a produrre ogni pagina del sito.
+Ogni pagina è pre-costruita, quindi non c'è nulla da renderizzare al volo —
+l'unica cosa che "gira" mai è il piccolo fallback 404, e solo quando qualcuno
+richiede una pagina che non esiste.
+
+## L'onesto distinguo
+
+"Quasi nessun server" non vuol dire nessun vincolo — vuol dire che i vincoli si
+spostano. Il gestore del 404 è l'asterisco onesto: questa piattaforma non può
+impostare uno status 404 su un file puramente statico, quindi una risposta di
+not-found autentica costa un piccolissimo processo sempre attivo. E un form di
+contatto ora ha bisogno di un endpoint esterno, perché non c'è più il PHP a
+ricevere una POST. Qualsiasi cosa davvero dinamica — contenuti per singolo
+utente, un sistema di commenti — richiederebbe un servizio da riaggiungere
+deliberatamente, oppure una terza parte. Per un sito professionale di un solo
+autore, quello scambio è un affare: ho rinunciato a capacità che non stavo
+usando per eliminare un'intera categoria di cose che possono rompersi alle 3
+del mattino.
+
+Il miglior diff infrastrutturale è quello che rimuove infrastruttura. La
+configurazione di questo sito ora entra in una schermata, non descrive nessuna
+parte in movimento e non ha richiesto un solo pensiero fuori orario da quando è
+andata in produzione. È tutto qui il senso della proposta.

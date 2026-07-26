@@ -1,0 +1,103 @@
+---
+title: 'La notazione polacca (inversa) in JavaScript'
+description: 'Risolvere espressioni in notazione polacca e polacca inversa in JavaScript, da un classico approccio basato su stack a una versione più elegante che usa una mappa di operatori.'
+pubDate: 2023-02-13
+tags: ['javascript', 'algorithms']
+---
+
+C'è stato un tempo in cui _detestavo_ JavaScript. Storia vera. Ma da allora le cose sono cambiate parecchio. Ciò che mi piace del JS moderno è la sua versatilità e la sua facilità d'uso. Ha una sintassi relativamente semplice, il che lo rende accessibile a sviluppatori con livelli di esperienza diversi.
+
+Prendiamo un problema tipico usato nei corsi di programmazione: la notazione polacca (e anche la notazione polacca inversa). La notazione polacca (PN), nota anche come notazione polacca normale (NPN), notazione di Łukasiewicz, notazione di Varsavia, notazione polacca prefissa o semplicemente notazione prefissa, è una notazione matematica in cui gli operatori precedono i propri operandi, in contrasto con la più comune notazione infissa, in cui gli operatori sono collocati tra gli operandi, così come con la notazione polacca inversa (RPN), in cui gli operatori seguono i propri operandi. PN e RPN non hanno bisogno di parentesi, purché ciascun operatore abbia un numero fisso di operandi. L'aggettivo "polacca" si riferisce alla nazionalità del logico Jan Łukasiewicz, che inventò la notazione polacca nel 1924.
+
+| Notazione tradizionale | Notazione polacca | Notazione polacca inversa |
+| --- | --- | --- |
+| 3 + 4 | + 3 4 | 3 4 + |
+| 3 - (4 \* 5) | - 3 \* 4 5 | 3 4 5 \* - |
+| (3 + 4) \* 5 | \* + 3 4 5 | 3 4 + 5 \* |
+| (3 - 4) / (5 + 2) | / - 3 4 + 5 2 | 3 4 - 5 2 + / |
+
+_Confronto tra la notazione standard, la PN e la RPN._
+
+Senza sfruttare le peculiarità di JS, per calcolare un'espressione in formato PN si potrebbe scrivere del codice generico come il seguente:
+
+```javascript
+exports.calculate = function(expression) {
+    const tokens = expression.split(' ');
+    const stack = [];
+
+    for (let i = tokens.length - 1; i >= 0; i--) {
+      if (['+', '-', '*', '/'].includes(tokens[i])) {
+        const operand1 = stack.pop();
+        const operand2 = stack.pop();
+
+        let result;
+        switch (tokens[i]) {
+          case '+':
+            result = operand1 + operand2;
+            break;
+          case '-':
+            result = operand1 - operand2;
+            break;
+          case '*':
+            result = operand1 * operand2;
+            break;
+          case '/':
+            result = operand1 / operand2;
+            break;
+        }
+        stack.push(result);
+      } else {
+        stack.push(parseFloat(tokens[i]));
+      }
+    }
+    return stack[0];
+}
+```
+
+Codice simile potrebbe essere scritto in qualsiasi linguaggio moderno che offra funzioni integrate per operare su un array alla maniera di uno stack (in altri linguaggi, quelle funzioni dovrai implementarle tu stesso).
+
+Ma in JS si può fare molto meglio di così. Per evitare che questo articolo diventi troppo lungo, passo direttamente a una versione del codice in grado di gestire sia PN sia RPN.
+
+```javascript
+exports.calculate = function(expression, notation = 'pn') {
+    if (!['pn', 'rpn'].includes(notation)) return null;
+
+    const tokens = expression.split(' ');
+    if (notation === 'pn') tokens.reverse(); // PN: expression to be scanned in reversed order.
+    const stack = [];
+    const operators = {
+        '+': (x, y) => x + y,
+        '-': (x, y) => x - y,
+        '*': (x, y) => x * y,
+        '/': (x, y) => x / y
+    }
+
+    for (const token of tokens) {
+        if (['+', '-', '*', '/'].includes(token)) {
+            const operands = [stack.pop(), stack.pop()];
+            if (notation === 'rpn') operands.reverse(); // RPN: invert operand order once out of the stack.
+            stack.push(operators[token](operands[0], operands[1]));
+        } else {
+            stack.push(parseFloat(token));
+        }
+    }
+
+    return stack[0];
+}
+```
+
+Le modifiche principali:
+
+1. Non mi serve uno switch case per scegliere quale operazione aritmetica eseguire. Posso creare una mappa (chiamata `operators` qui sopra) che _mappa_ un simbolo di operatore alla funzione corrispondente. Poi uso quella mappa per eseguire l'operazione giusta in base al token che sto analizzando.
+
+2. Per l'analisi della PN, l'espressione originale va scandita all'indietro. È ciò che fa la prima versione del codice. Nella nuova versione, nel caso della PN, mi limito a invertire l'array. Va bene farlo? Sì, perché l'inversione dell'array viene eseguita in tempo lineare (`O(n)`), quindi la complessità temporale complessiva dell'algoritmo non cambia.
+
+3. Usiamo una versione più leggibile e comoda del ciclo `for`.
+
+Come dicevo, l'ultima versione del codice è in grado di risolvere anche la RPN. La differenza nell'algoritmo tra le due notazioni è piuttosto semplice:
+
+- con la RPN l'espressione viene scandita in ordine diretto, con la PN in ordine inverso
+
+- con la PN, il primo operando è il primo estratto dallo stack e il secondo operando è il secondo estratto dallo stack. Con la RPN, vanno scambiati.
+
+Il risultato è un pezzo di codice più elegante e compatto, anche se non necessariamente più leggibile.

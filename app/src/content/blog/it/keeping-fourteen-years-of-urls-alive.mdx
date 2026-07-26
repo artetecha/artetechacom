@@ -1,0 +1,154 @@
+---
+title: 'Mantenere vivi quattordici anni di URL'
+description: 'Sostituire il CMS è la parte facile. Non rompere ogni link che il vecchio sito abbia mai pubblicato è la parte che richiede attenzione: una sola espressione regolare, una tabella di redirect ordinata e un modo per dimostrare che funziona.'
+pubDate: 2026-07-17
+tags: ['seo', 'upsun', 'astro']
+---
+
+Quando ho [ricostruito questo sito su Astro](/it/writing/wordpress-to-astro-in-a-day/),
+i contenuti si sono spostati e gli URL sono cambiati. È il momento in cui la
+maggior parte delle migrazioni rompe silenziosamente il web: un post che ha
+vissuto allo stesso indirizzo per un decennio adesso restituisce un 404, e ogni
+link che vi puntava — dai risultati di ricerca, dai blogroll di altre persone,
+da un segnalibro che qualcuno ha salvato nel 2015 — muore con lui.
+
+Tim Berners-Lee scrisse "Cool URIs don't change" nel 1998, e aveva ragione
+allora come adesso. Perciò, prima di cancellare qualsiasi cosa, ho definito il
+contratto: ogni URL che il vecchio sito WordPress avesse mai servito avrebbe
+continuato a risolversi, o verso la sua nuova casa o verso un posto sensato.
+Questo post spiega come quel contratto viene fatto rispettare — e, cosa
+altrettanto importante, come ho dimostrato che regge.
+
+## La forma dei vecchi URL
+
+WordPress qui usava permalink datati. Ogni post viveva a:
+
+```
+/some-post-slug/YYYY/MM/DD/
+```
+
+Quattordici anni di URL così. Alcuni li ho tenuti — i dieci migliori sono
+finiti in un [archivio datato](/writing/archive/) — e altri li ho scartati,
+perché uno snippet del 2013 sull'alterazione di un `hook_views_query` in Drupal
+non è qualcosa che qualcuno abbia bisogno di ricevere come consiglio attuale.
+Entrambi i gruppi dovevano comunque risolversi; semplicemente si risolvono verso
+posti diversi.
+
+Poi c'erano le pagine di sezione: `/company/`, `/projects/`, `/blog/`,
+`/feed/`, gli archivi per categoria e per autore. Tutte indicizzate, tutte
+linkate, tutte sul punto di sparire.
+
+## I redirect appartengono all'edge
+
+Un sito statico non ha un'applicazione al momento della richiesta — non c'è un
+processo PHP che ispezioni l'URL ed emetta un redirect. Questa si rivela una
+caratteristica, non un problema. Su Upsun i redirect si dichiarano nel router,
+in `.upsun/config.yaml`, e vengono gestiti all'edge prima che qualsiasi
+richiesta raggiunga l'app. Sono semplicemente configurazione:
+
+```yaml
+routes:
+  "https://www.{default}/":
+    redirects:
+      expires: 1y
+      paths:
+        '^/company/?$':
+          to: "https://www.{default}/about/"
+          regexp: true
+        '^/feed/?$':
+          to: "https://www.{default}/rss.xml"
+          regexp: true
+```
+
+Le pagine di sezione sono righe singole come queste. Quella interessante sono i
+post, perché sono troppi per elencarli a mano.
+
+## Una sola regex per i post mantenuti
+
+Ogni post mantenuto segue la stessa forma, quindi una sola regola li mappa
+tutti:
+
+```yaml
+'^/([a-z0-9-]+)/[0-9]{4}/[0-9]{2}/[0-9]{2}/?$':
+    to: "https://www.{default}/writing/archive/$1/"
+    regexp: true
+```
+
+Il gruppo di cattura afferra lo slug; la data viene riconosciuta e scartata;
+`$1` inserisce lo slug nel suo nuovo percorso d'archivio.
+`/coping-with-technical-debt/2012/04/03/` diventa
+`/writing/archive/coping-with-technical-debt/`, e così fanno gli altri nove,
+senza bisogno di una voce per ciascuno.
+
+Il motivo per cui questa regola è sicura — per cui non può accidentalmente
+inghiottire un URL *nuovo* — è la data. Ogni nuovo percorso del sito è fatto di
+segmenti di parole: `/writing/`, `/work/`, `/about/`. Nessuno di essi può
+combaciare con `.../YYYY/MM/DD/`, perché nessuno contiene una sequenza di
+quattro-poi-due-poi-due cifre. La forma dei vecchi URL è, per costruzione,
+disgiunta da quella nuova.
+
+## L'ordine conta: prima i post scartati
+
+I post scartati sono un problema, perché combaciano anch'essi con quella regola
+generica — e li manderebbe a `/writing/archive/their-slug/`, che non esiste.
+Quindi servono una regola precedente e più specifica che li intercetti per prima
+e li mandi invece all'indice dell'archivio:
+
+```yaml
+'^/(curl-http-request|qualtrics-module|drush-multi-site-and-sites-php|…)/[0-9]{4}/[0-9]{2}/[0-9]{2}/?$':
+    to: "https://www.{default}/writing/archive/"
+    regexp: true
+```
+
+Le regole di redirect vengono valutate in ordine, quindi questa alternanza sta
+*sopra* la catch-all. Un post scartato combacia qui e si ferma; un post
+mantenuto prosegue fino alla regola generica sottostante. Specifico prima del
+generico — la lezione più antica del routing, e la più facile da dimenticare
+finché qualcosa non restituisce un 404.
+
+## Renderli permanenti
+
+Per impostazione predefinita questi redirect sono temporanei — un 302. È
+sbagliato per una migrazione: un 302 dice ai motori di ricerca "questo
+spostamento potrebbe non durare, tenete indicizzato il vecchio URL." Quello che
+volevo era un 301, che dice "questo è permanente, trasferite l'autorità." Una
+riga per regola:
+
+```yaml
+        '^/company/?$':
+          to: "https://www.{default}/about/"
+          regexp: true
+          code: 301
+```
+
+Quattordici anni di link equity accumulata fluiscono verso i nuovi URL invece di
+evaporare.
+
+## Dimostrarlo
+
+Una tabella di redirect che non hai testato è un'ipotesi. Ciò che ha reso la
+verifica meccanica è stata una decisione che avevo preso nel contenuto stesso
+dell'archivio: ogni post migrato porta con sé l'URL a cui viveva prima, nel suo
+front matter.
+
+```yaml
+originalUrl: "/coping-with-technical-debt/2012/04/03/"
+```
+
+Quel campo è una traccia di controllo. Con esso, verificare l'intero contratto è
+un ciclo su ogni vecchio URL, che asserisce che ognuno restituisce un `301`
+verso il posto giusto:
+
+```bash
+curl -sI "https://www.artetecha.com/coping-with-technical-debt/2012/04/03/"
+# HTTP/2 301
+# location: https://www.artetecha.com/writing/archive/coping-with-technical-debt/
+```
+
+Eseguilo su ogni `originalUrl`, più le pagine di sezione e gli slug scartati, e
+o tutto è un `301` verso un `200` vivo — oppure hai trovato la regola che hai
+sbagliato prima che lo facessero i tuoi lettori.
+
+Il CMS era la parte che tutti notano. La tabella di redirect è la parte che
+decide se l'ultimo decennio di presenza di questo sito sul web sopravvive al
+cambiamento. Sono cinquanta righe di YAML. Ne è valsa la pena ognuna.
