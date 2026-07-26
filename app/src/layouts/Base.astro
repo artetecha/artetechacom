@@ -22,6 +22,8 @@ interface Props {
   ogType?: string;
   /** Set true when an Italian page has been human-translated/reviewed (suppresses the auto-translation notice). */
   translationReviewed?: boolean;
+  /** Only auto-translatable content (blog posts) opts into the auto-translation notice. */
+  autoTranslatable?: boolean;
 }
 
 const {
@@ -34,6 +36,7 @@ const {
   ogImageHeight,
   ogType = 'website',
   translationReviewed = false,
+  autoTranslatable = false,
 } = Astro.props;
 
 const ogImageUrl = new URL(ogImage, SITE.origin);
@@ -51,10 +54,11 @@ const alternateHref =
 const enHref = locale === 'en' ? canonical.pathname : alternateHref;
 const itHref = locale === 'it' ? canonical.pathname : alternateHref;
 
-// Show the auto-translation notice on Italian pages that have an English
-// original and haven't been human-reviewed. No English counterpart (e.g. a
-// post authored in Italian) → no notice, since it wasn't translated.
-const showAutoTranslated = locale === 'it' && !translationReviewed && !!enHref;
+// Show the auto-translation notice only on auto-translatable content (blog
+// posts) that is Italian, has an English original, and hasn't been
+// human-reviewed. No English counterpart (e.g. a post authored in Italian)
+// → no notice, since it wasn't translated.
+const showAutoTranslated = autoTranslatable && locale === 'it' && !translationReviewed && !!enHref;
 ---
 
 <!doctype html>
