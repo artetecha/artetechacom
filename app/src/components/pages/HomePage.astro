@@ -29,7 +29,8 @@ const names = [
 ];
 ---
 
-<Base title={SITE.name} locale={locale}>
+<!-- Homepage copy is bespoke brand chrome, not a translated article: exempt from the auto-translation notice. -->
+<Base title={SITE.name} locale={locale} translationReviewed={true}>
   <section class="hero">
     <div class="blob-field" aria-hidden="true">
       <span class="blob b1"></span>
