@@ -1,0 +1,320 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE } from '../../data/site';
+import { localizePath, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+
+const copy = {
+  en: {
+    eyebrow: 'Free · Artetecha',
+    title: 'The Well-Architected Checklist',
+    lede: 'Thirty questions across the six lenses I use in a full review. Tick honestly. Every “no” is a place a build can bite you — and a shortlist for where to start.',
+    captureTitle: 'Field notes by email',
+    captureBody: 'Occasional, senior-level notes on architecture, shipping, and staying compliant — in English or Italian. No spam, unsubscribe anytime.',
+    captureCta: 'Send me field notes',
+    captureLabel: 'Your email',
+    captureFallback: 'Email me to get on the list',
+    lenses: [
+      {
+        h: 'Delivery & operations',
+        items: [
+          'Every deploy comes from version control — never a manual upload.',
+          'A staging or preview environment mirrors production.',
+          'You can roll back a bad deploy in one step.',
+          'Infrastructure and config live in code, not in someone’s head.',
+          'Builds are reproducible: lockfiles, pinned versions.',
+        ],
+      },
+      {
+        h: 'Reliability & scale',
+        items: [
+          'You know your busiest-day traffic and have tested near it.',
+          'Caching is deliberate, not accidental.',
+          'One failing component doesn’t take everything down.',
+          'Backups exist — and you’ve actually restored one.',
+          'You’re alerted before users tell you something’s down.',
+        ],
+      },
+      {
+        h: 'Security & compliance',
+        items: [
+          'You know whether NIS2 and GDPR apply — directly or via a client.',
+          'Dependencies are patched on a schedule, not in a panic.',
+          'Secrets live in a vault or environment, never in the repo.',
+          'Access is least-privilege and revoked when people leave.',
+          'There’s an incident-response plan with notification timelines.',
+        ],
+      },
+      {
+        h: 'Cost & efficiency',
+        items: [
+          'You know your monthly hosting and cloud spend per project.',
+          'You’re not paying for idle, always-on resources you don’t need.',
+          'Scaling costs are predictable, not a surprise bill.',
+          'You review that spend at least quarterly, not only at renewal.',
+        ],
+      },
+      {
+        h: 'SDLC maturity',
+        items: [
+          'The critical paths have automated tests.',
+          'Code is reviewed before it merges.',
+          'Releases are small and frequent, not big and rare.',
+          'A new developer can get running in under a day.',
+          'There’s a branching and release process the whole team follows.',
+        ],
+      },
+      {
+        h: 'AI-readiness',
+        items: [
+          'Your data is clean and accessible enough to actually use.',
+          'You’ve found one workflow where automation has clear ROI.',
+          'You can measure whether an AI feature actually helped.',
+          'You know your GDPR and AI-Act constraints before you ship.',
+          'A human reviews anything an AI feature ships to users.',
+          'You’re clear on which data can and can’t go to third-party models.',
+        ],
+      },
+    ],
+    ctaTitle: 'Too many ambers?',
+    ctaBody: 'A Well-Architected Review turns this checklist into a scored report and a prioritised plan — for your build, or your client’s.',
+    ctaLink: 'See the review',
+    mailSubject: 'Field notes — please add me',
+  },
+  it: {
+    eyebrow: 'Gratis · Artetecha',
+    title: 'La checklist Well-Architected',
+    lede: 'Trenta domande lungo le sei lenti che uso in una review completa. Rispondi con onestà. Ogni “no” è un punto in cui un progetto può morderti — e una lista da cui partire.',
+    captureTitle: 'Field notes via email',
+    captureBody: 'Appunti occasionali e di livello senior su architettura, delivery e conformità — in italiano o in inglese. Niente spam, disiscrizione quando vuoi.',
+    captureCta: 'Mandami le field notes',
+    captureLabel: 'La tua email',
+    captureFallback: 'Scrivimi per entrare nella lista',
+    lenses: [
+      {
+        h: 'Delivery e operations',
+        items: [
+          'Ogni deploy parte dal version control — mai un upload manuale.',
+          'C’è un ambiente di staging o preview che rispecchia la produzione.',
+          'Puoi annullare un deploy sbagliato in un solo passo.',
+          'Infrastruttura e configurazione vivono nel codice, non nella testa di qualcuno.',
+          'Le build sono riproducibili: lockfile, versioni fissate.',
+        ],
+      },
+      {
+        h: 'Affidabilità e scala',
+        items: [
+          'Conosci il traffico del giorno di punta e hai fatto test vicino a quel livello.',
+          'Il caching è deliberato, non casuale.',
+          'Un componente che si guasta non porta giù tutto.',
+          'I backup esistono — e ne hai davvero ripristinato uno.',
+          'Vieni avvisato prima che siano gli utenti a dirti che qualcosa non va.',
+        ],
+      },
+      {
+        h: 'Sicurezza e compliance',
+        items: [
+          'Sai se NIS2 e GDPR ti riguardano — direttamente o tramite un cliente.',
+          'Le dipendenze si aggiornano a calendario, non nel panico.',
+          'I segreti stanno in un vault o nell’ambiente, mai nel repository.',
+          'Gli accessi sono a privilegio minimo e revocati quando le persone se ne vanno.',
+          'C’è un piano di risposta agli incidenti con i tempi di notifica.',
+        ],
+      },
+      {
+        h: 'Costi ed efficienza',
+        items: [
+          'Conosci la spesa mensile di hosting e cloud per progetto.',
+          'Non paghi risorse sempre accese e inutilizzate che non ti servono.',
+          'I costi di scalabilità sono prevedibili, non una bolletta a sorpresa.',
+          'Rivedi quella spesa almeno ogni trimestre, non solo al rinnovo.',
+        ],
+      },
+      {
+        h: 'Maturità dell’SDLC',
+        items: [
+          'I percorsi critici hanno test automatici.',
+          'Il codice viene revisionato prima del merge.',
+          'I rilasci sono piccoli e frequenti, non grandi e rari.',
+          'Uno sviluppatore nuovo è operativo in meno di un giorno.',
+          'C’è un processo di branching e rilascio che tutto il team segue.',
+        ],
+      },
+      {
+        h: 'Prontezza all’AI',
+        items: [
+          'I tuoi dati sono abbastanza puliti e accessibili da usarli davvero.',
+          'Hai individuato un flusso in cui l’automazione ha un ritorno chiaro.',
+          'Sai misurare se una funzione AI ha davvero aiutato.',
+          'Conosci i vincoli GDPR e AI Act prima di andare in produzione.',
+          'Una persona controlla tutto ciò che una funzione AI mostra agli utenti.',
+          'Sai quali dati possono e non possono finire in modelli di terze parti.',
+        ],
+      },
+    ],
+    ctaTitle: 'Troppi gialli?',
+    ctaBody: 'Una Well-Architected Review trasforma questa checklist in un report con punteggi e un piano prioritizzato — per il tuo progetto, o per quello del tuo cliente.',
+    ctaLink: 'Guarda la review',
+    mailSubject: 'Field notes — aggiungimi',
+  },
+}[locale];
+
+const reviewHref = localizePath(locale, '/review/');
+const mailtoNotes = `mailto:${SITE.email}?subject=${encodeURIComponent(copy.mailSubject)}`;
+let n = 0;
+---
+
+<Base title={copy.title} description={copy.lede} locale={locale}>
+  <div class="container-text">
+    <header class="page-head">
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1>{copy.title}</h1>
+      <p class="lede">{copy.lede}</p>
+    </header>
+
+    {
+      copy.lenses.map((lens) => (
+        <section class="lens reveal">
+          <h2>{lens.h}</h2>
+          <ul class="checks">
+            {lens.items.map((item) => {
+              n += 1;
+              const id = `c${n}`;
+              return (
+                <li>
+                  <input type="checkbox" id={id} />
+                  <label for={id}>{item}</label>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))
+    }
+
+    <aside class="card capture">
+      <h2>{copy.captureTitle}</h2>
+      <p>{copy.captureBody}</p>
+      {
+        SITE.leadEndpoint ? (
+          <form class="capture-form" action={SITE.leadEndpoint} method="POST">
+            <label class="visually-hidden" for="email">
+              {copy.captureLabel}
+            </label>
+            <input id="email" type="email" name="email" required placeholder="you@example.com" />
+            <button class="btn btn-primary" type="submit">
+              {copy.captureCta}
+            </button>
+          </form>
+        ) : (
+          <a class="btn btn-primary" href={mailtoNotes}>
+            {copy.captureFallback}
+          </a>
+        )
+      }
+    </aside>
+
+    <aside class="card cta">
+      <h2>{copy.ctaTitle}</h2>
+      <p>{copy.ctaBody}</p>
+      <a class="btn btn-ghost" href={reviewHref}>{copy.ctaLink}</a>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: var(--space-6) var(--space-4);
+  }
+
+  .lens {
+    margin-block-end: var(--space-5);
+  }
+
+  .lens h2 {
+    font-size: var(--text-lg);
+    padding-block-end: var(--space-2);
+    border-block-end: 2px solid var(--border);
+  }
+
+  .checks {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-3) 0 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .checks li {
+    display: flex;
+    gap: 0.75rem;
+    align-items: start;
+  }
+
+  .checks input {
+    margin-block-start: 0.3rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+  }
+
+  .checks input:checked + label {
+    color: var(--text-muted);
+    text-decoration: line-through;
+    text-decoration-color: var(--accent);
+  }
+
+  .checks label {
+    cursor: pointer;
+  }
+
+  .capture {
+    border-inline-start: 4px solid var(--accent);
+    margin-block: var(--space-5) var(--space-3);
+  }
+
+  .capture h2,
+  .cta h2 {
+    font-size: var(--text-lg);
+  }
+
+  .capture p,
+  .cta p {
+    color: var(--text-muted);
+  }
+
+  .capture-form {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-block-start: var(--space-3);
+  }
+
+  .capture-form input {
+    flex: 1 1 14rem;
+    padding: 0.65em 1em;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+  }
+
+  .cta {
+    border-inline-start: 4px solid var(--accent-warm);
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+</style>

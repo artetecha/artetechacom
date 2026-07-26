@@ -8,4 +8,8 @@ export const SITE = {
   linkedin: 'https://www.linkedin.com/in/vincenzorusso',
   github: 'https://github.com/artetecha',
   foundedYear: 2012,
+  // TODO(lead capture): paste a form endpoint (e.g. a Formspree form URL) to
+  // turn on the checklist email capture. While empty, the form degrades to a
+  // plain mailto so nothing is broken. No backend is added to the static site.
+  leadEndpoint: '',
 } as const;

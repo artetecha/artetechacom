@@ -1,0 +1,348 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE } from '../../data/site';
+import { localizePath, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+
+const copy = {
+  en: {
+    eyebrow: 'Artetecha · Advisory',
+    title: 'The Well-Architected Review',
+    lede: 'An independent, senior architecture review that tells you — or your agency — exactly where a build will break, what NIS2 and GDPR exposure it carries, and the prioritised fixes. A scored report in two weeks, in English or Italian.',
+    ctaPrimary: 'Book a review',
+    ctaSecondary: 'Get the free checklist',
+    forTitle: 'Who it’s for',
+    forItems: [
+      {
+        h: 'Digital agencies',
+        p: 'You design and build beautifully, but a client needs a senior second opinion on architecture, scale, or a migration — delivered under your name. White-label the review; keep the relationship.',
+      },
+      {
+        h: 'Mid-market & Made-in-Italy D2C',
+        p: 'You’re digitalising under real deadlines and want to know, before you spend, whether the platform you’re on will hold — for Black Friday, for growth, for the auditors.',
+      },
+    ],
+    lensesTitle: 'The six lenses',
+    lensesIntro: 'Every review scores the same six dimensions, so you get a comparable, defensible picture — not opinions.',
+    lenses: [
+      { h: 'Delivery & operations', p: 'CI/CD, environments, rollback, deploy safety, infrastructure as code. The difference between shipping and praying.' },
+      { h: 'Reliability & scale', p: 'Architecture under load, caching, failure modes. Will it survive your busiest day?' },
+      { h: 'Security & compliance', p: 'NIS2 applicability, GDPR, AI-Act exposure. What you’re carrying, and what the deadlines demand.' },
+      { h: 'Cost & efficiency', p: 'What you spend on hosting and cloud versus what you actually get for it.' },
+      { h: 'SDLC maturity', p: 'Testing, code health, developer velocity, agile in practice rather than on paper.' },
+      { h: 'AI-readiness', p: 'Where automation is genuinely ROI-positive, where it’s theatre, and whether your data is ready.' },
+    ],
+    getTitle: 'What you get',
+    getItems: [
+      { h: 'A scored report', p: 'A red/amber/green rating on each lens, with the evidence behind it — the artefact you can forward internally and act on.' },
+      { h: 'A prioritised roadmap', p: 'Findings ranked by effort against impact, so the first thing you fix is the thing that matters most.' },
+      { h: 'A live readout', p: 'A 90-minute session to walk your team through it and answer the “what now?” in real time.' },
+    ],
+    howTitle: 'How it works',
+    howSteps: [
+      { h: 'Scope', p: 'A short call to agree what’s in and what’s out. Fixed scope, fixed price — no open-ended meter running.' },
+      { h: 'Review', p: 'I go through the stack, the config, the pipelines and the code against the six lenses.' },
+      { h: 'Report & readout', p: 'You get the scored report and the roadmap, then we talk it through.' },
+      { h: 'You act', p: 'Your team (or your agency) does the remediation. I’m on hand if you hit a wall — no lock-in.' },
+    ],
+    tiersTitle: 'Two ways in',
+    tiers: [
+      { h: 'Audit', p: 'One system, remote, the essentials. A fast read on where the real risk sits.', meta: 'Fixed scope · ~2–3 days' },
+      { h: 'Review', p: 'Multiple systems, compliance included, the full six-lens report and readout.', meta: 'Fixed scope · ~1 week' },
+    ],
+    neutralTitle: 'Vendor-neutral, on purpose',
+    neutralBody: 'This is a review, not a sales funnel. The findings are platform-agnostic and there’s no reseller agenda behind them — the point is a picture you can trust, whoever you host with.',
+    finalTitle: 'Start with a conversation',
+    finalBody: 'Tell me what you’re building and what’s worrying you. If a review isn’t the right thing, I’ll say so.',
+    mailSubject: 'Well-Architected Review enquiry',
+  },
+  it: {
+    eyebrow: 'Artetecha · Consulenza',
+    title: 'La Well-Architected Review',
+    lede: 'Una review di architettura indipendente e senior che dice a te — o alla tua agenzia — dove esattamente un progetto si romperà, quale esposizione NIS2 e GDPR si porta dietro e le correzioni in ordine di priorità. Un report con punteggi in due settimane, in italiano o in inglese.',
+    ctaPrimary: 'Prenota una review',
+    ctaSecondary: 'Scarica la checklist gratuita',
+    forTitle: 'A chi serve',
+    forItems: [
+      {
+        h: 'Agenzie digitali',
+        p: 'Progettate e costruite benissimo, ma un cliente ha bisogno di un secondo parere senior su architettura, scalabilità o una migrazione — consegnato a vostro nome. La review in white-label; la relazione resta vostra.',
+      },
+      {
+        h: 'Mid-market e D2C Made in Italy',
+        p: 'State digitalizzando con scadenze reali e volete sapere, prima di spendere, se la piattaforma su cui siete reggerà — per il Black Friday, per la crescita, per gli auditor.',
+      },
+    ],
+    lensesTitle: 'Le sei lenti',
+    lensesIntro: 'Ogni review valuta le stesse sei dimensioni, così ottieni un quadro comparabile e difendibile — non opinioni.',
+    lenses: [
+      { h: 'Delivery e operations', p: 'CI/CD, ambienti, rollback, sicurezza dei deploy, infrastructure as code. La differenza tra rilasciare e sperare.' },
+      { h: 'Affidabilità e scala', p: 'Architettura sotto carico, caching, modalità di guasto. Reggerà il giorno di punta?' },
+      { h: 'Sicurezza e compliance', p: 'Applicabilità NIS2, GDPR, esposizione all’AI Act. Cosa ti porti dietro e cosa impongono le scadenze.' },
+      { h: 'Costi ed efficienza', p: 'Quanto spendi in hosting e cloud rispetto a ciò che ne ricavi davvero.' },
+      { h: 'Maturità dell’SDLC', p: 'Test, salute del codice, velocità del team, agile nella pratica e non sulla carta.' },
+      { h: 'Prontezza all’AI', p: 'Dove l’automazione ha davvero un ritorno, dove è scena, e se i tuoi dati sono pronti.' },
+    ],
+    getTitle: 'Cosa ricevi',
+    getItems: [
+      { h: 'Un report con punteggi', p: 'Un semaforo rosso/giallo/verde su ogni lente, con le evidenze a supporto — l’artefatto che puoi girare internamente e su cui agire.' },
+      { h: 'Una roadmap prioritizzata', p: 'Risultati ordinati per sforzo rispetto all’impatto, così la prima cosa che sistemi è quella che conta di più.' },
+      { h: 'Una sessione dal vivo', p: 'Novanta minuti per accompagnare il team nel report e rispondere al “e adesso?” in tempo reale.' },
+    ],
+    howTitle: 'Come funziona',
+    howSteps: [
+      { h: 'Perimetro', p: 'Una breve call per concordare cosa è dentro e cosa è fuori. Perimetro fisso, prezzo fisso — nessun contatore aperto.' },
+      { h: 'Review', p: 'Analizzo lo stack, la configurazione, le pipeline e il codice rispetto alle sei lenti.' },
+      { h: 'Report e readout', p: 'Ricevi il report con i punteggi e la roadmap, poi ne parliamo insieme.' },
+      { h: 'Agisci', p: 'Il tuo team (o la tua agenzia) esegue le correzioni. Ci sono se vi bloccate — nessun lock-in.' },
+    ],
+    tiersTitle: 'Due modi per iniziare',
+    tiers: [
+      { h: 'Audit', p: 'Un solo sistema, da remoto, l’essenziale. Una lettura rapida di dove sta il rischio vero.', meta: 'Perimetro fisso · ~2–3 giorni' },
+      { h: 'Review', p: 'Più sistemi, compliance inclusa, il report completo a sei lenti con readout.', meta: 'Perimetro fisso · ~1 settimana' },
+    ],
+    neutralTitle: 'Neutrale rispetto ai vendor, per scelta',
+    neutralBody: 'Questa è una review, non un imbuto di vendita. I risultati sono indipendenti dalla piattaforma e non c’è alcuna agenda da rivenditore dietro — il punto è un quadro di cui ti puoi fidare, chiunque sia il tuo hosting.',
+    finalTitle: 'Si parte da una conversazione',
+    finalBody: 'Raccontami cosa stai costruendo e cosa ti preoccupa. Se una review non è la cosa giusta, te lo dico.',
+    mailSubject: 'Richiesta Well-Architected Review',
+  },
+}[locale];
+
+const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent(copy.mailSubject)}`;
+const checklistHref = localizePath(locale, '/review/checklist/');
+---
+
+<Base title={copy.title} description={copy.lede} locale={locale}>
+  <div class="container">
+    <header class="hero container-text">
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1>{copy.title}</h1>
+      <p class="lede">{copy.lede}</p>
+      <div class="cta">
+        <a class="btn btn-primary" href={mailto}>{copy.ctaPrimary}</a>
+        <a class="btn btn-ghost" href={checklistHref}>{copy.ctaSecondary}</a>
+      </div>
+    </header>
+
+    <section class="section">
+      <h2>{copy.forTitle}</h2>
+      <div class="grid-2">
+        {
+          copy.forItems.map((item) => (
+            <div class="card reveal">
+              <h3>{item.h}</h3>
+              <p>{item.p}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>{copy.lensesTitle}</h2>
+      <p class="lede">{copy.lensesIntro}</p>
+      <div class="grid-3">
+        {
+          copy.lenses.map((lens) => (
+            <div class="card lens reveal">
+              <h3>{lens.h}</h3>
+              <p>{lens.p}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>{copy.getTitle}</h2>
+      <div class="grid-3">
+        {
+          copy.getItems.map((item) => (
+            <div class="card reveal">
+              <h3>{item.h}</h3>
+              <p>{item.p}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>{copy.howTitle}</h2>
+      <ol class="steps">
+        {
+          copy.howSteps.map((step) => (
+            <li class="reveal">
+              <h3>{step.h}</h3>
+              <p>{step.p}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="section">
+      <h2>{copy.tiersTitle}</h2>
+      <div class="grid-2">
+        {
+          copy.tiers.map((tier) => (
+            <div class="card tier reveal">
+              <h3>{tier.h}</h3>
+              <p class="tier-meta">{tier.meta}</p>
+              <p>{tier.p}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="container-text">
+      <aside class="card neutral">
+        <h2>{copy.neutralTitle}</h2>
+        <p>{copy.neutralBody}</p>
+      </aside>
+    </section>
+
+    <section class="section final container-text">
+      <h2>{copy.finalTitle}</h2>
+      <p class="lede">{copy.finalBody}</p>
+      <a class="btn btn-primary" href={mailto}>{copy.ctaPrimary}</a>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .hero {
+    padding-block: var(--space-6) var(--space-5);
+    text-align: center;
+    margin-inline: auto;
+  }
+
+  .hero .lede {
+    margin-inline: auto;
+  }
+
+  .cta {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-block-start: var(--space-4);
+  }
+
+  .section {
+    padding-block: var(--space-5);
+  }
+
+  .section > .lede {
+    max-width: var(--container-text);
+    margin-block-end: var(--space-4);
+  }
+
+  .grid-2,
+  .grid-3 {
+    display: grid;
+    gap: var(--space-3);
+    margin-block-start: var(--space-3);
+  }
+
+  .grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  }
+
+  .card h3 {
+    font-size: var(--text-lg);
+    margin-block-end: var(--space-2);
+  }
+
+  .card p {
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .lens {
+    border-block-start: 3px solid var(--accent);
+  }
+
+  .steps {
+    list-style: none;
+    counter-reset: step;
+    padding: 0;
+    margin: var(--space-3) 0 0;
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  }
+
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding-inline-start: 3rem;
+  }
+
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0;
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-blob);
+    background: var(--primary);
+    color: var(--primary-contrast);
+    font-family: var(--font-display);
+    font-weight: 650;
+  }
+
+  .steps h3 {
+    font-size: var(--text-base);
+    margin-block-end: var(--space-1);
+  }
+
+  .steps p {
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .tier {
+    border-block-start: 3px solid var(--primary);
+  }
+
+  .tier-meta {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--accent-text) !important;
+    margin-block-end: var(--space-2) !important;
+  }
+
+  .neutral {
+    border-inline-start: 4px solid var(--accent-warm);
+    margin-block: var(--space-4);
+  }
+
+  .neutral h2 {
+    font-size: var(--text-lg);
+  }
+
+  .final {
+    text-align: center;
+  }
+
+  .final .lede {
+    margin-inline: auto;
+    margin-block-end: var(--space-4);
+  }
+</style>
