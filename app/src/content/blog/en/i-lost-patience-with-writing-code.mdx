@@ -1,0 +1,128 @@
+---
+title: 'I lost patience with writing code, not with engineering'
+description: 'A short post of mine on AI-assisted coding struck a nerve. Here is the longer version, with the evidence: the research on AI and code quality is genuinely mixed, and the variable that decides which way it breaks is the experienced engineer who stays in the loop.'
+pubDate: 2026-07-24
+tags: ['ai', 'software-engineering']
+---
+
+For a few years now the conversation about AI-assisted coding has run in two
+lanes. One is breathless: every developer is suddenly ten times faster, the
+profession is finished. The other is the backlash — "AI slop," a rising tide
+of unreviewable generated code, juniors who never learn to think. I've read a
+great deal of both, and most of it tells you more about the author's priors
+than about the actual work.
+
+Here is the unfashionable middle, from someone who writes software for a
+living. Used well, AI hasn't just made me type faster. It has helped me write
+*better* code — cleaner designs, fewer blind spots, and far less time sunk
+into boilerplate, which leaves more for the parts that actually decide whether
+a system survives contact with production: the architecture, and the
+trade-offs.
+
+That claim irritated a particular kind of engineer. The sharpest reply I got
+was a genuinely good line:
+
+> Saying you lost patience with writing code is like a teacher saying they
+> lost patience teaching their students.
+
+It sounds devastating. It's also a category error.
+
+## Production is not the craft
+
+Typing out an implementation from a clear specification is the mechanisable
+part of the job. The engineering happens upstream of it: understanding the
+domain, decomposing the problem, drawing the boundaries, naming the
+trade-offs you're accepting and the ones you're refusing. When a system is
+properly designed and broken down, the specs that fall out are clear enough
+that the implementation is almost mechanical — easy for a junior developer to
+carry out, and, as it turns out, easy for a language model too.
+
+That isn't a flaw in my attitude; it's the entire point of design. So the
+teacher analogy is exactly inverted. Teaching is the craft. Marking a stack of
+near-identical exercises by hand is the chore. I haven't lost patience with
+the craft. I've handed off the marking.
+
+## The research is genuinely mixed — take it seriously
+
+Anyone selling you a clean story here is selling something. The honest summary
+is that the evidence is noisy and deeply context-dependent.
+
+At the optimistic end, a [controlled experiment on GitHub
+Copilot](https://arxiv.org/abs/2302.06590) had developers build an HTTP server
+in JavaScript; the group with Copilot finished about 55% faster. Striking —
+but that's a greenfield, self-contained task, roughly the easiest case there
+is.
+
+At the sobering end, [METR ran a randomised trial in
+2025](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/)
+with experienced open-source developers working on mature repositories they'd
+spent years in. With AI tools allowed, they were about 19% *slower* — and the
+unsettling part is that they believed they'd been roughly 20% *faster*. The
+perception gap is the finding that should worry you more than the slowdown.
+
+On quality, [GitClear's analysis of millions of changed
+lines](https://www.gitclear.com/ai_assistant_code_quality_2025_research) found
+code churn climbing, copy-pasted blocks overtaking refactored ("moved") code
+for the first time, and the share of moved code falling from around 24% in
+2020 to under 10% by 2024 — the signature of code added rather than
+consolidated. The [2024 DORA report](https://dora.dev/research/2024/dora-report/)
+found AI lifting individual productivity while being associated with a small
+dip in delivery throughput and a larger one in delivery *stability* — and that
+39% of developers had little or no confidence in AI-generated code. And a
+[Stanford study](https://arxiv.org/abs/2211.03622) found that people with an AI
+assistant wrote less secure code — SQL injection and botched encryption
+especially — while being *more* confident it was secure. A false sense of
+security, in the literal sense.
+
+If you stop reading there, "AI slop" looks vindicated.
+
+## The variable is the human in the loop
+
+But look again at those same studies, because they contain their own rebuttal.
+
+In the Stanford security work, the participants who trusted the assistant
+*less* — who interrogated its output, rephrased, and reshaped what it gave
+them — produced the fewest vulnerabilities. The [2025 DORA
+report](https://dora.dev/dora-report-2025/) lands on the same point at
+organisational scale: AI is an *amplifier*. It magnifies whatever is already
+there. Strong practices get stronger; brittle ones break more loudly. The
+returns come from the surrounding system — version control, small batches,
+review, a solid platform — not from the tool. And METR's slowdown was experts
+on code they knew intimately, where the overhead of prompting and reviewing
+can genuinely exceed the benefit — which is a judgement about *where* to reach
+for the tool, and that judgement is itself expertise.
+
+Underneath the noise the pattern is consistent, and it's the one I recognise
+from my own work: when an experienced engineer stays in the loop — reviewing,
+correcting, shaping, rejecting — quality goes up. When code is generated and
+waved through, it goes down. The tool does not decide which of those happens.
+The engineer does.
+
+## Why "in the loop" is not a slogan
+
+This is where the earlier point about clear specs pays off. A language model
+is, at its best, an extraordinarily fast, tireless, widely-read junior
+developer with no memory of your system and no stake in its future. Hand a
+junior a vague brief and you get vague code. Hand them a well-decomposed
+problem with clear boundaries and you get something you can actually use. The
+model is no different. What comes out is bounded by the quality of the design
+going in — and the design is mine. So is the review that decides what stays.
+
+Which is also why the slop is real but misattributed. The engineers producing
+it mostly weren't doing the design or the review *before* the tool existed
+either; AI just let them skip both faster and at greater volume. GitClear's
+rising churn is what "waved through" looks like at scale. The tool didn't lower
+the standard. It found the places where the standard was already missing.
+
+## So, no, I'm not worried
+
+I'm not worried that AI is replacing developers. The genuinely mechanisable
+part of the job — turning a clear specification into an implementation — was
+always the smallest part of what a good engineer does. Handing it off doesn't
+hollow the profession out; it shifts the centre of gravity up the stack,
+toward the design and the judgement that were the point all along.
+
+What interests me is not the developers who fear the tool, nor the ones who
+trust it blindly, but the ones who learn to wield it — who keep their
+standards, stay in the loop, and let it take the marking while they get on
+with the teaching.
