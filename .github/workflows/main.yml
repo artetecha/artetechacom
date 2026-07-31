@@ -1,27 +1,35 @@
-# This is a basic workflow to help you get started with Actions
-
-name: CI
+name: Nightly backup
 
 on:
   schedule:
-    - cron:  '0 4 * * *'
+    - cron: '0 4 * * *'
+  # Allow manual runs from the Actions tab (handy for testing / on-demand backups).
+  workflow_dispatch: {}
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "bxuild"
   backup:
     name: Perform Backup
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v2.2.0
+      # No checkout: the backup runs against the remote Upsun project by ID and
+      # never touches the repo, so there's nothing to check out. (Dropping it
+      # also removes the deprecated actions/checkout Node-runtime warning.)
       - name: Install Upsun CLI
         run: |
           curl -fsSL https://raw.githubusercontent.com/platformsh/cli/main/installer.sh | VENDOR=upsun bash
-          echo "/home/runner/.global/bin" >> $GITHUB_PATH
-      - name: Run backup
-        run: upsun backup:create -W -y -p ${{secrets.UPSUN_PROJECT}} main
+          echo "/home/runner/.global/bin" >> "$GITHUB_PATH"
+      - name: Create backup (retrying transient API errors)
+        run: |
+          for attempt in 1 2 3; do
+            if upsun backup:create -W -y -p "$UPSUN_PROJECT" main; then
+              exit 0
+            fi
+            echo "::warning::Backup attempt ${attempt} failed; retrying in 30s..."
+            sleep 30
+          done
+          echo "::error::All backup attempts failed."
+          exit 1
         env:
-          UPSUN_CLI_TOKEN: ${{secrets.UPSUN_CLI_TOKEN}}
+          UPSUN_CLI_TOKEN: ${{ secrets.UPSUN_CLI_TOKEN }}
+          UPSUN_PROJECT: ${{ secrets.UPSUN_PROJECT }}
