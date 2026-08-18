@@ -1,0 +1,133 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" role="img"
+     xmlns="http://www.w3.org/2000/svg"
+     font-family="'Segoe UI', system-ui, -apple-system, Roboto, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dbe7f1"/>
+      <stop offset="1" stop-color="#eef7db"/>
+    </linearGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="42"/>
+    </filter>
+    <filter id="card" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#14304a" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <!-- branded backdrop: steel-to-lime wash with soft amber/lime/steel blobs -->
+  <rect width="1200" height="600" fill="url(#bg)"/>
+  <ellipse cx="185"  cy="120" rx="255" ry="185" fill="#f0a800" opacity="0.16" filter="url(#soft)"/>
+  <ellipse cx="1020" cy="130" rx="245" ry="180" fill="#b1d14f" opacity="0.22" filter="url(#soft)"/>
+  <ellipse cx="600"  cy="560" rx="300" ry="140" fill="#2f7fb8" opacity="0.10" filter="url(#soft)"/>
+
+  <!-- ============================ LEFT: the median deployment ============================ -->
+  <text x="64" y="94" font-size="19" font-weight="700" letter-spacing="1.5" fill="#cf8a00">THE MEDIAN DEPLOYMENT</text>
+
+  <g filter="url(#card)">
+    <rect x="64" y="112" width="496" height="360" rx="22" fill="#ffffff" stroke="#f2ddb0" stroke-width="2"/>
+  </g>
+
+  <text x="92" y="158" font-size="20" font-weight="600" fill="#37424e">Thirty plugins, chosen by search</text>
+  <text x="92" y="178" font-size="14" fill="#70787f">installed by clicking, each with its own updater</text>
+
+  <!-- thirty amber plugin tiles: the third-party surface you agreed to run -->
+  <g fill="#fdf1d6" stroke="#f0a800" stroke-width="1.6">
+    <rect x="92"  y="190" width="16" height="16" rx="3"/><rect x="112" y="190" width="16" height="16" rx="3"/>
+    <rect x="132" y="190" width="16" height="16" rx="3"/><rect x="152" y="190" width="16" height="16" rx="3"/>
+    <rect x="172" y="190" width="16" height="16" rx="3"/><rect x="192" y="190" width="16" height="16" rx="3"/>
+    <rect x="212" y="190" width="16" height="16" rx="3"/><rect x="232" y="190" width="16" height="16" rx="3"/>
+    <rect x="252" y="190" width="16" height="16" rx="3"/><rect x="272" y="190" width="16" height="16" rx="3"/>
+    <rect x="92"  y="210" width="16" height="16" rx="3"/><rect x="112" y="210" width="16" height="16" rx="3"/>
+    <rect x="132" y="210" width="16" height="16" rx="3"/><rect x="152" y="210" width="16" height="16" rx="3"/>
+    <rect x="172" y="210" width="16" height="16" rx="3"/><rect x="192" y="210" width="16" height="16" rx="3"/>
+    <rect x="212" y="210" width="16" height="16" rx="3"/><rect x="232" y="210" width="16" height="16" rx="3"/>
+    <rect x="252" y="210" width="16" height="16" rx="3"/><rect x="272" y="210" width="16" height="16" rx="3"/>
+    <rect x="92"  y="230" width="16" height="16" rx="3"/><rect x="112" y="230" width="16" height="16" rx="3"/>
+    <rect x="132" y="230" width="16" height="16" rx="3"/><rect x="152" y="230" width="16" height="16" rx="3"/>
+    <rect x="172" y="230" width="16" height="16" rx="3"/><rect x="192" y="230" width="16" height="16" rx="3"/>
+    <rect x="212" y="230" width="16" height="16" rx="3"/><rect x="232" y="230" width="16" height="16" rx="3"/>
+    <rect x="252" y="230" width="16" height="16" rx="3"/><rect x="272" y="230" width="16" height="16" rx="3"/>
+  </g>
+
+  <!-- writable filesystem: open padlock -->
+  <rect x="92" y="272" width="46" height="46" rx="11" fill="#fdf1d6" stroke="#f0a800" stroke-width="2"/>
+  <rect x="104" y="294" width="22" height="15" rx="3" fill="none" stroke="#cf8a00" stroke-width="2.4"/>
+  <path d="M107,294 v-6 a8,8 0 0 1 16,-2" fill="none" stroke="#cf8a00" stroke-width="2.4" stroke-linecap="round"/>
+  <text x="152" y="294" font-size="19" font-weight="600" fill="#37424e">Writable filesystem</text>
+  <text x="152" y="313" font-size="14" fill="#70787f">somewhere to persist an injected file</text>
+
+  <!-- changes in production: upload arrow into a tray -->
+  <rect x="92" y="332" width="46" height="46" rx="11" fill="#fdf1d6" stroke="#f0a800" stroke-width="2"/>
+  <path d="M115,346 v20 M115,346 l-7,7 M115,346 l7,7" fill="none" stroke="#cf8a00" stroke-width="2.4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M104,368 h22" fill="none" stroke="#cf8a00" stroke-width="2.4" stroke-linecap="round"/>
+  <text x="152" y="354" font-size="19" font-weight="600" fill="#37424e">Edited in production</text>
+  <text x="152" y="373" font-size="14" fill="#70787f">no branch, no clone, no way back</text>
+
+  <g transform="translate(92,398)">
+    <rect x="0" y="0" width="356" height="40" rx="20" fill="#fdf1d6" stroke="#f0a800" stroke-width="2"/>
+    <circle cx="24" cy="20" r="11" fill="#f0a800"/>
+    <path d="M24,14 v7" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="24" cy="25.5" r="1.6" fill="#ffffff"/>
+    <text x="46" y="26" font-size="16" font-weight="700" fill="#8a5c00">91% of 2025's 11,334 vulnerabilities</text>
+  </g>
+
+  <!-- ============================ divider ============================ -->
+  <line x1="600" y1="120" x2="600" y2="464" stroke="#a6adb4" stroke-width="2"
+        stroke-dasharray="6 9" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- ============================ RIGHT: Composer-managed, immutable ============================ -->
+  <text x="640" y="94" font-size="19" font-weight="700" letter-spacing="1.5" fill="#5f7d24">COMPOSER-MANAGED, IMMUTABLE</text>
+
+  <g filter="url(#card)">
+    <rect x="640" y="112" width="496" height="360" rx="22" fill="#ffffff" stroke="#d8e7b8" stroke-width="2"/>
+  </g>
+
+  <text x="668" y="158" font-size="20" font-weight="600" fill="#37424e">Five, declared in a manifest</text>
+  <text x="668" y="178" font-size="14" fill="#70787f">the rest is site code you own and reviewed</text>
+
+  <g fill="#eaf3d2" stroke="#86ab34" stroke-width="1.6">
+    <rect x="668" y="190" width="16" height="16" rx="3"/><rect x="688" y="190" width="16" height="16" rx="3"/>
+    <rect x="708" y="190" width="16" height="16" rx="3"/><rect x="728" y="190" width="16" height="16" rx="3"/>
+    <rect x="748" y="190" width="16" height="16" rx="3"/>
+  </g>
+  <text x="782" y="203" font-size="14" fill="#86ab34" font-style="italic">payments · search · multilingual</text>
+
+  <!-- the manifest itself: versions are declared, not clicked -->
+  <rect x="668" y="220" width="440" height="34" rx="8" fill="#f6faee" stroke="#d8e7b8" stroke-width="1.6"/>
+  <text x="682" y="242" font-size="13.5" fill="#5f7d24"
+        font-family="'SF Mono', 'Cascadia Code', Consolas, monospace">"johnpbloch/wordpress-core": "6.9.*"</text>
+
+  <!-- read-only filesystem: closed padlock -->
+  <rect x="668" y="272" width="46" height="46" rx="11" fill="#eaf3d2" stroke="#86ab34" stroke-width="2"/>
+  <rect x="680" y="294" width="22" height="15" rx="3" fill="none" stroke="#5f7d24" stroke-width="2.4"/>
+  <path d="M684,294 v-6 a7,7 0 0 1 14,0 v6" fill="none" stroke="#5f7d24" stroke-width="2.4" stroke-linecap="round"/>
+  <text x="728" y="294" font-size="19" font-weight="600" fill="#37424e">Read-only filesystem</text>
+  <text x="728" y="313" font-size="14" fill="#70787f">every deploy reinstates known-good code</text>
+
+  <!-- branch, clone, migrate: git graph glyph -->
+  <rect x="668" y="332" width="46" height="46" rx="11" fill="#eaf3d2" stroke="#86ab34" stroke-width="2"/>
+  <path d="M681,371 v-26 M681,357 c0,-8 9,-11 15,-11" fill="none" stroke="#5f7d24" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="681" cy="343" r="3.6" fill="#5f7d24"/>
+  <circle cx="699" cy="346" r="3.6" fill="#5f7d24"/>
+  <circle cx="681" cy="371" r="3.6" fill="#5f7d24"/>
+  <text x="728" y="354" font-size="19" font-weight="600" fill="#37424e">Branch, clone, migrate</text>
+  <text x="728" y="373" font-size="14" fill="#70787f">previews with mail and payments neutralised</text>
+
+  <g transform="translate(668,398)">
+    <rect x="0" y="0" width="356" height="40" rx="20" fill="#eaf3d2" stroke="#86ab34" stroke-width="2"/>
+    <path d="M17,20 l7,7 l14,-16" fill="none" stroke="#5f7d24" stroke-width="3.2"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="50" y="26" font-size="16" font-weight="700" fill="#41611c">Anonymous traffic never reaches PHP</text>
+  </g>
+
+  <!-- ============================ shared core strip ============================ -->
+  <rect x="64" y="506" width="1072" height="58" rx="16" fill="#ffffff" opacity="0.72" stroke="#cfe0ee" stroke-width="2"/>
+  <g transform="translate(112,535)">
+    <circle cx="0" cy="0" r="15" fill="#1c6398"/>
+    <text x="0" y="6" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">W</text>
+  </g>
+  <text x="630" y="541" font-size="17" font-weight="600" fill="#1c6398" text-anchor="middle">
+    The same WordPress core underneath both — and core accounted for 6 low-priority vulnerabilities in all of 2025
+  </text>
+</svg>

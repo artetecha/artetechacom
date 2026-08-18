@@ -1,0 +1,245 @@
+---
+title: "WordPress non è finito. Lo è il modo in cui quasi tutti lo comprano."
+description: 'Un post che definiva deontologicamente riprovevole vendere WordPress nel 2026 ha girato parecchio, ed è poi stato cancellato. Quasi tutte le sue critiche sono fondate — e quasi tutte riguardano il modo in cui WordPress viene acquistato e messo online, non il CMS. Ecco il quadro onesto, comprese le due che restano in piedi.'
+pubDate: 2026-08-18
+tags: ['wordpress', 'upsun', 'ai', 'seo']
+hero: ../en/images/wordpress-isnt-finished.svg
+heroAlt: 'Due installazioni dello stesso CMS a confronto. A sinistra il WordPress mediano: trenta plugin installati a furia di clic, filesystem scrivibile, modifiche fatte in produzione e il badge "91% delle 11.334 vulnerabilità del 2025". A destra una build immutabile gestita con Composer: cinque plugin dichiarati in un manifest, filesystem read-only, preview con branch, clone e migrazioni, e traffico anonimo che non arriva mai a PHP. Una fascia sotto entrambe ricorda che il core WordPress sottostante è identico, e che nel 2025 ha totalizzato sei vulnerabilità a bassa priorità.'
+ogImage: ../en/images/wordpress-isnt-finished-og.png
+---
+
+Mi è passato davanti un post che sosteneva una tesi che sento ripetere in
+salse diverse: che vendere siti WordPress nel 2026 sia *deontologicamente
+riprovevole*. Pessimo per il GEO. Una brodaglia di plugin, codice di raccordo
+e chiamate al database. Il suo momento di gloria ormai finito. La
+raccomandazione che seguiva era Shopify per l'e-commerce e un CMS pensato da
+zero per le AI per tutto il resto.
+
+Il post è stato poi cancellato, quindi parafraso invece di citare e non faccio
+il nome dell'autore. Vale comunque la pena discuterne, perché è la versione
+più articolata di una critica che *sui dati ha quasi sempre ragione e nella
+conclusione ha torto*.
+
+Dichiaro il conflitto di interessi due volte: lavoro in [Upsun](https://upsun.com)
+e mantengo [upsun-wp](https://upsun.artetecha.com/), un plugin open-source per
+far girare WordPress lì sopra. Ho tanti pregiudizi quanti ne ha chiunque altro
+in questa discussione. Ed è proprio per questo che voglio concedere i punti
+forti prima di difendere qualsiasi cosa.
+
+## Dove il post aveva ragione
+
+Su Shopify aveva ragione. Per un negozio con un catalogo, un carrello e un
+checkout, senza esigenze particolari, l'argomento a favore di Shopify è
+davvero difficile da battere: hosted, PCI gestito, un'app per qualsiasi cosa e
+nessun bisogno di pagare qualcuno perché tenga accese le luci. Gran parte
+delle alternative proposte a quel negozio *sono* overshooting, e l'overshooting
+tende a fare bene alle casse di chi lo implementa. Avrei scritto lo stesso
+paragrafo.
+
+E aveva ragione anche sullo stato del sito WordPress medio. Ho passato
+abbastanza anni dentro le installazioni altrui da sapere cosa c'è là dentro.
+
+## La critica sulla sicurezza è fondata — e accusa il mercato dei plugin
+
+Qui i numeri sono inequivocabili, quindi usiamo quelli invece delle sensazioni.
+[*State of WordPress Security in 2026* di
+Patchstack](https://patchstack.com/whitepaper/state-of-wordpress-security-in-2026/)
+ha contato **11.334 nuove vulnerabilità** nell'ecosistema WordPress durante il
+2025 — un aumento del 42% su base annua, con le vulnerabilità ad alta gravità
+in crescita del 113%. Per quelle prese di mira più aggressivamente, il tempo
+mediano tra la divulgazione pubblica e lo sfruttamento di massa è stato di
+**cinque ore**.
+
+Sembra un atto d'accusa devastante contro WordPress, finché non si guarda
+*dove* erano davvero quelle vulnerabilità:
+
+- **91%** nei plugin
+- **9%** nei temi
+- **6** nel core di WordPress — tutte classificate a bassa priorità
+
+Sei. In un anno in cui l'ecosistema ne ha prodotte oltre undicimila. Il report
+rileva anche che le difese a livello di hosting hanno bloccato solo il 12%
+degli attacchi che sfruttavano vulnerabilità note come già attivamente
+sfruttate: il che demolisce silenziosamente la risposta abituale a questo
+problema, cioè che un WAF e un plugin di sicurezza ti salveranno.
+
+La lettura onesta dei dati sulla sicurezza, quindi, non è «WordPress è
+insicuro». È «il *modello di approvvigionamento dei plugin* di WordPress è
+insicuro». Il meccanismo che rompe tutto è il proprietario del sito che
+installa trenta plugin freemium, ognuno con quaranta funzionalità per vendertene
+tre, ognuno con il suo SDK di aggiornamento, la sua telemetria, il suo banner
+promozionale e la sua superficie d'attacco. Il numero di vulnerabilità è una
+funzione diretta di quanto codice di terze parti hai accettato di eseguire.
+
+Questa riformulazione conta, perché un problema di approvvigionamento ha una
+soluzione di approvvigionamento.
+
+## Cosa cambia davvero
+
+Lo [starter che mantengo](https://github.com/artetecha/wordpress-upsun-starter)
+non ha nulla di geniale. Si limita a rifiutare il modello di deployment
+predefinito in ognuno dei punti in cui è quel modello a causare il danno.
+
+**Composer possiede tutto.** Core, plugin, temi, versioni: tutto dichiarato in
+un manifest e installato in fase di build. Niente viene installato cliccando
+in giro per `wp-admin`, perché niente *può* esserlo.
+
+**Il filesystem è read-only in produzione.** La sezione del report Patchstack
+sul malware parla soprattutto di persistenza: file iniettati dentro codice
+legittimo, payload che sopravvivono alla pulizia. Su una build immutabile non
+c'è nessun posto dove scrivere una webshell, e ogni deploy ripristina codice
+integro a partire dal manifest. Upload e cache sono gli unici mount
+scrivibili, e vengono serviti con l'esecuzione degli script disabilitata.
+
+**Il traffico anonimo non arriva mai a PHP.** La cache del router serve l'HTML
+sul bordo della rete; Redis assorbe l'object cache dietro di essa. Le risposte
+sotto il secondo smettono di essere un progetto di ottimizzazione e diventano
+lo stato predefinito, perché il database non è nel percorso della richiesta per
+il traffico che costituisce la stragrande maggioranza delle visite di un sito
+di contenuti.
+
+**Ogni modifica è un branch.** Gli ambienti di preview sono cloni completi
+della produzione, con la posta in uscita intercettata, i pagamenti forzati in
+modalità test, i webhook in pausa e il `noindex` applicato — che è esattamente
+il problema per cui
+[ho scritto il plugin](/it/writing/making-wordpress-behave-on-upsun/). Le
+modifiche allo schema sono migrazioni ordinate che girano una sola volta per
+database e interrompono il deploy in caso di errore, prima che il traffico le
+veda.
+
+Niente di tutto questo è esotico. È la disciplina di deployment che ogni altra
+parte del nostro settore considera il minimo sindacale, applicata a un CMS la
+cui cultura non l'ha mai richiesta.
+
+## La parte davvero nuova
+
+Ed ecco cosa è cambiato abbastanza di recente da poter perdonare al post
+originale di non averne tenuto conto.
+
+Il motivo per cui la gente installa bloatware freemium non è mai stato il
+desiderio di avere quaranta funzionalità. Era che un custom post type, un
+gestore di form, una mappa di redirect o un layer di schema markup
+rappresentavano giorni di sviluppo fatturabile, mentre un plugin rappresentava
+un pomeriggio. Quel calcolo ha retto per quindici anni e ha costruito l'intera
+economia dei plugin.
+
+Adesso non regge più. Gran parte di quei requisiti sono ormai 100-300 righe di
+codice riletto, prodotte in un'ora o due: niente upsell, niente telemetria,
+niente banner nella dashboard, nessuna superficie d'attacco che tu non abbia
+scelto. Quelli che erano trenta plugin diventano quattro o cinque che
+davvero non ha senso riscrivere — pagamenti, ricerca, multilingua — più il
+codice del sito, che fa esattamente ciò che serve al tuo sito e nient'altro.
+
+Ho [già scritto](/writing/i-lost-patience-with-writing-code/) perché ritengo
+che lo sviluppo assistito dall'AI funzioni quando un ingegnere esperto resta
+nel ciclo e fallisca quando non c'è nessuno, e non lo rimetto in discussione
+qui. Ma l'effetto su questo problema specifico è diretto: l'argomento
+economico a favore della brodaglia di plugin è crollato. Adesso puoi
+permetterti di possedere il tuo codice.
+
+## Sul GEO
+
+L'affermazione che WordPress sia intrinsecamente pessimo per la generative
+engine optimization era sostenuta con il riferimento a una «massa di studi» e
+nessuna citazione, quindi sono andato a cercarli.
+
+Quello che la ricerca dice davvero è coerente e, per questa tesi, scomodo. Il
+[paper su GEO](https://arxiv.org/abs/2311.09735) (KDD 2024) ha rilevato che le
+tecniche più efficaci erano l'aggiunta di statistiche e la citazione delle
+fonti, per un miglioramento di visibilità fino al 40%. Le analisi di settore
+convergono sulla stessa lista di leve: struttura del contenuto, markup
+semantico, dati strutturati, profondità tematica, freschezza, e pagine veloci
+e scansionabili.
+
+Ognuna di queste è una proprietà del tuo contenuto, del tuo tema e della tua
+infrastruttura. Nessuna è una proprietà del CMS che conserva le righe nel
+database. Un sito WordPress con un block theme snello, HTML semantico pulito,
+schema fatto bene e risposte sotto il secondo servite dalla cache di bordo va
+bene esattamente sui criteri che la ricerca individua. Un sito WordPress che
+gira su un page builder capace di emettere quattordici `div` annidati per
+paragrafo va male — e andrebbe altrettanto male lo stesso builder su qualsiasi
+altra piattaforma.
+
+Lì dentro c'è una critica reale, e riguarda *i temi e i page builder*, non
+WordPress. Il post ha puntato al bersaglio sbagliato.
+
+C'è anche un'ironia nell'alternativa proposta. «Gestisci il CMS tramite un
+server MCP» veniva presentata come un vantaggio generazionale, ed è una bella
+funzionalità — ma WordPress ha una REST API scriptabile e WP-CLI da anni, e
+adesso esistono adapter MCP. Quel divario si sta chiudendo a prescindere da
+cosa costruisca chiunque altro.
+
+## «Il loro momento di gloria è finito»
+
+WordPress gira su [circa il 41-42% di tutti i
+siti](https://w3techs.com/technologies/details/cm-wordpress) e su circa il 59%
+di quelli che usano un CMS riconoscibile — in calo dal 43% circa di fine 2025, e
+pari a circa otto volte la quota della piattaforma successiva. Shopify, la
+raccomandazione dello stesso post, sta intorno al 5%.
+
+Una piattaforma che perde un punto o due di quota all'anno è in declino. Non è
+finita, e descriverla come finita significa dire al cliente qualcosa di falso.
+Mindshare tra gli sviluppatori e base installata sono due misure diverse, e
+conviene essere chiari su quale delle due si sta citando.
+
+## Cosa resta in piedi
+
+Farei esattamente ciò che sto criticando se sostenessi che lo stack qui sopra
+risolve tutto. Tre cose restano in piedi, e due sono del post.
+
+**L'architettura del core di WordPress è quella che è.** PHP sincrono, un
+sistema di hook con un overhead reale, un'esperienza di amministrazione che
+mostra i suoi anni. La cache di bordo la aggira per il traffico anonimo; non
+la riscrive. Il traffico autenticato e quello del carrello continuano a
+eseguire le query di cui i critici si lamentano.
+
+**Per l'e-commerce di massa vince Shopify.** Carrello e checkout sono
+incacheabili per definizione, quindi è esattamente il carico di lavoro in cui
+l'architettura descritta sopra aiuta di meno e in cui ti ritrovi a gestire in
+proprio un'infrastruttura di pagamento. WooCommerce si guadagna il posto
+quando servono personalizzazioni profonde della logica di checkout o di
+prezzo, proprietà del dato, B2B complesso o codice condiviso con il sito di
+contenuti — non quando serve un negozio.
+
+**Possedere i propri plugin significa possederne la manutenzione.** È il punto
+su cui insisterei di più se qualcuno mi rivolgesse la mia stessa tesi. L'AI
+rende economico scrivere codice in casa; non rende gratuito riletterlo,
+testarlo attraverso gli aggiornamenti del core o conviverci per cinque anni.
+Il modello freemium esternalizzava quel costo, male e a caro prezzo — ma lo
+esternalizzava. Porta il codice in casa e l'obbligo arriva insieme a lui. Gli
+ambienti di preview e le migrazioni di deploy rendono quell'obbligo
+sostenibile. Non lo fanno sparire.
+
+## Il quadro riassuntivo
+
+| Critica | Verdetto su un WordPress immutabile gestito con Composer |
+|---|---|
+| Brodaglia di plugin e bloat freemium | Eliminata — le economie che la causavano non valgono più |
+| Pagine lente e pesanti sul database | Quasi eliminata — il traffico anonimo non tocca mai PHP |
+| Insicuro e facile da bucare | Quasi eliminata — il 91% delle vulnerabilità sta in plugin che non usi più |
+| Aggiornamenti infernali, niente staging, modifiche in produzione | Eliminata — branch, cloni, migrazioni ordinate |
+| Pessimo per il GEO | Non supportata — la ricerca punta su temi e infrastruttura |
+| Non gestibile dalle AI | Non supportata — WP-CLI, REST, adapter MCP |
+| Architettura del core | Resta in piedi — la si aggira con la cache, non la si sistema |
+| WooCommerce per i negozi di massa | Resta in piedi — Shopify è la risposta migliore |
+| Carico di manutenzione | Trasferito, non eliminato |
+
+All'incirca sei critiche su nove cadono. Due restano in piedi in pieno, e
+contano — ma si applicano a una fetta di progetti molto più stretta di quanto
+la tesi originale lasciasse intendere.
+
+L'errore non era la critica. Era trattare il deployment WordPress *mediano* —
+hosting condiviso, trenta plugin, modifiche via FTP — come se fosse il
+*massimo possibile*. Giudica qualsiasi tecnologia dalle sue installazioni
+peggiori e non ne sopravvive nessuna; c'è una versione di quel post da
+scrivere su ognuna delle piattaforme che cita, Shopify compresa.
+
+Scegliere un CMS per conto di un cliente è un giudizio professionale, e merita
+di meglio di una sentenza sull'intera categoria. Io stesso mi sono lasciato
+WordPress alle spalle su [questo stesso
+sito](/it/writing/wordpress-to-astro-in-a-day/), per ragioni che non avevano
+nulla a che fare con l'essere WordPress cattivo in ciò che fa. Semplicemente
+non era lo strumento giusto per quello che mi serviva. È a quel livello che va
+presa la decisione — progetto per progetto, nel merito, con i compromessi
+dichiarati ad alta voce. Non con un'accusa etica generalizzata che descrive
+soprattutto le cattive abitudini di un settore.
