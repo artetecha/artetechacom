@@ -1,0 +1,228 @@
+---
+title: "WordPress isn't finished. The way most people buy it is."
+description: 'A post arguing that selling WordPress in 2026 is ethically reprehensible made the rounds and was then deleted. Most of its criticisms are real — and almost all of them are procurement and hosting problems rather than CMS problems. Here is the honest scorecard, including the two that survive.'
+pubDate: 2026-08-18
+tags: ['wordpress', 'upsun', 'ai', 'seo']
+hero: ./images/wordpress-isnt-finished.svg
+heroAlt: 'Two deployments of the same CMS side by side. On the left, the median WordPress: thirty plugins installed by clicking, a writable filesystem, edits made in production, and the badge "91% of 2025''s 11,334 vulnerabilities". On the right, a Composer-managed immutable build: five plugins declared in a manifest, a read-only filesystem, branch-clone-migrate previews, and anonymous traffic that never reaches PHP. A strip beneath both notes that the WordPress core underneath is identical, and accounted for six low-priority vulnerabilities in all of 2025.'
+ogImage: ./images/wordpress-isnt-finished-og.png
+---
+
+A post crossed my feed recently making an argument I keep hearing in
+different accents: that selling WordPress sites in 2026 is *deontologically
+reprehensible*. Terrible for GEO. A slurry of plugins, glue code and database
+calls. Its moment of glory over. The recommendation that followed was
+Shopify for e-commerce and a purpose-built, AI-friendly CMS for everything
+else.
+
+The post has since been deleted, so I'm paraphrasing rather than quoting, and
+I won't name the author. The argument is worth engaging with anyway, because
+it's the most articulate version of a criticism that is *mostly right about
+the evidence and wrong about the conclusion*.
+
+Disclosure, twice over: I work at [Upsun](https://upsun.com), and I maintain
+[upsun-wp](https://upsun.artetecha.com/), an open-source plugin for running
+WordPress there. I have as much bias as anyone in this conversation. Which is
+exactly why I want to concede the strong parts before defending anything.
+
+## Where the post was right
+
+On Shopify, it was right. For a merchant with a catalogue, a cart and a
+checkout, and no unusual requirements, Shopify's argument is genuinely hard
+to beat: hosted, PCI handled, an app for everything, and no need to employ
+somebody to keep the lights on. Most of the alternatives sold to that
+merchant *are* overshooting, and the overshoot does tend to benefit whoever
+is implementing it. I'd have written the same paragraph.
+
+And on the state of the average WordPress site, it was right too. I've spent
+enough years inside other people's installations to know what's in there.
+
+## The security criticism is real — and it indicts the plugin market
+
+This is the part where the numbers are unambiguous, so let's use them rather
+than vibes. [Patchstack's *State of WordPress Security in
+2026*](https://patchstack.com/whitepaper/state-of-wordpress-security-in-2026/)
+counted **11,334 new vulnerabilities** across the WordPress ecosystem during
+2025 — a 42% increase year on year, with high-severity issues up 113%. For
+heavily targeted vulnerabilities, the median time from public disclosure to
+mass exploitation was **five hours**.
+
+That sounds like a devastating case against WordPress until you read where
+the vulnerabilities actually were:
+
+- **91%** in plugins
+- **9%** in themes
+- **6** in WordPress core — all of them classified low priority
+
+Six. In a year in which the ecosystem produced over eleven thousand. The
+report also found that hosting-level defences blocked only 12% of attacks
+using known exploited vulnerabilities, which quietly demolishes the usual
+answer to this problem — that a WAF and a security plugin will save you.
+
+So the honest reading of the security data is not "WordPress is insecure."
+It's "the WordPress *plugin procurement model* is insecure." The failure mode
+is a site owner installing thirty freemium plugins, each shipping forty
+features to upsell three, each carrying an update SDK, telemetry, an admin
+nag and its own attack surface. The vulnerability count is a direct function
+of how much third-party code you agreed to run.
+
+That reframing matters, because a procurement problem has a procurement
+solution.
+
+## What actually changes
+
+The [starter I maintain](https://github.com/artetecha/wordpress-upsun-starter)
+isn't clever. It just refuses the default deployment model at every point
+where that model is the thing causing the damage.
+
+**Composer owns everything.** Core, plugins, themes, versions, all declared
+in a manifest and installed at build time. Nothing is installed by clicking
+around in `wp-admin`, because nothing *can* be.
+
+**The filesystem is read-only in production.** Patchstack's malware section
+is largely about persistence — injected files in legitimate code, payloads
+that survive cleanup. On an immutable build there is nowhere to write a
+webshell, and every deploy reinstates known-good code from the manifest.
+Uploads and cache are the only writable mounts, and they're served with
+scripts disabled.
+
+**Anonymous traffic never reaches PHP.** The router cache serves HTML at the
+edge; Redis absorbs the object cache behind it. Sub-second responses stop
+being an optimisation project and become the default state, because the
+database isn't in the request path for the traffic that makes up the
+overwhelming majority of a content site's visits.
+
+**Every change is a branch.** Preview environments are full production
+clones, with outbound mail intercepted, payments forced into test mode,
+webhooks paused and `noindex` applied — which is the specific problem
+[I wrote the plugin to solve](/writing/making-wordpress-behave-on-upsun/).
+Schema changes are ordered migrations that run once per database and abort
+the deploy on failure, before traffic ever sees them.
+
+None of that is exotic. It's the deployment discipline every other part of
+our industry considers table stakes, applied to a CMS whose culture never
+required it.
+
+## The part that's genuinely new
+
+Here's what changed recently enough that the original post can be forgiven
+for not accounting for it.
+
+The reason people install freemium bloatware was never that they wanted
+forty features. It was that a custom post type, a form handler, a redirect
+map or a schema-markup layer used to represent days of billable development,
+and a plugin represented an afternoon. That maths held for fifteen years and
+it built the entire plugin economy.
+
+It doesn't hold any more. Most of those requirements are now 100 to 300 lines
+of reviewed code produced in an hour or two — no upsells, no telemetry, no
+dashboard nags, no attack surface you didn't choose. What used to be thirty
+plugins becomes four or five you genuinely shouldn't rebuild — payments,
+search, multilingual — plus site code that does exactly what your site
+needs and nothing else.
+
+I've [written before](/writing/i-lost-patience-with-writing-code/) about why
+I think AI-assisted development works when an experienced engineer stays in
+the loop and fails when nobody does, and I won't relitigate it here. But its
+effect on this particular problem is direct: the economic argument for
+plugin soup has collapsed. You can now afford to own your code.
+
+## About GEO
+
+The claim that WordPress is inherently terrible for generative-engine
+optimisation was asserted with reference to a "mass of studies" and no
+citations, so I went looking for them.
+
+What the research actually says is consistent and, for this argument,
+inconvenient. The [GEO paper](https://arxiv.org/abs/2311.09735) (KDD 2024)
+found that the highest-performing techniques were adding statistics and
+citing sources, worth up to a 40% visibility improvement. Industry analyses
+converge on the same set of levers: content structure, semantic markup,
+structured data, topical depth, freshness, and fast, crawlable pages.
+
+Every one of those is a property of your content, your theme and your
+infrastructure. Not one of them is a property of the CMS storing the rows.
+A WordPress site with a lean block theme, clean semantic HTML, proper schema
+and edge-cached sub-second responses does well on precisely the criteria the
+research identifies. A WordPress site running a page builder that emits
+fourteen nested `div`s per paragraph does badly — and so would the same
+builder on any other platform.
+
+There is a real criticism buried in there, and it's about *themes and page
+builders*, not about WordPress. The post aimed at the wrong target.
+
+There's also an irony in the alternative offered. "Manage your CMS through
+an MCP server" was presented as a generational advantage, and it's a good
+feature — but WordPress has had a scriptable REST API and WP-CLI for years,
+and MCP adapters for it now exist. That gap is closing regardless of what
+anyone builds.
+
+## "Its moment of glory is over"
+
+WordPress runs [about 41–42% of all
+websites](https://w3techs.com/technologies/details/cm-wordpress) and roughly
+59% of those using a known CMS — down from around 43% in late 2025, and
+about eight times the share of the next platform. Shopify, the post's own
+recommendation, sits near 5%.
+
+A platform losing a point or two of share a year is declining. It isn't
+finished, and describing it as finished tells your client something false.
+Developer mindshare and installed base are different measurements, and it's
+worth being clear about which one you're citing.
+
+## What survives
+
+I'd be doing exactly what I'm criticising if I claimed the stack above
+answers everything. Three things survive, and two of them are the post's.
+
+**WordPress core's architecture is what it is.** Synchronous PHP, a hook
+system with real overhead, an admin experience showing its age. Edge caching
+routes around it for anonymous traffic; it doesn't rewrite it. Logged-in and
+cart traffic still executes the queries the critics complain about.
+
+**For commodity e-commerce, Shopify wins.** Cart and checkout are
+uncacheable by definition, so this is precisely the workload where the
+architecture above helps least and where you're now running payment
+infrastructure yourself. WooCommerce earns its place when you need deep
+customisation of checkout or pricing logic, data ownership, complex B2B, or
+shared code with the content site — not when you need a shop.
+
+**Owning your plugins means owning their maintenance.** This is the one I'd
+push back on hardest if someone made my argument to me. AI makes writing
+in-house code cheap; it does not make reviewing it, testing it across core
+upgrades or living with it for five years free. The freemium model
+externalised that cost, badly and at a price — but it did externalise it.
+Take the code in-house and the obligation comes with it. Preview
+environments and deploy migrations make that obligation survivable. They
+don't make it disappear.
+
+## The scorecard
+
+| Criticism | Verdict on a Composer-managed, immutable WordPress |
+|---|---|
+| Plugin soup and freemium bloat | Removed — the economics that caused it no longer hold |
+| Slow, database-heavy pages | Mostly removed — anonymous traffic never touches PHP |
+| Insecure and easily compromised | Mostly removed — 91% of vulnerabilities are in plugins you no longer run |
+| Update hell, no staging, edits in production | Removed — branches, clones, ordered migrations |
+| Terrible for GEO | Not supported — the research points at themes and infrastructure |
+| Not AI-manageable | Not supported — WP-CLI, REST, MCP adapters |
+| Core architecture | Stands — cached around, not fixed |
+| WooCommerce for commodity shops | Stands — Shopify is the better answer |
+| Maintenance burden | Transferred, not eliminated |
+
+Roughly six of the nine fall. Two stand outright, and they matter — but they
+apply to a far narrower slice of projects than the original argument implied.
+
+The mistake wasn't the criticism. It was treating the *median* WordPress
+deployment — shared hosting, thirty plugins, edits over FTP — as though it
+were the *ceiling*. Judge any technology by its worst-run installations and
+none of them survive; there is a version of this post to be written about
+every platform mentioned in it, Shopify included.
+
+Choosing a CMS on behalf of a client is a professional judgement, and it
+deserves better than a verdict on the whole category. I left WordPress behind
+on [this very site](/writing/wordpress-to-astro-in-a-day/), for reasons that
+had nothing to do with WordPress being bad at what it does. It just wasn't
+the right tool for what I needed. That's the level the decision belongs at —
+per project, on the merits, with the trade-offs named out loud. Not a
+sweeping ethical charge that mostly describes an industry's bad habits.
