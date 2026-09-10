@@ -1,6 +1,28 @@
-# LinkedIn recommendations (verbatim quotes; `weight` drives display order,
-# the home page features the top three). Recommendations set to "Off" on
-# LinkedIn are deliberately not included here.
+# Testimonials (`weight` drives display order; the home page features the
+# top three). Jonas's feedback is adapted from a performance review. LinkedIn recommendations
+# remain verbatim; those set to "Off" on LinkedIn are deliberately excluded.
+- id: jonas-kroger
+  author: Jonas Kröger
+  role: Manager
+  company: Upsun
+  weight: 0
+  quote:
+    en: >-
+      Vincenzo sees the bigger picture and takes the initiative to make
+      things better. He combines deep technical knowledge with a thoughtful
+      approach to solving problems, always looking beyond the task at hand.
+      I can trust him to take ownership and deliver. That combination of
+      vision, expertise and reliability makes him a valuable person to
+      work with.
+    it: >-
+      Vincenzo sa vedere il quadro d'insieme e prende l'iniziativa per
+      migliorare le cose. Unisce una profonda competenza tecnica a un
+      approccio ragionato alla soluzione dei problemi, guardando sempre
+      oltre il compito immediato. So di poter contare su di lui perché si
+      assuma la responsabilità del lavoro e lo porti a termine. Questa
+      combinazione di visione, competenza e affidabilità lo rende una
+      persona preziosa con cui lavorare.
+
 - id: robert-douglass
   author: Robert Douglass
   role: Drupal pioneer
