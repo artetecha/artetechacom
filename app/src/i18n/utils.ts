@@ -33,3 +33,12 @@ export function formatDate(date: Date, locale: Locale): string {
     year: 'numeric',
   }).format(date);
 }
+
+/** Format a YYYY-MM project month without implying an exact day. */
+export function formatMonth(month: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'it-IT', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${month}-01T00:00:00Z`));
+}

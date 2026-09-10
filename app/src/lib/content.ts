@@ -56,3 +56,15 @@ export async function getProjects(locale: Locale): Promise<CollectionEntry<'proj
   const projects = await getCollection('projects', (entry) => entry.id.startsWith(`${locale}/`));
   return projects.sort((a, b) => a.data.order - b.data.order);
 }
+
+export async function getPortfolio(locale: Locale): Promise<CollectionEntry<'portfolio'>[]> {
+  const entries = await getCollection(
+    'portfolio',
+    (entry) => entry.id.startsWith(`${locale}/`) && !entry.data.draft,
+  );
+  return entries.sort((a, b) =>
+    b.data.date.localeCompare(a.data.date) ||
+    a.data.order - b.data.order ||
+    a.id.localeCompare(b.id),
+  );
+}

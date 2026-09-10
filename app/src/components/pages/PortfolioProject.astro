@@ -1,0 +1,206 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import { getPortfolio, slugOf } from '../../lib/content';
+import { useTranslations, localizePath, otherLocale, formatMonth, type Locale } from '../../i18n/utils';
+
+interface Props {
+  project: CollectionEntry<'portfolio'>;
+  locale: Locale;
+}
+
+const { project, locale } = Astro.props;
+const { data } = project;
+const t = useTranslations(locale);
+const { Content } = await render(project);
+const targetLocale = otherLocale(locale);
+const translated = (await getPortfolio(targetLocale)).find((entry) => slugOf(entry) === slugOf(project));
+const alternate = translated ? localizePath(targetLocale, `/portfolio/${slugOf(project)}/`) : null;
+---
+
+<Base
+  title={data.title}
+  description={data.summary}
+  locale={locale}
+  alternate={alternate}
+  ogImage={data.image?.src}
+  ogImageWidth={data.image?.width}
+  ogImageHeight={data.image?.height}
+>
+  <article class="container">
+    <header class="project-head">
+      <a class="back" href={localizePath(locale, '/portfolio/')}>← {t.portfolio.back}</a>
+      <p class="eyebrow">{data.category}</p>
+      <h1>{data.title}</h1>
+      <p class="lede">{data.summary}</p>
+      <div class="project-links">
+        {data.website && <a class="btn btn-primary" href={data.website}>{t.portfolio.visit} <span aria-hidden="true">↗</span></a>}
+        {data.repository && <a class="btn btn-ghost" href={data.repository}>{t.portfolio.source} <span aria-hidden="true">↗</span></a>}
+      </div>
+    </header>
+
+    {data.image && (
+      <figure class="screenshot hero-shot">
+        <a href={data.image.src}><Image src={data.image} alt={data.imageAlt} loading="eager" /></a>
+      </figure>
+    )}
+
+    <div class="project-body">
+      <aside class="project-facts" aria-label={t.portfolio.details}>
+        <dl>
+          <dt>{t.portfolio.date}</dt>
+          <dd><time datetime={data.date}>{formatMonth(data.date, locale)}</time></dd>
+          <dt>{t.portfolio.client}</dt>
+          <dd>{data.client}</dd>
+          <dt>{t.portfolio.role}</dt>
+          <dd>{data.role}</dd>
+          {data.stack.length > 0 && <>
+            <dt>{t.portfolio.stack}</dt>
+            <dd><ul class="stack">{data.stack.map((tech) => <li class="tag">{tech}</li>)}</ul></dd>
+          </>}
+        </dl>
+      </aside>
+      <div class="story">
+        <Content />
+        {data.writeUp && <p class="write-up"><a href={data.writeUp}>{t.portfolio.writeUp} <span aria-hidden="true">→</span></a></p>}
+      </div>
+    </div>
+
+    {data.screenshots.length > 0 && (
+      <div class="gallery">
+        {data.screenshots.map((shot) => (
+          <figure class:list={['screenshot', { portrait: shot.image.width < shot.image.height }]}>
+            <a href={shot.image.src}><Image src={shot.image} alt={shot.alt} loading="lazy" /></a>
+            {shot.caption && <figcaption>{shot.caption}</figcaption>}
+          </figure>
+        ))}
+      </div>
+    )}
+
+    <aside class="contact-cta" aria-labelledby="contact-title">
+      <h2 id="contact-title">{t.portfolio.contactTitle}</h2>
+      <p>{t.portfolio.contactBody}</p>
+      <a class="btn btn-primary" href={localizePath(locale, '/contact/')}>{t.portfolio.contactLink} <span aria-hidden="true">→</span></a>
+    </aside>
+  </article>
+</Base>
+
+<style>
+  .project-head {
+    padding-block: var(--space-5);
+    max-width: 52rem;
+  }
+
+  .back {
+    display: inline-block;
+    font-size: var(--text-sm);
+    margin-block-end: var(--space-5);
+  }
+
+  h1 {
+    font-size: var(--text-hero);
+    overflow-wrap: anywhere;
+  }
+
+  .project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-block-start: var(--space-4);
+  }
+
+  .screenshot :global(img) {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+  }
+
+  .project-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: var(--space-6);
+    margin-block: var(--space-6);
+  }
+
+  dt {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    margin-block-end: var(--space-2);
+  }
+
+  dd {
+    margin: 0 0 var(--space-4);
+    font-weight: 550;
+  }
+
+  .stack {
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .story {
+    max-width: var(--container-text);
+  }
+
+  .story :global(h2:not(:first-child)) {
+    margin-block-start: var(--space-5);
+  }
+
+  .story :global(p) {
+    margin-block-end: var(--space-4);
+  }
+
+  .write-up {
+    border-block-start: 1px solid var(--border);
+    padding-block-start: var(--space-4);
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(22rem, 100%), 1fr));
+    align-items: start;
+    gap: var(--space-5);
+  }
+
+  .gallery .screenshot {
+    width: 100%;
+    max-width: 52rem;
+    margin-inline: auto;
+  }
+
+  .gallery .portrait {
+    max-width: 24rem;
+  }
+
+  figcaption {
+    margin-block-start: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .contact-cta {
+    margin-block-start: var(--space-6);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .contact-cta p {
+    max-width: 42rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .project-body {
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+  }
+</style>

@@ -1,0 +1,107 @@
+---
+import Base from '../../layouts/Base.astro';
+import PortfolioCard from '../PortfolioCard.astro';
+import { getPortfolio } from '../../lib/content';
+import { useTranslations, localizePath, type Locale } from '../../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const projects = await getPortfolio(locale);
+---
+
+<Base title={t.portfolio.title} description={t.portfolio.intro} locale={locale}>
+  <div class="container">
+    <header class="page-head">
+      <p class="eyebrow">{t.portfolio.eyebrow}</p>
+      <h1>{t.portfolio.title}</h1>
+      <p class="lede">{t.portfolio.intro}</p>
+    </header>
+
+    <div class="portfolio-grid">
+      {projects.map((project) => <PortfolioCard project={project} locale={locale} />)}
+    </div>
+    {projects.length === 0 && <p class="lede">{t.portfolio.empty}</p>}
+
+    <aside class="contact-cta" aria-labelledby="contact-title">
+      <div>
+        <p class="eyebrow">Artetecha</p>
+        <h2 id="contact-title">{t.portfolio.contactTitle}</h2>
+        <p>{t.portfolio.contactBody}</p>
+      </div>
+      <a class="btn btn-primary" href={localizePath(locale, '/contact/')}>{t.portfolio.contactLink} <span aria-hidden="true">→</span></a>
+    </aside>
+
+    <aside class="work-link" aria-labelledby="work-title">
+      <div>
+        <h2 id="work-title">{t.portfolio.workTitle}</h2>
+        <p>{t.portfolio.workBody}</p>
+      </div>
+      <a class="btn btn-ghost" href={localizePath(locale, '/work/')}>{t.portfolio.workLink} <span aria-hidden="true">→</span></a>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: var(--space-6) var(--space-5);
+    max-width: var(--container-text);
+  }
+
+  h1 {
+    font-size: var(--text-hero);
+  }
+
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(25rem, 100%), 1fr));
+    gap: var(--space-5);
+  }
+
+  .work-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-5);
+    margin-block-start: var(--space-6);
+    padding-block-start: var(--space-5);
+    border-block-start: 1px solid var(--border);
+  }
+
+  .contact-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-5);
+    margin-block-start: var(--space-6);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .contact-cta div {
+    flex: 1 1 25rem;
+    max-width: 40rem;
+  }
+
+  .contact-cta p:last-child {
+    margin: 0;
+    color: var(--text-muted);
+  }
+
+  .work-link div {
+    flex: 1 1 25rem;
+    max-width: var(--container-text);
+  }
+
+  .work-link p {
+    margin: 0;
+    color: var(--text-muted);
+  }
+</style>

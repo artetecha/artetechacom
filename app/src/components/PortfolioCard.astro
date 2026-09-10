@@ -1,0 +1,189 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import { slugOf } from '../lib/content';
+import { useTranslations, localizePath, formatMonth, type Locale } from '../i18n/utils';
+
+interface Props {
+  project: CollectionEntry<'portfolio'>;
+  locale: Locale;
+  heading?: 'h2' | 'h3';
+}
+
+const { project, locale, heading: Heading = 'h2' } = Astro.props;
+const { data } = project;
+const t = useTranslations(locale);
+const titleId = `portfolio-${slugOf(project)}`;
+const href = localizePath(locale, `/portfolio/${slugOf(project)}/`);
+---
+
+<article class="portfolio-card" aria-labelledby={titleId}>
+  {
+    data.image && (
+      <a class="cover" href={href} aria-labelledby={titleId}>
+        <Image
+          src={data.image}
+          width={data.image.width}
+          height={data.image.height}
+          alt={data.imageAlt}
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+    )
+  }
+  <div class="body">
+    <div class="meta">
+      <p class="eyebrow">{data.category}</p>
+      <time datetime={data.date}>{formatMonth(data.date, locale)}</time>
+    </div>
+    <Heading id={titleId}><a href={href}>{data.title}</a></Heading>
+    <p class="summary">{data.summary}</p>
+    {
+      data.stack.length > 0 && (
+        <ul class="stack" aria-label={t.portfolio.stack}>
+          {data.stack.map((tech) => <li class="tag">{tech}</li>)}
+        </ul>
+      )
+    }
+    <div class="links">
+      <a href={href}>{t.portfolio.details} <span aria-hidden="true">→</span></a>
+      {data.website && <a href={data.website}>{t.portfolio.visit} <span aria-hidden="true">↗</span></a>}
+    </div>
+  </div>
+</article>
+
+<style>
+  .portfolio-card {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .portfolio-card:hover,
+  .portfolio-card:focus-within {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  .cover {
+    aspect-ratio: 16 / 9;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, var(--steel-100), oklch(96% 0.04 118));
+    border-block-end: 1px solid var(--border);
+  }
+
+  .cover :global(img) {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1;
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .eyebrow {
+    font-size: var(--text-xs);
+    margin: 0;
+  }
+
+  .meta {
+    width: 100%;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    margin-block-end: var(--space-2);
+  }
+
+  time {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  h2,
+  h3 {
+    font-size: var(--text-xl);
+    overflow-wrap: anywhere;
+  }
+
+  h2 a,
+  h3 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  h2 a:hover,
+  h3 a:hover {
+    color: var(--link);
+  }
+
+  .summary {
+    color: var(--text-muted);
+    flex: 1;
+  }
+
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    list-style: none;
+    padding: 0;
+    margin: var(--space-2) 0 var(--space-4);
+  }
+
+  .links {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    border-block-start: 1px solid var(--border);
+    padding-block-start: var(--space-3);
+  }
+
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  @media (min-width: 900px) {
+    .portfolio-card:only-child {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    }
+
+    .portfolio-card:only-child .cover {
+      aspect-ratio: auto;
+      padding: var(--space-4);
+      border-block-end: 0;
+      border-inline-end: 1px solid var(--border);
+    }
+
+    .portfolio-card:only-child .cover :global(img) {
+      height: auto;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
+    }
+  }
+</style>

@@ -2,8 +2,9 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import PostCard from '../PostCard.astro';
+import PortfolioCard from '../PortfolioCard.astro';
 import { SITE } from '../../data/site';
-import { getWritingList } from '../../lib/content';
+import { getWritingList, getPortfolio } from '../../lib/content';
 import { useTranslations, localizePath, type Locale } from '../../i18n/utils';
 
 interface Props {
@@ -14,6 +15,7 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 
 const latest = (await getWritingList(locale)).slice(0, 3);
+const portfolio = (await getPortfolio(locale)).slice(0, 2);
 // The three lowest-weight testimonials; the full set lives on /work/.
 const testimonials = (await getCollection('testimonials'))
   .sort((a, b) => a.data.weight - b.data.weight)
@@ -85,6 +87,24 @@ const names = [
       </ul>
     </div>
   </section>
+
+  {
+    portfolio.length > 0 && (
+      <section class="section" aria-labelledby="portfolio-title">
+        <div class="container">
+          <div class="row-title">
+            <h2 id="portfolio-title">{t.home.portfolioTitle}</h2>
+            <a href={localizePath(locale, '/portfolio/')}>{t.home.portfolioAll} →</a>
+          </div>
+          <div class="portfolio-grid">
+            {portfolio.map((project) => (
+              <PortfolioCard project={project} locale={locale} heading="h3" />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   <section class="section" aria-labelledby="oss-title">
     <div class="container">
@@ -319,6 +339,12 @@ const names = [
     font-size: var(--text-lg);
     color: var(--text-muted);
     opacity: 0.85;
+  }
+
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(25rem, 100%), 1fr));
+    gap: var(--space-4);
   }
 
   .row-title {

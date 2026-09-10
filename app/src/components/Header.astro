@@ -16,6 +16,7 @@ const links = [
   { href: localizePath(locale, '/'), label: t.nav.home },
   { href: localizePath(locale, '/about/'), label: t.nav.about },
   { href: localizePath(locale, '/work/'), label: t.nav.work },
+  { href: localizePath(locale, '/portfolio/'), label: t.nav.portfolio },
   { href: localizePath(locale, '/review/'), label: t.nav.review },
   { href: localizePath(locale, '/writing/'), label: t.nav.writing },
   { href: localizePath(locale, '/contact/'), label: t.nav.contact },
@@ -32,7 +33,7 @@ const current = Astro.url.pathname;
     <nav aria-label={t.a11y.mainNav}>
       {
         links.map(({ href, label }) => (
-          <a href={href} aria-current={current === href ? 'page' : undefined}>
+          <a href={href} aria-current={current === href ? 'page' : href === localizePath(locale, '/portfolio/') && current.startsWith(href) ? 'location' : undefined}>
             {label}
           </a>
         ))
@@ -91,7 +92,7 @@ const current = Astro.url.pathname;
     color: var(--text);
   }
 
-  nav a[aria-current='page'] {
+  nav a[aria-current] {
     color: var(--text);
     border-block-end-color: var(--accent);
   }
@@ -102,7 +103,7 @@ const current = Astro.url.pathname;
     gap: var(--space-2);
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 800px) {
     .bar {
       flex-wrap: wrap;
       justify-content: space-between;

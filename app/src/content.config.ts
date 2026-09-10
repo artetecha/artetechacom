@@ -51,6 +51,34 @@ const projects = defineCollection({
   }),
 });
 
+const portfolio = defineCollection({
+  loader: glob({ pattern: '{en,it}/*.{md,mdx}', base: './src/content/portfolio' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      /** Project month, preserving month-only precision (YYYY-MM). */
+      date: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+      category: z.string(),
+      summary: z.string(),
+      client: z.string(),
+      role: z.string(),
+      stack: z.array(z.string()).default([]),
+      image: image().optional(),
+      imageAlt: z.string().default(''),
+      screenshots: z.array(z.object({
+        image: image(),
+        alt: z.string(),
+        caption: z.string().optional(),
+      })).default([]),
+      website: z.string().url().optional(),
+      repository: z.string().url().optional(),
+      /** Root-relative article URL, including the locale prefix when needed. */
+      writeUp: z.string().regex(/^\/(?!\/)/).optional(),
+      draft: z.boolean().default(false),
+      order: z.number().default(99),
+    }),
+});
+
 const testimonials = defineCollection({
   loader: file('./src/data/testimonials.yaml'),
   schema: z.object({
@@ -67,4 +95,4 @@ const testimonials = defineCollection({
   }),
 });
 
-export const collections = { blog, archive, projects, testimonials };
+export const collections = { blog, archive, projects, portfolio, testimonials };
