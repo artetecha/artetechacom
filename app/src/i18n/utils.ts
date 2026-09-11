@@ -34,8 +34,9 @@ export function formatDate(date: Date, locale: Locale): string {
   }).format(date);
 }
 
-/** Format a YYYY-MM project month without implying an exact day. */
-export function formatMonth(month: string, locale: Locale): string {
+/** Preserve year-only dates; format project months without inventing a day. */
+export function formatProjectDate(month: string, locale: Locale): string {
+  if (/^\d{4}$/.test(month)) return month;
   return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'it-IT', {
     month: 'long',
     year: 'numeric',

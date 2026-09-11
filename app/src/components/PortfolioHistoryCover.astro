@@ -1,0 +1,55 @@
+---
+import { useTranslations, type Locale } from '../i18n/utils';
+
+interface Props {
+  name: string;
+  locale: Locale;
+}
+
+const { name, locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<div class="history-cover" aria-hidden="true">
+  <span class="cover-label">Artetecha / {t.portfolio.caseStudy}</span>
+  <span class="cover-name">{name}</span>
+  <span class="cover-rule"></span>
+</div>
+
+<style>
+  .history-cover {
+    width: 100%;
+    min-width: 0;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(1.25rem, 4vw, 3rem);
+    background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  .cover-label {
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .cover-name {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 3.5rem);
+    font-weight: 650;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+    margin-block: var(--space-3);
+    max-width: 16ch;
+  }
+
+  .cover-rule {
+    width: 4rem;
+    height: 0.25rem;
+    background: var(--accent);
+  }
+</style>

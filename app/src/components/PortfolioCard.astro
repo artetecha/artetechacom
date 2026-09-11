@@ -1,8 +1,9 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { Image } from 'astro:assets';
+import PortfolioHistoryCover from './PortfolioHistoryCover.astro';
 import { slugOf } from '../lib/content';
-import { useTranslations, localizePath, formatMonth, type Locale } from '../i18n/utils';
+import { useTranslations, localizePath, formatProjectDate, type Locale } from '../i18n/utils';
 
 interface Props {
   project: CollectionEntry<'portfolio'>;
@@ -19,7 +20,7 @@ const href = localizePath(locale, `/portfolio/${slugOf(project)}/`);
 
 <article class="portfolio-card" aria-labelledby={titleId}>
   {
-    data.image && (
+    data.image ? (
       <a class="cover" href={href} aria-labelledby={titleId}>
         <Image
           src={data.image}
@@ -30,14 +31,19 @@ const href = localizePath(locale, `/portfolio/${slugOf(project)}/`);
           decoding="async"
         />
       </a>
+    ) : data.historical && (
+      <a class="cover" href={href} aria-labelledby={titleId}>
+        <PortfolioHistoryCover name={data.title} locale={locale} />
+      </a>
     )
   }
   <div class="body">
     <div class="meta">
       <p class="eyebrow">{data.category}</p>
-      <time datetime={data.date}>{formatMonth(data.date, locale)}</time>
+      {data.period ? <span class="date">{data.period}</span> : <time datetime={data.date}>{formatProjectDate(data.date, locale)}</time>}
     </div>
     <Heading id={titleId}><a href={href}>{data.title}</a></Heading>
+    {data.historical && <p class="credit">{data.relationship === 'employment' ? t.portfolio.employment : t.portfolio.historicCommission}</p>}
     <p class="summary">{data.summary}</p>
     {
       data.stack.length > 0 && (
@@ -74,6 +80,7 @@ const href = localizePath(locale, `/portfolio/${slugOf(project)}/`);
 
   .cover {
     aspect-ratio: 16 / 9;
+    text-decoration: none;
     display: grid;
     place-items: center;
     background: linear-gradient(135deg, var(--steel-100), oklch(96% 0.04 118));
@@ -111,9 +118,15 @@ const href = localizePath(locale, `/portfolio/${slugOf(project)}/`);
     margin-block-end: var(--space-2);
   }
 
-  time {
+  time,
+  .date,
+  .credit {
     font-size: var(--text-xs);
     color: var(--text-muted);
+  }
+
+  time,
+  .date {
     white-space: nowrap;
   }
 

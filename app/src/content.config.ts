@@ -56,8 +56,11 @@ const portfolio = defineCollection({
   schema: ({ image }) =>
     z.object({
       title: z.string(),
-      /** Project month, preserving month-only precision (YYYY-MM). */
-      date: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+      /** Project date or final year of an engagement, at the known precision. */
+      date: z.string().regex(/^\d{4}(-(0[1-9]|1[0-2]))?$/),
+      period: z.string().optional(),
+      historical: z.boolean().default(false),
+      relationship: z.enum(['commission', 'employment']).default('commission'),
       category: z.string(),
       summary: z.string(),
       client: z.string(),

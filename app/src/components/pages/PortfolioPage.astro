@@ -11,6 +11,8 @@ interface Props {
 const { locale } = Astro.props;
 const t = useTranslations(locale);
 const projects = await getPortfolio(locale);
+const recent = projects.filter((project) => !project.data.historical);
+const historical = projects.filter((project) => project.data.historical);
 ---
 
 <Base title={t.portfolio.title} description={t.portfolio.intro} locale={locale}>
@@ -22,9 +24,19 @@ const projects = await getPortfolio(locale);
     </header>
 
     <div class="portfolio-grid">
-      {projects.map((project) => <PortfolioCard project={project} locale={locale} />)}
+      {recent.map((project) => <PortfolioCard project={project} locale={locale} />)}
     </div>
     {projects.length === 0 && <p class="lede">{t.portfolio.empty}</p>}
+
+    {historical.length > 0 && (
+      <section class="history" aria-labelledby="history-title">
+        <h2 id="history-title">{t.portfolio.historyTitle}</h2>
+        <p class="lede">{t.portfolio.historyIntro}</p>
+        <div class="portfolio-grid">
+          {historical.map((project) => <PortfolioCard project={project} locale={locale} heading="h3" />)}
+        </div>
+      </section>
+    )}
 
     <aside class="contact-cta" aria-labelledby="contact-title">
       <div>
@@ -59,6 +71,12 @@ const projects = await getPortfolio(locale);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(25rem, 100%), 1fr));
     gap: var(--space-5);
+  }
+
+  .history {
+    margin-block-start: var(--space-6);
+    padding-block-start: var(--space-5);
+    border-block-start: 1px solid var(--border);
   }
 
   .work-link {

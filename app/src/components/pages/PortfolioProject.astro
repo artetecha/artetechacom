@@ -1,9 +1,10 @@
 ---
 import { render, type CollectionEntry } from 'astro:content';
 import { Image } from 'astro:assets';
+import PortfolioHistoryCover from '../PortfolioHistoryCover.astro';
 import Base from '../../layouts/Base.astro';
 import { getPortfolio, slugOf } from '../../lib/content';
-import { useTranslations, localizePath, otherLocale, formatMonth, type Locale } from '../../i18n/utils';
+import { useTranslations, localizePath, otherLocale, formatProjectDate, type Locale } from '../../i18n/utils';
 
 interface Props {
   project: CollectionEntry<'portfolio'>;
@@ -31,7 +32,7 @@ const alternate = translated ? localizePath(targetLocale, `/portfolio/${slugOf(p
   <article class="container">
     <header class="project-head">
       <a class="back" href={localizePath(locale, '/portfolio/')}>← {t.portfolio.back}</a>
-      <p class="eyebrow">{data.category}</p>
+      <p class="eyebrow">{data.historical && `${t.portfolio.historical} · `}{data.category}</p>
       <h1>{data.title}</h1>
       <p class="lede">{data.summary}</p>
       <div class="project-links">
@@ -45,14 +46,19 @@ const alternate = translated ? localizePath(targetLocale, `/portfolio/${slugOf(p
         <a href={data.image.src}><Image src={data.image} alt={data.imageAlt} loading="eager" /></a>
       </figure>
     )}
+    {!data.image && data.historical && <div class="history-art"><PortfolioHistoryCover name={data.title} locale={locale} /></div>}
 
     <div class="project-body">
       <aside class="project-facts" aria-label={t.portfolio.details}>
         <dl>
           <dt>{t.portfolio.date}</dt>
-          <dd><time datetime={data.date}>{formatMonth(data.date, locale)}</time></dd>
-          <dt>{t.portfolio.client}</dt>
+          <dd>{data.period ? data.period : <time datetime={data.date}>{formatProjectDate(data.date, locale)}</time>}</dd>
+          <dt>{data.relationship === 'employment' ? t.portfolio.employer : t.portfolio.client}</dt>
           <dd>{data.client}</dd>
+          {data.historical && <>
+            <dt>{t.portfolio.engagement}</dt>
+            <dd>{data.relationship === 'employment' ? t.portfolio.employment : t.portfolio.historicCommission}</dd>
+          </>}
           <dt>{t.portfolio.role}</dt>
           <dd>{data.role}</dd>
           {data.stack.length > 0 && <>
@@ -123,6 +129,12 @@ const alternate = translated ? localizePath(targetLocale, `/portfolio/${slugOf(p
     grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
     gap: var(--space-6);
     margin-block: var(--space-6);
+  }
+
+  .history-art {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
   }
 
   dt {
