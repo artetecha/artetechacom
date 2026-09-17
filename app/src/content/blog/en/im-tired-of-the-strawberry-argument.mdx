@@ -1,0 +1,172 @@
+---
+title: "I'm tired of the strawberry argument"
+description: 'Three letters, a real limitation, and an exhausting argument. Why LLMs can miscount the r’s in strawberry, why tokenisation is only part of the explanation, and what useful criticism would look like.'
+pubDate: 2026-09-17
+tags: ['ai', 'software-engineering']
+---
+
+There are three r's in strawberry.
+
+There. We can all go home.
+
+Except apparently we can't, because this particular piece of fruit keeps
+being asked to settle the entire argument about artificial intelligence.
+A language model gets the count wrong, someone posts the screenshot, and
+we're off again. It can't count to three, so how could anyone trust it to
+write code? Then comes the defence: it uses tokens, so the question doesn't
+count.
+
+I'm tired of both responses. The failure deserves an explanation. The
+explanation also needs to take the failure seriously. And I'd quite like
+us to get past the screenshot.
+
+## First, count the actual letters
+
+The word has ten letters. Number them:
+
+```text
+Position:  1  2  3  4  5  6  7  8  9 10
+Letter:    s  t  r  a  w  b  e  r  r  y
+```
+
+The r's are at positions **3, 8 and 9**. A conventional program can settle
+this with:
+
+```python
+"strawberry".count("r")  # 3
+```
+
+When Python executes that expression, it performs a defined string
+operation. A language model answering in prose doesn't automatically
+execute the equivalent operation just because the question calls for one.
+That's where the interesting part starts.
+
+Also, let's retire “LLMs consistently fail at this.” Which model? Which
+prompt? With tools enabled? A wrong answer demonstrates a failure in that
+setting. It doesn't establish that every model always fails, any more than
+one correct answer establishes that the problem is solved.
+
+## Tokens explain some of the difficulty
+
+Most language models process text as *tokens*: chunks that can represent
+whole words, parts of words, or smaller units. They don't normally receive
+one independently represented input item for each letter.
+
+A schematic split might look like this:
+
+```text
+["straw", "berry"]
+```
+
+That is an illustration, not a claim about a particular tokenizer. The
+actual split depends on the tokenizer and the surrounding text. The point
+is that the model's input units needn't line up with the units you've asked
+it to count.
+
+The model must work with information about the characters *inside* those
+units. Counting letters isn't simply counting the input items.
+
+But “it uses tokens” is where too many explanations stop. Tokenisation
+doesn't make spelling information disappear. A model can learn about the
+internal structure of tokens, and being able to spell a word doesn't ensure
+it will reliably count a particular letter in that word.
+
+A [study of eight models across 10,000
+words](https://arxiv.org/abs/2412.18626) found that the models could identify
+letters while still struggling to count their occurrences. Errors were
+associated particularly strongly with how many letters appeared more than
+once. Word and token frequency didn't explain the errors in that study.
+
+That's a more useful finding than “the model can't see letters.” It points
+to a difficulty in using the information reliably, even when the information
+is available.
+
+## Knowing the spelling doesn't guarantee the count
+
+A model can produce `s-t-r-a-w-b-e-r-r-y` correctly and still give the wrong
+number of r's. Those are different tasks, however similar they look to us.
+
+Language-model pretraining centres on predicting the next token. That can
+support learning spelling, relationships, procedures and much else. It
+doesn't turn every answer about a string into an exact string operation.
+
+Nor does it mean a model is incapable of learning to compute. “It's just
+predicting the next token” tells you about the training objective; it doesn't
+settle everything the resulting system can do. We shouldn't use that phrase
+as a substitute for investigating the behaviour either.
+
+In strawberry, there is an r near the beginning and a pair near the end.
+All three occurrences must contribute to the total. Repeated letters are
+a documented source of difficulty in the study above, but claiming the
+model “mentally collapses the pair” would be a story about its internals,
+not something the wrong answer alone proves.
+
+We can explain the limitation without pretending we watched the model
+think “probably two.”
+
+## Yes, changing the prompt can help
+
+Ask a model to list the characters and identify the matching positions
+before giving the count, and it may do better. Now it has an explicit
+intermediate sequence to work with, like the numbered example above.
+
+This isn't merely a convenient excuse invented after a bad answer.
+[Research on word-based counting
+tasks](https://arxiv.org/abs/2410.14166) found substantial improvements from
+reasoning strategies compared with requesting a direct numeric answer.
+It also challenged the idea that tokenisation alone makes these failures
+inevitable.
+
+That matters. How you ask can change what the model successfully does.
+
+It still doesn't make a written explanation a correctness guarantee. The
+model can generate a faulty intermediate step or produce a total that
+doesn't match its own list. A readable working-out is something we can
+inspect. It isn't proof that an exact counting routine ran.
+
+And testing “strawberry” over and over is a fairly narrow way to measure
+progress. To assess the capability, vary the words, the number and placement
+of repeated letters, and the prompt. Record the model and whether it used
+tools. A familiar answer by itself tells us very little about general
+reliability.
+
+## Please let the computer do the counting
+
+If I'm building a system that needs an exact character count, I'll use a
+string function. If a language model is part of that system, it can request
+the operation and use the result.
+
+The distinction is execution. Printing a Python expression and predicting
+its output still leaves the answer with the model. Running the expression
+on the actual input gives the answer a checkable basis.
+
+That is ordinary engineering. We already choose different components for
+parsing, storage, arithmetic and presentation. Adding a language model
+creates another component whose capabilities and limitations we need to
+understand.
+
+I made a related argument in [my post about AI-assisted
+coding](/writing/i-lost-patience-with-writing-code/): the design and the
+review still belong to the engineer. Here, the design decision is almost
+comically small. We have a counting function. Use it.
+
+## There's a worthwhile criticism here
+
+A system that delivers an incorrect answer with fluent confidence has a
+reliability problem. People are right to care about that. If a product
+invites users to rely on its answers, its builders need to address how it
+checks exact results and communicates uncertainty. Explaining tokenisation
+doesn't discharge that responsibility.
+
+But taking one failure and declaring the entire technology useless doesn't
+help us decide where it works, where it fails, or what needs verification.
+Neither does waving the failure away because the architecture is clever.
+
+The useful questions are concrete. How often does the task fail? Under what
+conditions? Can we detect the error? Can a small, dependable piece of code
+handle the part that requires exactness?
+
+I'm happy to have that conversation. I'm fed up with having the screenshot
+conversation in its place.
+
+Three r's. Now, please, can we get on with the engineering?
