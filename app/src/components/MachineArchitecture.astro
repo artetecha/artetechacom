@@ -1,0 +1,52 @@
+---
+const steps = [
+  'Video, audio, documents and records',
+  'Detection, transcription and extraction',
+  'Observations with timestamps and sources',
+  'Entity resolution',
+  'Graph of people, places and events',
+  'Search, analysis and evaluated risk models',
+  'Human investigation and corroboration',
+];
+---
+
+<ol class="machine-architecture" role="list" aria-label="Proposed architecture, from data collection to human investigation">
+  {steps.map((step) => <li>{step}</li>)}
+</ol>
+
+<style>
+  .machine-architecture {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-4) auto;
+    max-width: 30rem;
+  }
+
+  .machine-architecture li {
+    position: relative;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .machine-architecture li + li {
+    margin-top: 1.5rem;
+  }
+
+  .machine-architecture li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: calc(50% - 0.25rem);
+    bottom: -1rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid var(--text-muted);
+    border-bottom: 2px solid var(--text-muted);
+    transform: rotate(45deg);
+  }
+</style>
