@@ -8,7 +8,7 @@ A second app for Upsun project **Personal / Artetecha.com** (`z7in7lm43pz5c`).
 
 Ayo uses nginx static file serving, with no Node HTTP server, dependency installation, database, persistent mount or relationship to the main app. The Node image runs the build validation and an idle start command. Unknown paths return a real nginx 404 (`passthru: false`); they are not rewritten to the homepage. Only `public/` is exposed. HTML/assets use a short ten-minute cache so privacy and support edits can propagate.
 
-The public site has Italian and English home, privacy and support pages. It remains marked as preparing its first App Store release. No native app source, mailbox credentials or push relay is included here.
+The public site has Italian and English home, privacy and support pages. It remains marked as preparing its first App Store release. The homepages position Ayo as an independent alternative for Aruba PEC, with localized screenshots of the real app using sample data. Compatibility details remain available in expandable sections and the support guide. No native app source, mailbox credentials or push relay is included here.
 
 ## Local checks
 
@@ -20,7 +20,7 @@ upsun app:config-validate
 python3 -m http.server 8766 --directory ayo/public --bind 127.0.0.1
 ```
 
-The validation checks the exact public file set, page languages, publisher contact, canonical origin and internal links. It is also the Ayo app's Upsun build hook.
+The validation checks the exact fourteen-file public set (including four localized screenshots), page languages, publisher contact, canonical origin and internal links. It is also the Ayo app's Upsun build hook.
 
 ## Updating content
 

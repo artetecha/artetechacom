@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), 'public');
 const expected = [
   'index.html', 'style.css', 'favicon.png', 'robots.txt',
+  ...['it', 'en'].flatMap(lang => ['inbox', 'compose'].map(name => `images/${name}-${lang}.png`)),
   ...['it', 'en'].flatMap(lang => [
     `${lang}/index.html`, `${lang}/privacy/index.html`, `${lang}/support/index.html`,
   ]),
