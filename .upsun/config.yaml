@@ -40,6 +40,30 @@ applications:
                     scripts: false
                     allow: true
 
+    ayo:
+        source:
+            root: "ayo"
+        type: "nodejs:22"
+        build:
+            flavor: none
+        hooks:
+            build: |
+                set -eu
+                node validate.mjs
+        web:
+            # nginx serves this app directly; there is no application server.
+            commands:
+                start: "sleep infinity"
+            locations:
+                "/":
+                    root: "public"
+                    index:
+                        - "index.html"
+                    passthru: false
+                    expires: 10m
+                    scripts: false
+                    allow: true
+
 routes:
     "https://www.{default}/":
         type: upstream
@@ -95,3 +119,14 @@ routes:
     "https://{default}/":
         type: redirect
         to: "https://www.{default}/"
+
+    "https://ayo.{default}/":
+        type: upstream
+        upstream: "ayo:http"
+        cache:
+            enabled: true
+            cookies: []
+
+    "http://ayo.{default}/":
+        type: redirect
+        to: "https://ayo.{default}/"
